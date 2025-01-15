@@ -1,12 +1,12 @@
 # -> [Project Website](https://jcast046.github.io/Bully_Block_Website/) <-
 # Team Members 
- Joshua Castillo - 	 jcast046@odu.edu // Github: jcast046
-Jacob Braley - 	 jbral001@odu.edu // GitHub: JayBraley
-Reagan McCoy - 	 rmcco008@odu.edu // Github: rmcco008
-Skyler Williams - 	 swill168@odu.edu // Github: SWilliamsGit & CSswill168
-Nomar Rodriguez - nrodr015@odu.edu //  GitHub: Nrodr015
-Trevor Newberry - 	 tnewb003@odu.edu // GitHub: trevornewberry
-Peter Spadaro - 	 pspad001@odu.edu // GitHub: PeterSpadaro
+- **Joshua Castillo** - 	 jcast046@odu.edu // Github: jcast046
+- **Jacob Braley** - 	 jbral001@odu.edu // GitHub: JayBraley
+- **Reagan McCoy** - 	 rmcco008@odu.edu // Github: rmcco008
+- **Skyler Williams** - 	 swill168@odu.edu // Github: SWilliamsGit & CSswill168
+- **Nomar Rodriguez** - nrodr015@odu.edu //  GitHub: Nrodr015
+- **Trevor Newberry** - 	 tnewb003@odu.edu // GitHub: trevornewberry
+- **Peter Spadaro** - 	 pspad001@odu.edu // GitHub: PeterSpadaro
 
 
 ## Overview
