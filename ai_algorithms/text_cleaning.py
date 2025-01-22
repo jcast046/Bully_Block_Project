@@ -4,7 +4,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 import os
 
-# Ensure you have the NLTK tokenizers downloaded
+# Ensure the NLTK tokenizers are downloaded
 nltk.download('punkt')
 
 def clean_text(text):
@@ -50,6 +50,6 @@ def process_file(filename):
         print(f"Original: {text}")
         print(f"Tokens: {cleaned_tokens}\n")
 
-# Specify the path to your JSON file
+# Specify the path to the JSON file
 filename = 'jcast046/Bully_Block_Project/ai_algorithms/initial_datasets.json'
 process_file(filename)
