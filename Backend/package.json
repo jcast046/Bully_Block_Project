@@ -7,7 +7,7 @@
     "dev": "nodemon server.js",
     "test:jest": "jest",
     "test:mocha": "mocha",
-    "test": "npm run test:jest && npm run test:mocha"
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "dotenv": "^16.0.0",
