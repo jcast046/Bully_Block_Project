@@ -2,9 +2,9 @@ name: Full Stack CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:
@@ -17,49 +17,63 @@ jobs:
           - 27017:27017
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    # Setup Node.js
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14' # Specify Node.js version
+      # Setup Node.js
+      - name: Setup Node.js for Frontend
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14" # Specify Node.js version
 
-    # Install Node dependencies and run tests
-    - name: Install dependencies
-      run: npm install
-    - name: Run Jest and Mocha tests
-      run: npm test
+      # Install Frontend Dependencies
+      - name: Install Frontend dependencies
+        working-directory: ./bullyblock-dashboard
+        run: npm install
 
-    # Setup Python
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.11' # Specify Python version
+      # Run Frontend tests
+      - name: Run Frontend tests
+        working-directory: ./bullyblock-dashboard
+        run: npm test
 
-    # Install Python dependencies and run tests
-    - name: Install Python dependencies
-      run: pip install -r requirements.txt
-    - name: Run Pytest
-      run: pytest
+      # Install Backend Dependencies
+      - name: Install Backend Dependencies
+        working-directory: ./Backend
+        run: npm install
 
-    # Setup Java (if required for backend or other services)
-    - name: Set up JDK 11
-      uses: actions/setup-java@v2
-      with:
-        java-version: '11' # Specify JDK version
-        distribution: 'adopt'
+      # Run Backend Tests
+      - name: Run Backend Tests
+        working-directory: ./Backend
+        run: npm test
 
-    # Build and test Java components
-    - name: Build and test with Maven
-      run: mvn -B package --file pom.xml
+      # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11" # Specify Python version
 
-    # MongoDB interaction check or data migrations
-    - name: MongoDB operations
-      run: echo "Perform MongoDB operations here"
+      # Install Python dependencies and run tests
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+      - name: Run Pytest
+        run: pytest
 
-    # Setup and update API documentation with Swagger
-    - name: Generate Swagger API docs
-      run: npm run generate-docs
+      # Setup Java (if required for backend or other services)
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: "11" # Specify JDK version
+          distribution: "adopt"
+
+      # Build and test Java components
+      - name: Build and test with Maven
+        run: mvn -B package --file pom.xml
+
+      # MongoDB interaction check or data migrations
+      - name: MongoDB operations
+        run: echo "Perform MongoDB operations here"
+
+      # Setup and update API documentation with Swagger
+      - name: Generate Swagger API docs
+        run: npm run generate-docs
 
     # Additional deployment or further steps can be added here
