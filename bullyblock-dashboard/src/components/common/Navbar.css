@@ -1,0 +1,39 @@
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #333; /* Dark background color */
+    color: #fff; /* White text color */
+}
+
+.nav-logo img{
+    height: 40px;
+    width: auto;
+    margin-right: 20px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px; /* Spacing between links */
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #dcdcdc; /* White link color */
+    font-size: 16px;
+    transition: color 0.3s ease; /* Smooth transition for color */
+}
+
+.nav-links a:hover {
+    color: #fff;
+}
+
+.nav-links a:active {
+    color: #9e9e9e; /* Even lighter color on active */
+}
+
+.nav-links a:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5); /* Custom focus outline */
+}
