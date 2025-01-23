@@ -53,9 +53,9 @@ jobs:
 
       # Install Python dependencies and run tests
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        # run: pip install -r requirements.txt [ Uncomment this line once we have tests ]
       - name: Run Pytest
-        run: pytest
+        # run: pytest [ Uncomment this line once we have tests ]
 
       # Setup Java (if required for backend or other services)
       - name: Set up JDK 11
