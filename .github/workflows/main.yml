@@ -74,6 +74,8 @@ jobs:
 
       # Setup and update API documentation with Swagger
       - name: Generate Swagger API docs
-        run: npm run generate-docs
+        working-directory: ./Backend
+        run: echo "Do not run until Swagger is set up properly in the Backend" #npm run generate-docs
+
 
     # Additional deployment or further steps can be added here
