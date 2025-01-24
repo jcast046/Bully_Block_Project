@@ -1,55 +1,92 @@
-import json
 import re
 import nltk
-from nltk.tokenize import word_tokenize
-import os
+from nltk.corpus import stopwords
+from nltk.tokenize import TreebankWordTokenizer
+from nltk.stem import PorterStemmer
+import spacy
 
-# Ensure the NLTK tokenizers are downloaded
-nltk.download('punkt')
+# Download NLTK data
+nltk.download('stopwords')
 
-def clean_text(text):
-    """
-    Clean the input text by converting to lowercase, removing punctuation and numbers,
-    and tokenizing into words.
+# Initialize tools
+nlp = spacy.load("en_core_web_sm")
+tokenizer = TreebankWordTokenizer()
+stemmer = PorterStemmer()
 
-    Parameters:
-    text (str): A string containing the text to be cleaned.
+"""
+This script demonstrates a complete text preprocessing pipeline using Python, NLTK, and spaCy. 
+It includes tokenization, removal of punctuation and numbers, stopword removal, lemmatization, 
+and stemming. The `clean_text` function processes input text and returns a list of cleaned tokens.
 
-    Returns:
-    list: A list of tokens (words) extracted from the cleaned text.
-    """
-    # 1.2.1 Convert text to lowercase to standardize the input
+Modules and Tools:
+- re: Regular expressions for text cleaning.
+- nltk: Provides stopword removal and tokenization.
+- spacy: Used for lemmatization and additional stopword removal.
+- TreebankWordTokenizer (NLTK): Tokenizes text into words.
+- PorterStemmer (NLTK): Performs stemming on tokens.
+
+Function Overview:
+1. `clean_text`:
+    - Converts text to lowercase.
+    - Removes punctuation and numbers.
+    - Tokenizes text.
+    - Removes stopwords using both NLTK and spaCy.
+    - Lemmatizes tokens using spaCy.
+    - Stems tokens using NLTK's PorterStemmer.
+    - Supports debugging mode to display intermediate steps.
+
+Setup Requirements:
+- Download NLTK stopwords using `nltk.download('stopwords')`.
+- Install the spaCy language model `en_core_web_sm`.
+
+Usage:
+- Call `clean_text` with the input text. Optional parameters:
+    - `custom_stopwords`: Add additional stopwords if needed.
+    - `debug`: Set to True to print intermediate processing steps for debugging purposes.
+
+Example:
+- Input: "Natural Language Processing (NLP) is a sub-field of artificial intelligence (AI). It's a booming area!"
+- Output: Stemmed tokens after full preprocessing.
+
+Note:
+Ensure all necessary libraries and models (e.g., spaCy's `en_core_web_sm`) are installed before running the script.
+"""
+
+
+def clean_text(text, custom_stopwords=None, debug=False):
+    # Step 1: Convert text to lowercase
     text = text.lower()
     
-    # 1.2.2 Remove punctuation and numbers using a regular expression
-    text = re.sub(r'[\d!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~]', '', text)
+    # Step 2: Remove punctuation and numbers
+    text = re.sub(r'[^a-z\s]', '', text)
+    text = re.sub(r'\s+', ' ', text).strip()  # Remove extra spaces
     
-    # 1.2.3 Tokenize the cleaned text into words using NLTK's tokenizer
-    tokens = word_tokenize(text)
+    # Step 3: Tokenize text
+    tokens = tokenizer.tokenize(text)
     
-    return tokens
+    # Step 4: Remove stop words using NLTK and spaCy
+    nltk_stopwords = set(stopwords.words('english'))
+    tokens = [word for word in tokens if word not in nltk_stopwords]
+    
+    # Use spaCy's stop word removal
+    doc = nlp(" ".join(tokens))
+    tokens = [token.text for token in doc if not token.is_stop]
+    
+    # Step 5: Lemmatize using spaCy
+    lemmatized = [token.lemma_ for token in nlp(" ".join(tokens))]
+    
+    # Step 6:  Stemming
+    stemmed = [stemmer.stem(word) for word in lemmatized]
+    
+    if debug:
+        print(f"Original text: {text}")
+        print(f"Tokens: {tokens}")
+        print(f"Lemmatized tokens: {lemmatized}")
+        print(f"Stemmed tokens: {stemmed}")
+    
+    return stemmed
 
-def process_file(filename):
-    """
-    Process a JSON file containing text data, clean each text entry, and output the results.
-
-    Parameters:
-    filename (str): The path to the JSON file to be processed.
-
-    Outputs:
-    Prints the original and tokenized text to the console.
-    """
-    # Load data from the specified JSON file
-    with open(filename, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-
-    # Process each item in the dataset and print the results
-    for item in data:
-        text = item['text']
-        cleaned_tokens = clean_text(text)
-        print(f"Original: {text}")
-        print(f"Tokens: {cleaned_tokens}\n")
-
-# Specify the path to the JSON file
-filename = 'jcast046/Bully_Block_Project/ai_algorithms/initial_datasets.json'
-process_file(filename)
+# Example usage
+sample_text = "Natural Language Processing (NLP) is a sub-field of artificial intelligence (AI). It's a booming area!"
+cleaned_text = clean_text(sample_text, debug=True)
+print(cleaned_text)
