@@ -3,6 +3,7 @@ import { AuthContext } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Hidden Icon
+import Button from '../components/common/Button';
 
 // Valid user credentials
 const validCredentials = [
@@ -67,7 +68,7 @@ const Login = () => {
                         ></i>
                     </div>
                 </label>
-                <button type="submit">Login</button>
+                <Button text="Login" type="submit"/>
             </form>
             {error && <p className="error">{error}</p>}
         </div>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 import logo from '../../assets/images/logo3-white.svg';
 import { AuthContext } from '../../AuthContext';
+import Button from '../common/Button';
 
 const Navbar = () => {
     // State to track whether the menu is open or closed
@@ -45,7 +46,7 @@ const Navbar = () => {
                     <Link to="/dashboard">Home</Link>
                     <Link to="/incidents">Incidents</Link>
                     <Link to="/analytics">Analytics</Link>
-                    <button onClick={handleLogout} className="logout-button">Logout</button>
+                    <Button text="Logout" onClick={handleLogout} className="logout-button" />
                 </div>
             )}
         </nav>
