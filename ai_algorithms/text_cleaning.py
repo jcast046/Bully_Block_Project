@@ -4,6 +4,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import TreebankWordTokenizer
 from nltk.stem import PorterStemmer
 import spacy
+import json
 
 # Download NLTK data
 nltk.download('stopwords')
@@ -51,7 +52,11 @@ Example:
 Note:
 Ensure all necessary libraries and models (e.g., spaCy's `en_core_web_sm`) are installed before running the script.
 """
+with open('ai_algorithms/initial_datasets.json') as f:
+    data = json.load(f)
 
+# Prints data from JSON file to check if contents are correct (Can be deleted)
+print(data)
 
 def clean_text(text, custom_stopwords=None, debug=False):
     # Step 1: Convert text to lowercase
