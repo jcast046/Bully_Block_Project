@@ -28,4 +28,38 @@ const addSchool = async (req, res) => {
     }
 };
 
-module.exports = { getSchools, addSchool, getSchool };
+// Update school with PUT
+const updateSchool = async (req, res) => {
+    try {
+        const updatedSchool = await School.findByIdAndUpdate(
+            req.params.id,
+            { $set: req.body },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedSchool) {
+            return res.status(404).json({ message: 'School not found' });
+        }
+
+        res.json(updatedSchool);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+// Delete a school
+const deleteSchool = async (req, res) => {
+    try {
+        const deletedSchool = await School.findByIdAndDelete(req.params.id);
+
+        if (!deletedSchool) {
+            return res.status(404).json({ message: 'School not found' });
+        }
+
+        res.json({ message: 'School deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports = { getSchools, addSchool, getSchool, updateSchool, deleteSchool };
