@@ -5,7 +5,6 @@ from nltk.tokenize import TreebankWordTokenizer
 from nltk.stem import PorterStemmer
 import spacy
 import json
-import numpy
 
 # Download NLTK data
 nltk.download('stopwords')
@@ -53,13 +52,7 @@ Example:
 Note:
 Ensure all necessary libraries and models (e.g., spaCy's `en_core_web_sm`) are installed before running the script.
 """
-with open('ai_algorithms/initial_datasets.json') as file:
-    # Read and save each individual text in the JSON file
-    lines = file.readlines()
-    for line in lines:
-        print(line.strip())
-    
-
+        
 def clean_text(text, custom_stopwords=None, debug=False):
     # Step 1: Convert text to lowercase
     text = text.lower()
@@ -93,7 +86,25 @@ def clean_text(text, custom_stopwords=None, debug=False):
     
     return stemmed
 
+# Read sample text from json file
+with open('ai_algorithms/initial_datasets.json') as file:
+    # Read and save each individual text in the json file
+    lines = file.readlines()
+    for line in lines:
+        # Create a substring containing only the text
+        start_word = "text"
+        end_word = "label"
+        message = line.split(start_word, 1)
+        if len(message) > 1:
+            result = message[1].split(end_word, 1)[0].strip()
+            text = result[4:len(result) - 4]
+            print("")
+            print(text)
+            print(clean_text(text, debug=True))
+            
+        # print(line.strip())
+
 # Example usage
-sample_text = "Natural Language Processing (NLP) is a sub-field of artificial intelligence (AI). It's a booming area!"
-cleaned_text = clean_text(sample_text, debug=True)
-print(cleaned_text)
+# sample_text = "Natural Language Processing (NLP) is a sub-field of artificial intelligence (AI). It's a booming area!"
+# cleaned_text = clean_text(sample_text, debug=True)
+# print(cleaned_text)
