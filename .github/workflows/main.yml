@@ -21,14 +21,19 @@ jobs:
 
       # Setup Node.js
       - name: Setup Node.js for Frontend
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: "14" # Specify Node.js version
+          node-version: "20" # Specify Node.js version
 
       # Install Frontend Dependencies
       - name: Install Frontend dependencies
         working-directory: ./bullyblock-dashboard
         run: npm install
+
+      #Verify react-router-dom installation
+      - name: Verify react-router-dom installation
+        working-directory: ./bullyblock-dashboard
+        run: npm list react-router-dom
 
       # Run Frontend tests
       - name: Run Frontend tests

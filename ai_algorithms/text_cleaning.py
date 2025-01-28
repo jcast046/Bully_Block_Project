@@ -102,7 +102,6 @@ with open('ai_algorithms/initial_datasets.json') as file:
             print(text)
             print(clean_text(text, debug=True))
             
-        # print(line.strip())
 
 # Example usage
 # sample_text = "Natural Language Processing (NLP) is a sub-field of artificial intelligence (AI). It's a booming area!"
