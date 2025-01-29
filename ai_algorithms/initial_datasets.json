@@ -18,6 +18,209 @@
     {"id": 17, "text": "I loved your artwork, it was really inspiring!", "label": "positive"},
     {"id": 18, "text": "Don't listen to them, you're doing great and improving a lot!", "label": "positive"},
     {"id": 19, "text": "You must be dumb if you think that was a smart move.", "label": "bullying"},
-    {"id": 20, "text": "Keep up the great work, looking forward to seeing more!", "label": "positive"}
+    {"id": 20, "text": "Keep up the great work, looking forward to seeing more!", "label": "positive"},
+    {"id": 21, "text": "I can't believe how stupid you are. Why are you even here?", "label": "bullying"},
+    {"id": 22, "text": "You're such a loser, nobody likes you here!", "label": "bullying"},
+    {"id": 23, "text": "I think you should just give up. You're not good at this at all.", "label": "bullying"},
+    {"id": 24, "text": "Wow, that was a great play in the game yesterday! Congrats!", "label": "positive"},
+    {"id": 25, "text": "This is the worst team I have ever seen. What a joke.", "label": "bullying"},
+    {"id": 26, "text": "Could you be any more annoying? Please stop messaging me.", "label": "bullying"},
+    {"id": 27, "text": "Thank you for your help, you've been really kind!", "label": "positive"},
+    {"id": 28, "text": "Seriously, why do you even bother coming to school?", "label": "bullying"},
+    {"id": 29, "text": "Everyone, please remember to be respectful in your posts.", "label": "neutral"},
+    {"id": 30, "text": "That's a stupid question, how can you not know that?", "label": "bullying"},
+    {"id": 31, "text": "Great job on the presentation today, you explained it so well!", "label": "positive"},
+    {"id": 32, "text": "Nobody cares about your silly posts, stop spamming the forum.", "label": "bullying"},
+    {"id": 33, "text": "Can we get together to study for the test? I need some help.", "label": "neutral"},
+    {"id": 34, "text": "You're always trying to be the center of attention. It's pathetic.", "label": "bullying"},
+    {"id": 35, "text": "I loved your artwork, it was really inspiring!", "label": "positive"},
+    {"id": 36, "text": "Don't listen to them, you're doing great and improving a lot!", "label": "positive"},
+    {
+        "id": 1,
+        "text": "Hey everyone! Excited to be here. What's the next event?",
+        "label": "neutral",
+        "type": "discussion_post",
+        "student_name": "John Doe",
+        "class_name": "English Literature",
+        "date": "2025-01-22"
+    },
+    {
+        "id": 2,
+        "text": "Can't believe how awesome the concert was last night!!",
+        "label": "positive",
+        "type": "direct_message",
+        "student_name": "Emily Clark",
+        "recipient": "Sarah Miller",
+        "class_name": "Music Theory",
+        "date": "2025-01-21"
+    },
+    {
+        "id": 3,
+        "text": "Does anyone know when the math homework is due? Thanks!",
+        "label": "neutral",
+        "type": "discussion_post",
+        "student_name": "Michael Johnson",
+        "class_name": "Calculus I",
+        "date": "2025-01-23"
+    },
+    {
+        "id": 4,
+        "text": "You're such a loser, nobody likes you here!",
+        "label": "bullying",
+        "type": "discussion_post",
+        "student_name": "Anonymous",
+        "class_name": "General Science",
+        "date": "2025-01-22"
+    },
+    {
+        "id": 5,
+        "text": "I think you should just give up. You're not good at this at all.",
+        "label": "bullying",
+        "type": "direct_message",
+        "student_name": "Chris Wilson",
+        "recipient": "Alex Rivera",
+        "class_name": "Creative Writing",
+        "date": "2025-01-20"
+    },
+    {
+        "id": 6,
+        "text": "Wow, that was a great play in the game yesterday! Congrats!",
+        "label": "positive",
+        "type": "announcement",
+        "teacher_name": "Coach Carter",
+        "class_name": "Physical Education",
+        "date": "2025-01-21"
+    },
+    {
+        "id": 7,
+        "text": "This is the worst team I have ever seen. What a joke.",
+        "label": "bullying",
+        "type": "discussion_post",
+        "student_name": "Ryan Davis",
+        "class_name": "Sports Management",
+        "date": "2025-01-20"
+    },
+    {
+        "id": 8,
+        "text": "Could you be any more annoying? Please stop messaging me.",
+        "label": "bullying",
+        "type": "direct_message",
+        "student_name": "Liam Bennett",
+        "recipient": "Noah Adams",
+        "class_name": "Programming 101",
+        "date": "2025-01-19"
+    },
+    {
+        "id": 9,
+        "text": "Thank you for your help, you've been really kind!",
+        "label": "positive",
+        "type": "discussion_post",
+        "student_name": "Sophia Martinez",
+        "class_name": "Biology II",
+        "date": "2025-01-24"
+    },
+    {
+        "id": 10,
+        "text": "Seriously, why do you even bother coming to school?",
+        "label": "bullying",
+        "type": "direct_message",
+        "student_name": "Anonymous",
+        "recipient": "Ethan Taylor",
+        "class_name": "History of Art",
+        "date": "2025-01-20"
+    },
+    {
+        "id": 11,
+        "text": "Everyone, please remember to be respectful in your posts.",
+        "label": "neutral",
+        "type": "announcement",
+        "teacher_name": "Mr. Thompson",
+        "class_name": "Ethics in Society",
+        "date": "2025-01-21"
+    },
+    {
+        "id": 12,
+        "text": "That's a stupid question, how can you not know that?",
+        "label": "bullying",
+        "type": "discussion_post",
+        "student_name": "Olivia Lopez",
+        "class_name": "Physics I",
+        "date": "2025-01-20"
+    },
+    {
+        "id": 13,
+        "text": "Great job on the presentation today, you explained it so well!",
+        "label": "positive",
+        "type": "discussion_post",
+        "student_name": "Emma Wright",
+        "class_name": "Public Speaking",
+        "date": "2025-01-22"
+    },
+    {
+        "id": 14,
+        "text": "Nobody cares about your silly posts, stop spamming the forum.",
+        "label": "bullying",
+        "type": "discussion_post",
+        "student_name": "Jackson Lee",
+        "class_name": "Advanced Chemistry",
+        "date": "2025-01-19"
+    },
+    {
+        "id": 15,
+        "text": "Can we get together to study for the test? I need some help.",
+        "label": "neutral",
+        "type": "direct_message",
+        "student_name": "Isabella Scott",
+        "recipient": "Aiden Brown",
+        "class_name": "Algebra II",
+        "date": "2025-01-21"
+    },
+    {
+        "id": 16,
+        "text": "You're always trying to be the center of attention. It's pathetic.",
+        "label": "bullying",
+        "type": "discussion_post",
+        "student_name": "Evan Garcia",
+        "class_name": "Drama and Theatre",
+        "date": "2025-01-23"
+    },
+    {
+        "id": 17,
+        "text": "I loved your artwork, it was really inspiring!",
+        "label": "positive",
+        "type": "discussion_post",
+        "student_name": "Mia Hall",
+        "class_name": "Graphic Design",
+        "date": "2025-01-24"
+    },
+    {
+        "id": 18,
+        "text": "Don't listen to them, you're doing great and improving a lot!",
+        "label": "positive",
+        "type": "direct_message",
+        "student_name": "Grace King",
+        "recipient": "Ella Carter",
+        "class_name": "Psychology 101",
+        "date": "2025-01-23"
+    },
+    {
+        "id": 19,
+        "text": "You must be dumb if you think that was a smart move.",
+        "label": "bullying",
+        "type": "direct_message",
+        "student_name": "Lucas Turner",
+        "recipient": "Mason Walker",
+        "class_name": "Economics I",
+        "date": "2025-01-22"
+    },
+    {
+        "id": 20,
+        "text": "Keep up the great work, looking forward to seeing more!",
+        "label": "positive",
+        "type": "discussion_post",
+        "student_name": "Harper Young",
+        "class_name": "Creative Writing",
+        "date": "2025-01-23"
+    }
 ]
 
