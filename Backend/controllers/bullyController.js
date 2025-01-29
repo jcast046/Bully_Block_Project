@@ -1,4 +1,5 @@
 const Bully = require('../models/Bully');
+const authMiddleware = require('../middleware/authMiddleware'); // Import authentication
 
 const getBullyReports = async (req, res) => {
   try {
@@ -25,4 +26,8 @@ const addBullyReport = async (req, res) => {
   }
 };
 
-module.exports = { getBullyReports, addBullyReport };
+// Apply authentication middleware to routes
+module.exports = {
+  getBullyReports: [authMiddleware, getBullyReports],
+  addBullyReport: [authMiddleware, addBullyReport],
+};
