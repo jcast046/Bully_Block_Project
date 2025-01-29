@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import './Navbar.css';
 import logo from '../../assets/images/logo3-white.svg';
 import { AuthContext } from '../../AuthContext';

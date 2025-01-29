@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import Login from './pages/Login';
