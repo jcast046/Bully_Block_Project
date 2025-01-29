@@ -60,7 +60,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 14,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 0.0,
+                "neutral": 10.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Can't believe how awesome the concert was last night!!",
@@ -120,7 +131,18 @@
                 "last night",
                 "TIME"
             ]
-        ]
+        ],
+        "validation": {
+            "token_count": 12,
+            "entity_count": 1,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 0.0,
+                "neutral": 9.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Does anyone know when the math homework is due? Thanks!",
@@ -175,7 +197,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 12,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 0.0,
+                "neutral": 9.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "You're such a loser, nobody likes you here!",
@@ -226,7 +259,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 11,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 1.0,
+                "neutral": 6.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "I think you should just give up. You're not good at this at all.",
@@ -301,7 +345,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 17,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 0.0,
+                "neutral": 13.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Wow, that was a great play in the game yesterday! Congrats!",
@@ -373,7 +428,18 @@
                 "Congrats",
                 "NORP"
             ]
-        ]
+        ],
+        "validation": {
+            "token_count": 14,
+            "entity_count": 2,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 4.0,
+                "negative": 0.0,
+                "neutral": 6.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "This is the worst team I have ever seen. What a joke.",
@@ -436,7 +502,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 14,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 1.0,
+                "neutral": 8.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Could you be any more annoying? Please stop messaging me.",
@@ -491,7 +568,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 12,
+            "entity_count": 0,
+            "negative_adjectives": 1,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 2.0,
+                "neutral": 7.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Thank you for your help, you've been really kind!",
@@ -546,7 +634,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 12,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 3.0,
+                "negative": 0.0,
+                "neutral": 7.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Seriously, why do you even bother coming to school?",
@@ -597,7 +696,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 11,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 0.0,
+                "negative": 2.0,
+                "neutral": 7.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Everyone, please remember to be respectful in your posts.",
@@ -648,7 +758,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 11,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 2.0,
+                "negative": 0.0,
+                "neutral": 7.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "That's a stupid question, how can you not know that?",
@@ -707,7 +828,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 13,
+            "entity_count": 0,
+            "negative_adjectives": 1,
+            "sentiment_summary": {
+                "positive": 0.0,
+                "negative": 1.0,
+                "neutral": 9.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Great job on the presentation today, you explained it so well!",
@@ -771,7 +903,18 @@
                 "today",
                 "DATE"
             ]
-        ]
+        ],
+        "validation": {
+            "token_count": 13,
+            "entity_count": 1,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 2.0,
+                "negative": 0.0,
+                "neutral": 9.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Nobody cares about your silly posts, stop spamming the forum.",
@@ -826,7 +969,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 12,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 2.0,
+                "negative": 2.0,
+                "neutral": 6.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Can we get together to study for the test? I need some help.",
@@ -893,7 +1047,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 15,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 0.0,
+                "neutral": 11.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "You're always trying to be the center of attention. It's pathetic.",
@@ -960,7 +1125,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 15,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 0.0,
+                "negative": 1.0,
+                "neutral": 12.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "I loved your artwork, it was really inspiring!",
@@ -1007,7 +1183,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 10,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 2.0,
+                "negative": 0.0,
+                "neutral": 5.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Don't listen to them, you're doing great and improving a lot!",
@@ -1074,7 +1261,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 15,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 2.0,
+                "negative": 0.0,
+                "neutral": 10.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "You must be dumb if you think that was a smart move.",
@@ -1133,7 +1331,18 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 13,
+            "entity_count": 0,
+            "negative_adjectives": 1,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 1.0,
+                "neutral": 9.0
+            },
+            "flagged_entities": []
+        }
     },
     {
         "original_text": "Keep up the great work, looking forward to seeing more!",
@@ -1188,6 +1397,17 @@
                 "PUNCT"
             ]
         ],
-        "entities": []
+        "entities": [],
+        "validation": {
+            "token_count": 12,
+            "entity_count": 0,
+            "negative_adjectives": 0,
+            "sentiment_summary": {
+                "positive": 1.0,
+                "negative": 0.0,
+                "neutral": 9.0
+            },
+            "flagged_entities": []
+        }
     }
 ]
