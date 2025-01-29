@@ -1,10 +1,14 @@
 import spacy
 import json
 import pandas as pd
+
 import matplotlib.pyplot as plt
 from collections import Counter
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
+
+from collections import Counter
+
 
 # Load spaCy language model
 nlp = spacy.load("en_core_web_sm")
@@ -60,6 +64,7 @@ def extract_features(text):
     
     return {"tokens": tokens, "entities": entities}
 
+
 def summarize_features(feature_data):
     pos_counts = Counter(pos for record in feature_data for _, pos in record['tokens'])
     entity_counts = Counter(ent[1] for record in feature_data for ent in record['entities'])
@@ -90,6 +95,7 @@ def summarize_dataset(feature_data):
         "Average Sentiments": avg_sentiments
     }
 
+
 def validate_features(feature_data):
     """
     Validate the extracted features by analyzing their relevance.
@@ -100,18 +106,29 @@ def validate_features(feature_data):
     Returns:
         list: Updated feature data with validation statistics.
     """
+
     sia = SentimentIntensityAnalyzer()
+
     for record in feature_data:
         tokens = record['tokens']
         entities = record['entities']
         
+
         # Analyze token and entity statistics
         token_count = len(tokens)
         entity_count = len(entities)
+
+        # Analyze token statistics
+        token_count = len(tokens)
+        entity_count = len(entities)
+        
+        # Count negative adjectives (e.g., insults in bullying contexts)
+
         negative_adjectives = sum(
             1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying"]
         )
         
+
         # Analyze sentiment of tokens
         sentiment_scores = [sia.polarity_scores(token[0]) for token in tokens]
         sentiment_summary = {
@@ -126,13 +143,18 @@ def validate_features(feature_data):
             any(token[0].lower() in ["stupid", "dumb", "annoying", "loser"] for token in tokens)
         ]
         
+
         # Add validation statistics
         record['validation'] = {
             "token_count": token_count,
             "entity_count": entity_count,
+
             "negative_adjectives": negative_adjectives,
             "sentiment_summary": sentiment_summary,
             "flagged_entities": flagged_entities
+
+            "negative_adjectives": negative_adjectives
+
         }
     return feature_data
 
@@ -218,12 +240,21 @@ def visualize_summary(summary):
 
 if __name__ == "__main__":
     """
+
     Main execution for feature extraction and analysis.
+
+    Main execution for feature extraction.
+    - Load cleaned data.
+    - Extract features (tokens, POS, NER).
+    - Validate feature set.
+    - Save structured features to a file.
+
     """
     input_file = "ai_algorithms/processed_data.json"  # Input cleaned text file
     output_file = "ai_algorithms/feature_dataset.json"  # Output file for features
 
     process_and_save_features(input_file, output_file)
+
 
     # Load the processed feature data
     with open(output_file, 'r') as file:
@@ -232,4 +263,5 @@ if __name__ == "__main__":
     # Summarize and visualize dataset
     summary = summarize_dataset(feature_data)
     visualize_summary(summary)
+
 
