@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUsers, getUser, addUser, updateUser, deleteUser } = require('../controllers/userController');
+const { getUsers, getUser, registerUser, updateUser, deleteUser } = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware'); // Import authentication middleware
 const getResource = require('../middleware/getResource');
 const User = require('../models/User');
@@ -19,7 +19,7 @@ router.get('/:id', authMiddleware, getResource(User), getUser);
 // @route   POST /api/users
 // @desc    Register a new user (Public)
 // @access  Public (No Authentication Required)
-router.post('/', addUser); 
+router.post('/', registerUser); 
 
 // @route   PUT /api/users/:id
 // @desc    Update user by ID (Protected)
