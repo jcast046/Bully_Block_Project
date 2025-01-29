@@ -1,0 +1,182 @@
+[
+    {
+        "original": "Hey everyone! Excited to be here. What's the next event?",
+        "processed": [
+            "hey",
+            "excit",
+            "s",
+            "event"
+        ]
+    },
+    {
+        "original": "Can't believe how awesome the concert was last night!!",
+        "processed": [
+            "not",
+            "believ",
+            "awesom",
+            "concert",
+            "night"
+        ]
+    },
+    {
+        "original": "Does anyone know when the math homework is due? Thanks!",
+        "processed": [
+            "know",
+            "math",
+            "homework",
+            "thank"
+        ]
+    },
+    {
+        "original": "You're such a loser, nobody likes you here!",
+        "processed": [
+            "loser",
+            "like"
+        ]
+    },
+    {
+        "original": "I think you should just give up. You're not good at this at all.",
+        "processed": [
+            "think",
+            "good"
+        ]
+    },
+    {
+        "original": "Wow, that was a great play in the game yesterday! Congrats!",
+        "processed": [
+            "wow",
+            "great",
+            "play",
+            "game",
+            "yesterday",
+            "congrat"
+        ]
+    },
+    {
+        "original": "This is the worst team I have ever seen. What a joke.",
+        "processed": [
+            "bad",
+            "team",
+            "see",
+            "joke"
+        ]
+    },
+    {
+        "original": "Could you be any more annoying? Please stop messaging me.",
+        "processed": [
+            "annoy",
+            "stop",
+            "messag"
+        ]
+    },
+    {
+        "original": "Thank you for your help, you've been really kind!",
+        "processed": [
+            "thank",
+            "help",
+            "ve",
+            "kind"
+        ]
+    },
+    {
+        "original": "Seriously, why do you even bother coming to school?",
+        "processed": [
+            "serious",
+            "bother",
+            "come",
+            "school"
+        ]
+    },
+    {
+        "original": "Everyone, please remember to be respectful in your posts.",
+        "processed": [
+            "rememb",
+            "respect",
+            "post"
+        ]
+    },
+    {
+        "original": "That's a stupid question, how can you not know that?",
+        "processed": [
+            "s",
+            "stupid",
+            "question",
+            "know"
+        ]
+    },
+    {
+        "original": "Great job on the presentation today, you explained it so well!",
+        "processed": [
+            "great",
+            "job",
+            "present",
+            "today",
+            "explain"
+        ]
+    },
+    {
+        "original": "Nobody cares about your silly posts, stop spamming the forum.",
+        "processed": [
+            "care",
+            "silli",
+            "post",
+            "stop",
+            "spamm",
+            "forum"
+        ]
+    },
+    {
+        "original": "Can we get together to study for the test? I need some help.",
+        "processed": [
+            "studi",
+            "test",
+            "need",
+            "help"
+        ]
+    },
+    {
+        "original": "You're always trying to be the center of attention. It's pathetic.",
+        "processed": [
+            "tri",
+            "center",
+            "attent",
+            "pathet"
+        ]
+    },
+    {
+        "original": "I loved your artwork, it was really inspiring!",
+        "processed": [
+            "love",
+            "artwork",
+            "inspir"
+        ]
+    },
+    {
+        "original": "Don't listen to them, you're doing great and improving a lot!",
+        "processed": [
+            "not",
+            "listen",
+            "great",
+            "improv",
+            "lot"
+        ]
+    },
+    {
+        "original": "You must be dumb if you think that was a smart move.",
+        "processed": [
+            "dumb",
+            "think",
+            "smart"
+        ]
+    },
+    {
+        "original": "Keep up the great work, looking forward to seeing more!",
+        "processed": [
+            "great",
+            "work",
+            "look",
+            "forward",
+            "see"
+        ]
+    }
+]
