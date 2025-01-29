@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../AuthContext'; 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import '../App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Hidden Icon
 import Button from '../components/common/Button';
