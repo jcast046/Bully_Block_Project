@@ -2,9 +2,13 @@ name: Full Stack CI
 
 on:
   push:
-    branches: [main], [Jacob]
+    branches:
+      - main
+      - Jacob
   pull_request:
-    branches: [main], [Jacob]
+    branches:
+      - main
+      - Jacob
 
 jobs:
   build-and-test:
