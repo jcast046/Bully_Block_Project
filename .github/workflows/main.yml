@@ -34,10 +34,10 @@ jobs:
         working-directory: ./bullyblock-dashboard
         run: npm install
 
-      #Verify react-router-dom installation
-      - name: Verify react-router-dom installation
+      #Verify react-router installation
+      - name: Verify react-router installation
         working-directory: ./bullyblock-dashboard
-        run: npm list react-router-dom
+        run: npm list react-router
 
       # Run Frontend tests
       - name: Run Frontend tests
