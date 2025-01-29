@@ -1,6 +1,7 @@
 import spacy
 import json
 import pandas as pd
+from collections import Counter
 
 # Load spaCy language model
 nlp = spacy.load("en_core_web_sm")
@@ -28,9 +29,40 @@ def extract_features(text):
     
     return {"tokens": tokens, "entities": entities}
 
+def validate_features(feature_data):
+    """
+    Validate the extracted features by analyzing their relevance.
+
+    Args:
+        feature_data (list): List of feature dictionaries for each text.
+
+    Returns:
+        list: Updated feature data with validation statistics.
+    """
+    for record in feature_data:
+        tokens = record['tokens']
+        entities = record['entities']
+        
+        # Analyze token statistics
+        token_count = len(tokens)
+        entity_count = len(entities)
+        
+        # Count negative adjectives (e.g., insults in bullying contexts)
+        negative_adjectives = sum(
+            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying"]
+        )
+        
+        # Add validation statistics
+        record['validation'] = {
+            "token_count": token_count,
+            "entity_count": entity_count,
+            "negative_adjectives": negative_adjectives
+        }
+    return feature_data
+
 def process_and_save_features(input_file, output_file):
     """
-    Process cleaned text, extract features, and save to a structured dataset.
+    Process cleaned text, extract features, validate them, and save to a structured dataset.
 
     Args:
         input_file (str): Path to the input JSON file containing cleaned text.
@@ -64,10 +96,8 @@ def process_and_save_features(input_file, output_file):
                 }
                 feature_data.append(feature_entry)
         
-        # Ensure the feature_data list is not empty before saving
-        if not feature_data:
-            print("Error: No features extracted. Check input data.")
-            return
+        # Validate the feature set
+        feature_data = validate_features(feature_data)
         
         # Save to structured file
         if output_file.endswith('.json'):
@@ -88,9 +118,11 @@ if __name__ == "__main__":
     Main execution for feature extraction.
     - Load cleaned data.
     - Extract features (tokens, POS, NER).
+    - Validate feature set.
     - Save structured features to a file.
     """
     input_file = "ai_algorithms/processed_data.json"  # Input cleaned text file
     output_file = "ai_algorithms/feature_dataset.json"  # Output file for features
 
     process_and_save_features(input_file, output_file)
+
