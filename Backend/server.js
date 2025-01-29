@@ -1,19 +1,33 @@
 require('dotenv').config();
-const express = require('express');
-const mongoose = require('./config/db');
-const bullyRoutes = require('./routes/bullyRoutes');
-const schoolRoutes = require('./routes/schoolRoutes')
-const userRoutes = require('./routes/userRoutes');
+
+const express = require("express");
+const https = require("https");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+// Load SSL certificates
+const options = {
+    key: fs.readFileSync(path.join(__dirname, "config", "server.key")),
+    cert: fs.readFileSync(path.join(__dirname, "config", "server.cert"))
+};
 
 // Middleware
 app.use(express.json());
 
-// Routes
-app.use('/api/bully', bullyRoutes);
-app.use('/api/Schools', schoolRoutes);
-app.use('/api/Users', userRoutes);
+// Import Routes
+const userRoutes = require("./routes/userRoutes");
+const schoolRoutes = require("./routes/schoolRoutes");
+const bullyRoutes = require("./routes/bullyRoutes");
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Use Routes
+app.use("/api/users", userRoutes);
+app.use("/api/schools", schoolRoutes);
+app.use("/api/bully", bullyRoutes);
+
+// Start HTTPS Server
+const PORT = process.env.PORT || 443;
+https.createServer(options, app).listen(PORT, () => {
+    console.log(`HTTPS Server running on port ${PORT}`);
+});
