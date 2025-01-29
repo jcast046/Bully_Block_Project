@@ -1,6 +1,7 @@
 const School = require('../models/School');
+const authMiddleware = require('../middleware/authMiddleware'); // Import auth middleware
 
-// Get all schools
+// Get all schools (Public)
 const getSchools = async (req, res) => {
     try {
         const schools = await School.find();
@@ -10,13 +11,13 @@ const getSchools = async (req, res) => {
     }
 };
 
-// Get one school with ID
-const getSchool = (req, res) => {
+// Get one school (Protected)
+const getSchool = [authMiddleware, (req, res) => {
     res.json(res.resource);
-};
+}];
 
-// Add a school
-const addSchool = async (req, res) => {
+// Add a school (Protected)
+const addSchool = [authMiddleware, async (req, res) => {
     const { school_id, school_name, location } = req.body;
 
     try {
@@ -26,10 +27,10 @@ const addSchool = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-};
+}];
 
-// Update school with PUT
-const updateSchool = async (req, res) => {
+// Update school (Protected)
+const updateSchool = [authMiddleware, async (req, res) => {
     try {
         const updatedSchool = await School.findByIdAndUpdate(
             req.params.id,
@@ -45,10 +46,10 @@ const updateSchool = async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-};
+}];
 
-// Delete a school
-const deleteSchool = async (req, res) => {
+// Delete a school (Protected)
+const deleteSchool = [authMiddleware, async (req, res) => {
     try {
         const deletedSchool = await School.findByIdAndDelete(req.params.id);
 
@@ -60,6 +61,6 @@ const deleteSchool = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-};
+}];
 
 module.exports = { getSchools, addSchool, getSchool, updateSchool, deleteSchool };
