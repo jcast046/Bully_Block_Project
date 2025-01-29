@@ -17,16 +17,18 @@ const App = () => {
           <header className="App-header">
             <Navbar />
           </header>
-          <main> {}
+          <main>
+            {/* Main content area */}
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/incidents" element={<PrivateRoute><Incidents /></PrivateRoute>} />
               <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+              {/* Catch-all route */}
               <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
-          </main> {}
-          <Footer /> {}
+          </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>
@@ -35,7 +37,11 @@ const App = () => {
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
+  
+  // If user is authenticated, allow access to protected route
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 export default App;
+
+
