@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../AuthContext'; 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import axios from 'axios'; // Import axios for API calls
 import '../App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Hidden Icon
