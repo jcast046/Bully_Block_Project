@@ -69,6 +69,7 @@ const Login = () => {
                     </div>
                 </label>
                 <Button text="Login" type="submit"/>
+                <Button text="Register" onClick={() => navigate('/register')} />
             </form>
             {error && <p className="error">{error}</p>}
         </div>
