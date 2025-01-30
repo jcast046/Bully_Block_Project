@@ -3,14 +3,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config(); // Load environment variables
 
+const { v4: uuidv4 } = require('uuid'); // Import uuid
+
 // @route   POST /api/users/register
 // @desc    Register a new user
 // @access  Public
 const registerUser = async (req, res) => {
-    const { user_id, role, username, email, password } = req.body;
+    const { role, username, email, password } = req.body;
 
-    // Validate required fields
-    if (!user_id || !role || !username || !email || !password) {
+    // Validate required fields (don't need user_id anymore)
+    if (!role || !username || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -25,8 +27,15 @@ const registerUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create new user
-        const user = new User({ user_id, role, username, email, password: hashedPassword });
+        // Create new user with a unique user_id
+        const user = new User({
+            user_id: uuidv4(), // Generate a unique user_id
+            role,
+            username,
+            email,
+            password: hashedPassword
+        });
+
         await user.save();
 
         // Generate JWT Token
