@@ -1,5 +1,5 @@
 .custom-button {
-    background-color: #6e6e6e; /* Dark background color */
+    background-color: #346adf; /* Dark background color */
     color: #fff; /* White text color */
     border: none; /* Remove default border */
     padding: 10px 20px; /* Add padding */
@@ -7,14 +7,16 @@
     border-radius: 5px; /* Rounded corners */
     cursor: pointer; /* Pointer cursor on hover */
     transition: background-color 0.3s ease; /* Smooth transition for background color */
+    margin-bottom: 7px;
+    margin-top: 7px;
 }
 
 .custom-button:hover {
-    background-color: #9f9f9f; /* Slightly lighter background color on hover */
+    background-color: #244d71; /* Slightly lighter background color on hover */
 }
 
 .custom-button:active {
-    background-color: #616161; /* Even darker background color on active */
+    background-color: #000332; /* Even darker background color on active */
 }
 
 .custom-button:focus {

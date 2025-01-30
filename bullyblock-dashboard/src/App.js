@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Incidents from './pages/Incidents';
 import Analytics from './pages/Analytics';
+import Register from './pages/Register';
 import { AuthProvider, AuthContext } from './AuthContext';
 import './App.css';
 
@@ -23,6 +24,7 @@ const App = () => {
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/incidents" element={<PrivateRoute><Incidents /></PrivateRoute>} />
               <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+              <Route path="/register" element={<Register />} />
               <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
           </main> {}
