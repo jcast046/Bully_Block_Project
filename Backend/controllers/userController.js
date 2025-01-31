@@ -4,6 +4,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config(); // Load environment variables
 
+const generatedUserId = () => {
+    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // Generate random 10-digit number
+    return 'u${randomNumber}'; // Prefix with u
+}
+
 // @route   POST /api/users/register
 // @desc    Register a new user
 // @access  Public
@@ -28,13 +33,22 @@ const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Generate unique user_id
-        const generatedUserId = uuidv4();
-        console.log("Generated user_id:", generatedUserId); // Debugging
+        let newUserID;
+        let isUnique = false;
+
+        console.log("Generating unique user_id"); // Debugging
+        while (!isUnique) {
+            newUserId = generatedUserId();
+            const existingId = await User.findOne({ user_id: newUserId });
+            if (!existingId) isUnique = true;
+        }
+
+        console.log("Generated user_id:", newUserId); // Debugging
 
         // Create new user
         console.log("Creating new user"); // Debugging
         const user = new User({ 
-            user_id: generatedUserId,
+            user_id: newUserId,
             role, 
             username, 
             email, 
