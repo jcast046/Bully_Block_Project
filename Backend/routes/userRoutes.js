@@ -19,7 +19,7 @@ router.get('/:id', authMiddleware, getResource(User), getUser);
 // @route   POST /api/users
 // @desc    Register a new user (Public)
 // @access  Public (No Authentication Required)
-router.post('/', registerUser); 
+router.post('/register', registerUser); 
 
 // @route   PUT /api/users/:id
 // @desc    Update user by ID (Protected)

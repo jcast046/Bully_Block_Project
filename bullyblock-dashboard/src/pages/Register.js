@@ -24,7 +24,12 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3001/api/users/register', formData)
+            console.log("Form Data Sent:", formData);
+            await axios.post('https://localhost:3001/api/users/register', formData, {
+                header: {
+                    "Content-Type": "application/json"
+                }
+            });
             alert("User registered successfully");
             navigate("/login");
         } catch (error) {
