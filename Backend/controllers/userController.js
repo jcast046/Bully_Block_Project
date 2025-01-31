@@ -1,4 +1,3 @@
-const { v4: uuidv4 } = require('uuid');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -70,6 +69,8 @@ const registerUser = async (req, res) => {
 // @desc    Authenticate user and get token
 // @access  Public
 const loginUser = async (req, res) => {
+    console.log("Incoming Login Request:", req.body); // Debugging
+
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -78,22 +79,27 @@ const loginUser = async (req, res) => {
 
     try {
         // Find user by email
+        console.log("Searching for user..."); // Debugging
         const user = await User.findOne({ email });
         if (!user) {
+            console.error("User not found"); // Debugging
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
         // Compare hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            console.error("Invalid password"); // Debugging
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
         // Generate JWT Token
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.json({ token, message: "Login successful", user });
+
     } catch (err) {
+        console.error("Login error:", err); // Debugging
         res.status(500).json({ error: 'Server error' });
     }
 };
@@ -163,4 +169,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUsers, getUser, updateUser, deleteUser };
+module.exports = { loginUser, registerUser, loginUser, getUsers, getUser, updateUser, deleteUser };
