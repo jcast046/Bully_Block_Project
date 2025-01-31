@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require('uuid');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -10,12 +11,13 @@ const registerUser = async (req, res) => {
     const { user_id, role, username, email, password } = req.body;
 
     // Validate required fields
-    if (!user_id || !role || !username || !email || !password) {
+    if (!role || !username || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
     try {
         // Check if user already exists
+        console.log("Checking if user already exists"); // Debugging
         let existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists' });
@@ -25,14 +27,26 @@ const registerUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // Generate unique user_id
+        const generatedUserId = uuidv4();
+        console.log("Generated user_id:", generatedUserId); // Debugging
+
         // Create new user
-        const user = new User({ user_id, role, username, email, password: hashedPassword });
+        console.log("Creating new user"); // Debugging
+        const user = new User({ 
+            user_id: generatedUserId,
+            role, 
+            username, 
+            email, 
+            password: hashedPassword });
         await user.save();
+        console.log("User saved to database"); // Debugging
 
         // Generate JWT Token
+        console.log("Generating JWT Token"); // Debugging
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(201).json({ user, token });
+        res.status(201).json({ message: "User registered successfully", user, token });
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
     }
