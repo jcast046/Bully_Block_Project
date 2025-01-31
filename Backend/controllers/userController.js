@@ -6,7 +6,7 @@ require('dotenv').config(); // Load environment variables
 
 const generatedUserId = () => {
     const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // Generate random 10-digit number
-    return 'u${randomNumber}'; // Prefix with u
+    return `u${randomNumber}`; // Prefix with u
 }
 
 // @route   POST /api/users/register
@@ -33,7 +33,7 @@ const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Generate unique user_id
-        let newUserID;
+        let newUserId;
         let isUnique = false;
 
         console.log("Generating unique user_id"); // Debugging
