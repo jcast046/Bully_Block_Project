@@ -142,7 +142,7 @@ def save_processed_data(processed_texts, output_path):
     except Exception as e:
         print(f"Error saving processed data: {e}")
 
-if __name__ == "__main__":
+def main():
     """
     Main program execution.
     - Load dataset from a JSON file.
@@ -167,3 +167,7 @@ if __name__ == "__main__":
 
         # Save the processed data
         save_processed_data(processed_texts, output_file)
+
+if __name__ == "__main__":
+    main()
+
