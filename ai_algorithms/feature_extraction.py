@@ -12,6 +12,9 @@ nlp = spacy.load("en_core_web_sm")
 # Download VADER lexicon for sentiment analysis
 nltk.download('vader_lexicon')
 
+# Run text_cleaning.py to create the processed_data.json file
+import text_cleaning
+
 def analyze_sentiment(tokens):
     """
     Compute sentiment scores for individual tokens.
@@ -256,6 +259,7 @@ if __name__ == "__main__":
     """
     Main execution for feature extraction and analysis.
     """
+    text_cleaning.main()
     input_file = "ai_algorithms/processed_data.json"
     output_file = "ai_algorithms/feature_dataset.json"
 
