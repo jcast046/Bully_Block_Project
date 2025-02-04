@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    user_id: { type: String, required: true },
+    user_id: { type: String, required: true, index: true, unique: true },
     role: { type: String, required: true },
-    username: { type: String, required: true },
-    email: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    email: { 
+        type: String, 
+        required: true,
+        unique: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please enter a valid e-mail address']
+    },
+    password: { type: String, required: true },
 
     // Track the number of incidents the user has been involved in
     incidentCount: {
@@ -17,6 +23,6 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-}, { collection: 'Users' });
+}, { collection: 'Users', timestamps: true });
 
 module.exports = mongoose.model('Users', UserSchema);

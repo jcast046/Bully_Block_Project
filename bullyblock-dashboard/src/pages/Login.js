@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../AuthContext'; 
 import { useNavigate } from 'react-router';
+import axios from 'axios';
 import '../App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Hidden Icon
 import Button from '../components/common/Button';
@@ -25,19 +26,30 @@ const Login = () => {
     const navigate = useNavigate();                          // Initalize navigate function
 
     // Submit form
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate user credentials
-        const isValid = validCredentials.some(
-            (cred) => cred.username === username && cred.password === password
-        );
+        try {
+            const response = await axios.post('https://localhost:3001/api/users/login', {
+                email: username,
+                password: password,
+            }, {
+                headers: { "content-Type": "application/json" }
+            });
 
-        if (isValid) {
-            login();                                        // Call login function
-            navigate('/dashboard');                         // Redirect to dashboard after login
-        } else {
-            setError('Invalid username or password');       // Error Message
+            console.log("Login Successful:", response.data);
+
+            // Store JWT token in local storage
+            localStorage.setItem("token", response.data.token);
+
+            // call the context login function (if needed)
+            login();
+
+            // Redirect to dashboard
+            navigate('/dashboard');
+        } catch (error) {
+            console.error("Login Error:", error.response?.data || error.message);
+            setError(error.response?.data?.error || "Login failed");
         }
     };
 
@@ -51,8 +63,8 @@ const Login = () => {
             <h1>Welcome to BullyBlock</h1>
             <form onSubmit={handleSubmit}>
                 <label>
-                    Username:
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+                    Email:
+                    <input type="email" value={username} onChange={(e) => setUsername(e.target.value)} />
                 </label>
                 <label>
                     Password:
@@ -69,6 +81,7 @@ const Login = () => {
                     </div>
                 </label>
                 <Button text="Login" type="submit"/>
+                <Button text="Register" onClick={() => navigate('/register')} />
             </form>
             {error && <p className="error">{error}</p>}
         </div>

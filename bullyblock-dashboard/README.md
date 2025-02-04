@@ -2,6 +2,10 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Developer Notes
+
+In test files, add "jest.mock('axios');"
+
 ## Available Scripts
 
 In the project directory, you can run:

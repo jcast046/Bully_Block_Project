@@ -27,6 +27,7 @@ main {
 }
 
 .login-container,
+.register-container,
 .dashboard-container,
 .incidents-container,
 .analytics-container {
@@ -40,7 +41,19 @@ main {
   align-content: center;
 }
 
+.register-container select {
+  width: 100%;
+  padding: 0.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  box-sizing: border-box;
+  text-align: center;
+  padding-left: 1.5em;
+  font-weight: bolder;
+}
+
 .login-container h1,
+.register-container h1,
 .dashboard-container h1,
 .incidents-container h1,
 .analytics-container h1 {
@@ -48,6 +61,7 @@ main {
 }
 
 .login-container form label,
+.register-container label,
 .dashboard-container label,
 .incidents-container label,
 .analytics-container label {
@@ -56,6 +70,7 @@ main {
 }
 
 .login-container form input,
+.register-container input,
 .dashboard-container input,
 .incidents-container input,
 .analytics-container input {
@@ -67,6 +82,7 @@ main {
 }
 
 .login-container form button,
+.register-container button,
 .dashboard-container button,
 .incidents-container button,
 .analytics-container button {
@@ -84,6 +100,26 @@ main {
 .incidents-container button:hover,
 .analytics-container button:hover {
   background: #0056b3;
+}
+
+.link {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #87c1ff;
+  text-decoration: underline;
+}
+
+.link h3 {
+  margin-top: 1em;
+  font-size: 1em;
+}
+
+.link:active {
+  color: #608ec1;
 }
 
 .logout-button {
