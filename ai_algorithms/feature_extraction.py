@@ -6,14 +6,14 @@ from collections import Counter
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 
+# Run text_cleaning.py to create the processed_data.json file
+import text_cleaning
+
 # Load spaCy language model for NLP tasks
 nlp = spacy.load("en_core_web_sm")
 
 # Download VADER lexicon for sentiment analysis
 nltk.download('vader_lexicon')
-
-# Run text_cleaning.py to create the processed_data.json file
-import text_cleaning
 
 def analyze_sentiment(tokens):
     """
