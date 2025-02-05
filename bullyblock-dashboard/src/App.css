@@ -11,6 +11,7 @@ html,
   align-items: center;
 }
 
+
 main {
   display: flex;
   justify-content: center;
@@ -31,7 +32,7 @@ main {
 .dashboard-container,
 .incidents-container,
 .analytics-container {
-  max-width: 400px;
+  
   width: 100%;
   padding: 2em;
   background: rgba(255, 255, 255, 0.1);
@@ -100,6 +101,13 @@ main {
 .incidents-container button:hover,
 .analytics-container button:hover {
   background: #0056b3;
+}
+
+.dashboard-widget-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .link {

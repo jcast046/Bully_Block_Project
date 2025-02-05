@@ -1,0 +1,38 @@
+.dashboard-widget {
+    background: #97abc9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: auto;
+    min-width: 30%;
+    text-align: center;
+    transition: transform 0.2s ease-in-out, background-color 0.3s;
+}
+
+.dashboard-widget:hover {
+    transform: translateY(-5px);
+    background-color: #708cb9;
+}
+
+.widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.widget-icon {
+    font-size: 28px;
+    color: #555;
+}
+
+.widget-body h2 {
+    margin: 10px 0;
+    font-size: 28px;
+}
+
+.dashboard-widget p {
+    font-size: 18px;
+    color: rgb(67, 67, 67);
+    font-weight: 700;
+}
