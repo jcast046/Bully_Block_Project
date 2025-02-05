@@ -1,5 +1,6 @@
 import spacy
 import json
+import uuid
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -17,7 +18,7 @@ nltk.download('vader_lexicon')
 
 def analyze_sentiment(tokens):
     """
-    Compute sentiment scores for individual tokens.
+    Compute sentiment scores for individual tokens and normalize them.
 
     Args:
         tokens (list of tuples): List of (word, POS) tuples.
@@ -27,10 +28,16 @@ def analyze_sentiment(tokens):
     """
     sia = SentimentIntensityAnalyzer()
     scores = [sia.polarity_scores(token[0]) for token in tokens]
+
+    if not scores:  # Avoid division by zero
+        return {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
+
+    # Normalize sentiment values to ensure balanced distribution
+    total_tokens = len(scores)
     return {
-        "positive": sum(score['pos'] for score in scores),
-        "negative": sum(score['neg'] for score in scores),
-        "neutral": sum(score['neu'] for score in scores)
+        "positive": sum(score['pos'] for score in scores) / total_tokens,
+        "negative": sum(score['neg'] for score in scores) / total_tokens,
+        "neutral": sum(score['neu'] for score in scores) / total_tokens
     }
 
 def analyze_overall_sentiment(text):
@@ -178,9 +185,70 @@ def validate_features(feature_data):
     
     return feature_data
 
+def determine_severity(validation):
+    """
+    Determines the severity level of detected content based on extracted features.
+
+    Args:
+        validation (dict): Feature validation data including sentiment and flagged entities.
+
+    Returns:
+        str: Severity level ("low", "medium", or "high").
+    """
+    negative_score = validation["sentiment_summary"]["negative"]
+    flagged_entities = len(validation["flagged_entities"])
+
+    #  Adjusting thresholds
+    if negative_score >= 1.5 or flagged_entities >= 2:
+        return "high"
+    elif 0.3 <= negative_score < 1.5 or flagged_entities == 1:  
+        return "medium"
+    return "low"
+
+
+def generate_incident_reports(feature_data):
+    """
+    Generates structured incident reports based on extracted features.
+
+    Args:
+        feature_data (list): Processed feature dataset.
+
+    Returns:
+        list: List of incident reports.
+    """
+    incident_reports = []
+    
+    for i, record in enumerate(feature_data):
+        severity = determine_severity(record["validation"])
+
+        incident = {
+            "_id": {"$oid": str(uuid.uuid4())},  # Generate unique MongoDB-like ObjectID
+            "incident_id": f"i{i+10000}",  # Unique incident ID
+            "detected_content_id": f"p{i+5000}",  # Unique detected content ID
+            "content_type": "post",  # Assuming all content is from posts
+            "severity_level": severity,
+            "status": "pending_review"
+        }
+        incident_reports.append(incident)
+
+    return incident_reports
+
+def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_reports.json"):
+    """
+    Saves the generated incident reports to a JSON file.
+
+    Args:
+        incident_reports (list): List of structured incident reports.
+        output_file (str): Path to the output JSON file.
+    """
+    with open(output_file, "w") as f:
+        json.dump(incident_reports, f, indent=4)
+    
+    print(f"Incident reports saved to {output_file}")
+
 def process_and_save_features(input_file, output_file):
     """
-    Load text data, extract features, validate them, and save results.
+    Load text data, extract features, validate them, assign severity levels, and save results.
 
     Args:
         input_file (str): Path to the input JSON file.
@@ -202,28 +270,28 @@ def process_and_save_features(input_file, output_file):
                 cleaned_text = " ".join(record['processed'])
                 features = extract_features(text)
                 
+                # Generate feature entry
                 feature_entry = {
                     "original_text": text,
                     "cleaned_text": cleaned_text,
                     "tokens": features['tokens'],
                     "entities": features['entities']
                 }
-                feature_data.append(feature_entry)
+                
+                # Validate extracted features
+                validated_entry = validate_features([feature_entry])[0]
+
+                # Assign severity level
+                validated_entry["severity_level"] = determine_severity(validated_entry["validation"])
+
+                feature_data.append(validated_entry)
         
-        # Validate extracted features
-        feature_data = validate_features(feature_data)
-        
-        # Save results in JSON or CSV format
-        if output_file.endswith('.json'):
-            with open(output_file, 'w') as outfile:
-                json.dump(feature_data, outfile, indent=4)
-        elif output_file.endswith('.csv'):
-            pd.DataFrame(feature_data).to_csv(output_file, index=False)
-        else:
-            print("Error: Unsupported file format. Use .json or .csv.")
-        
-        print(f"Features saved to {output_file}")
-    
+        # Save updated dataset with severity levels
+        with open(output_file, "w") as outfile:
+            json.dump(feature_data, outfile, indent=4)
+
+        print(f"Features with severity levels saved to {output_file}")
+
     except Exception as e:
         print(f"Error processing and saving features: {e}")
 
@@ -259,14 +327,22 @@ if __name__ == "__main__":
     """
     Main execution for feature extraction and analysis.
     """
-    text_cleaning.main()
+    text_cleaning.main()  # Run text cleaning first
+
     input_file = "ai_algorithms/processed_data.json"
     output_file = "ai_algorithms/feature_dataset.json"
 
     process_and_save_features(input_file, output_file)
 
-    with open(output_file, 'r') as file:
+    # Load extracted feature data
+    with open(output_file, "r") as file:
         feature_data = json.load(file)
 
+    # Generate and save incident reports
+    incident_reports = generate_incident_reports(feature_data)
+    save_incident_reports(incident_reports, "ai_algorithms/incident_reports.json")
+
+    # Summarize dataset
     summary = summarize_dataset(feature_data)
     visualize_summary(summary)
+

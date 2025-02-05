@@ -156,18 +156,23 @@ def main():
     dataset = load_dataset(input_file)
     if not dataset:
         print("No data to process. Exiting.")
-    else:
-        processed_texts = []
+        return
 
-        # Process each record
-        for record in dataset:
-            if 'text' in record:
-                cleaned = clean_text(record['text'], debug=True)
-                processed_texts.append({'original': record['text'], 'processed': cleaned})
+    processed_texts = []
 
-        # Save the processed data
-        save_processed_data(processed_texts, output_file)
+    # Process each record
+    for record in dataset:
+        # Check for "content" key (since mock dataset uses it)
+        if 'content' in record:
+            cleaned = clean_text(record['content'], debug=True)
+            processed_texts.append({'original': record['content'], 'processed': cleaned})
+        elif 'text' in record:
+            cleaned = clean_text(record['text'], debug=True)
+            processed_texts.append({'original': record['text'], 'processed': cleaned})
+        else:
+            print(f"Warning: No valid text field found in record: {record}")
 
-if __name__ == "__main__":
-    main()
+    # Save the processed data
+    save_processed_data(processed_texts, output_file)
+
 
