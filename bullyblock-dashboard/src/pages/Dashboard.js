@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../App.css';
 import DashboardWidget from '../components/specific/DashboardWidget';
 import axios from "axios";
 
 const Dashboard = () => {
-    // Placeholders for API data fetching
-    /*
-    axios.get("https://localhost:3001/api/incidents/count")
-        .then((response) => setIncidentCount(response.data.count))
-        .catch((error) => console.error("Error fetching incidents:", error));
+   // State for incident count and analytics data
+   const [alertCount, setAlertCount] = useState(null);
 
-    axios.get("https://localhost:3001/api/analytics/highlights")
-        .then((response) => setAnalyticsData(response.data.highlight))
-        .catch((error) => console.error("Error fetching analytics:", error));
-    */
+    // Fetch incident count from API
+    useEffect(() => {
+        axios.get("https://localhost:3001/api/alert/count")
+            .then((response) => setAlertCount(response.data.count))
+            .catch((error) => {
+                console.error("Error fetching incidents:", error);
+            });
+    }, []);
 
     return (
         <div className="dashboard-container">
@@ -22,7 +23,7 @@ const Dashboard = () => {
             <div className="dashboard-widget-container">
                 <DashboardWidget
                     title="Incidents" 
-                    value="100"
+                    value={alertCount}
                     description="View Incidents"
                     link="/incidents" 
                     icon="fas fa-exclamation-circle"
@@ -30,7 +31,7 @@ const Dashboard = () => {
                 />
                 <DashboardWidget 
                     title="Analytics" 
-                    value={/*analyticsData ||*/ "Loading..."} 
+                    value="Loading..." 
                     description="View Bullying Trends"
                     link="/analytics"
                     icon="fas fa-chart-line"

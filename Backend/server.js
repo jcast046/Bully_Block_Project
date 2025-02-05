@@ -29,11 +29,13 @@ app.use(express.json());
 const userRoutes = require("./routes/userRoutes");
 const schoolRoutes = require("./routes/schoolRoutes");
 const bullyRoutes = require("./routes/bullyRoutes");
+const alertRoutes = require("./routes/alertRoutes");
 
 // Use Routes
 app.use("/api/users", userRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/bully", bullyRoutes);
+app.use("/api/alert", alertRoutes);
 
 // Set port for testing
 const PORT = 3001;
