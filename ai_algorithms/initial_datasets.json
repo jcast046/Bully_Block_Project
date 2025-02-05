@@ -1,226 +1,84 @@
 [
-    {"id": 1, "text": "Hey everyone! Excited to be here. What's the next event?", "label": "neutral"},
-    {"id": 2, "text": "Can't believe how awesome the concert was last night!!", "label": "positive"},
-    {"id": 3, "text": "Does anyone know when the math homework is due? Thanks!", "label": "neutral"},
-    {"id": 4, "text": "You're such a loser, nobody likes you here!", "label": "bullying"},
-    {"id": 5, "text": "I think you should just give up. You're not good at this at all.", "label": "bullying"},
-    {"id": 6, "text": "Wow, that was a great play in the game yesterday! Congrats!", "label": "positive"},
-    {"id": 7, "text": "This is the worst team I have ever seen. What a joke.", "label": "bullying"},
-    {"id": 8, "text": "Could you be any more annoying? Please stop messaging me.", "label": "bullying"},
-    {"id": 9, "text": "Thank you for your help, you've been really kind!", "label": "positive"},
-    {"id": 10, "text": "Seriously, why do you even bother coming to school?", "label": "bullying"},
-    {"id": 11, "text": "Everyone, please remember to be respectful in your posts.", "label": "neutral"},
-    {"id": 12, "text": "That's a stupid question, how can you not know that?", "label": "bullying"},
-    {"id": 13, "text": "Great job on the presentation today, you explained it so well!", "label": "positive"},
-    {"id": 14, "text": "Nobody cares about your silly posts, stop spamming the forum.", "label": "bullying"},
-    {"id": 15, "text": "Can we get together to study for the test? I need some help.", "label": "neutral"},
-    {"id": 16, "text": "You're always trying to be the center of attention. It's pathetic.", "label": "bullying"},
-    {"id": 17, "text": "I loved your artwork, it was really inspiring!", "label": "positive"},
-    {"id": 18, "text": "Don't listen to them, you're doing great and improving a lot!", "label": "positive"},
-    {"id": 19, "text": "You must be dumb if you think that was a smart move.", "label": "bullying"},
-    {"id": 20, "text": "Keep up the great work, looking forward to seeing more!", "label": "positive"},
-    {"id": 21, "text": "I can't believe how stupid you are. Why are you even here?", "label": "bullying"},
-    {"id": 22, "text": "You're such a loser, nobody likes you here!", "label": "bullying"},
-    {"id": 23, "text": "I think you should just give up. You're not good at this at all.", "label": "bullying"},
-    {"id": 24, "text": "Wow, that was a great play in the game yesterday! Congrats!", "label": "positive"},
-    {"id": 25, "text": "This is the worst team I have ever seen. What a joke.", "label": "bullying"},
-    {"id": 26, "text": "Could you be any more annoying? Please stop messaging me.", "label": "bullying"},
-    {"id": 27, "text": "Thank you for your help, you've been really kind!", "label": "positive"},
-    {"id": 28, "text": "Seriously, why do you even bother coming to school?", "label": "bullying"},
-    {"id": 29, "text": "Everyone, please remember to be respectful in your posts.", "label": "neutral"},
-    {"id": 30, "text": "That's a stupid question, how can you not know that?", "label": "bullying"},
-    {"id": 31, "text": "Great job on the presentation today, you explained it so well!", "label": "positive"},
-    {"id": 32, "text": "Nobody cares about your silly posts, stop spamming the forum.", "label": "bullying"},
-    {"id": 33, "text": "Can we get together to study for the test? I need some help.", "label": "neutral"},
-    {"id": 34, "text": "You're always trying to be the center of attention. It's pathetic.", "label": "bullying"},
-    {"id": 35, "text": "I loved your artwork, it was really inspiring!", "label": "positive"},
-    {"id": 36, "text": "Don't listen to them, you're doing great and improving a lot!", "label": "positive"},
     {
-        "id": 1,
-        "text": "Hey everyone! Excited to be here. What's the next event?",
-        "label": "neutral",
-        "type": "discussion_post",
-        "student_name": "John Doe",
-        "class_name": "English Literature",
-        "date": "2025-01-22"
+      "_id": { "$oid": "679074d68a98bc8891c006b1" },
+      "comment_id": "cm10001",
+      "content": "Hey everyone! Excited to be here. What's the next event?",
+      "post_id": "p50001",
+      "author_id": "u20001",
+      "timestamp": { "$date": "2025-01-22T10:05:14.321Z" }
     },
     {
-        "id": 2,
-        "text": "Can't believe how awesome the concert was last night!!",
-        "label": "positive",
-        "type": "direct_message",
-        "student_name": "Emily Clark",
-        "recipient": "Sarah Miller",
-        "class_name": "Music Theory",
-        "date": "2025-01-21"
+      "_id": { "$oid": "679074d68a98bc8891c006b2" },
+      "comment_id": "cm10002",
+      "content": "I can't believe how terrible your ideas are. Just stop posting.",
+      "post_id": "p50002",
+      "author_id": "u20002",
+      "timestamp": { "$date": "2025-01-22T11:12:45.678Z" }
     },
     {
-        "id": 3,
-        "text": "Does anyone know when the math homework is due? Thanks!",
-        "label": "neutral",
-        "type": "discussion_post",
-        "student_name": "Michael Johnson",
-        "class_name": "Calculus I",
-        "date": "2025-01-23"
+      "_id": { "$oid": "679074d68a98bc8891c006b3" },
+      "comment_id": "cm10003",
+      "content": "Does anyone know when the homework is due? Thanks!",
+      "post_id": "p50003",
+      "author_id": "u20003",
+      "timestamp": { "$date": "2025-01-22T12:30:56.123Z" }
     },
     {
-        "id": 4,
-        "text": "You're such a loser, nobody likes you here!",
-        "label": "bullying",
-        "type": "discussion_post",
-        "student_name": "Anonymous",
-        "class_name": "General Science",
-        "date": "2025-01-22"
+      "_id": { "$oid": "679074d68a98bc8891c006b4" },
+      "comment_id": "cm10004",
+      "content": "You're such a loser. Nobody likes you here!",
+      "post_id": "p50004",
+      "author_id": "u20004",
+      "timestamp": { "$date": "2025-01-22T13:45:22.092Z" }
     },
     {
-        "id": 5,
-        "text": "I think you should just give up. You're not good at this at all.",
-        "label": "bullying",
-        "type": "direct_message",
-        "student_name": "Chris Wilson",
-        "recipient": "Alex Rivera",
-        "class_name": "Creative Writing",
-        "date": "2025-01-20"
+      "_id": { "$oid": "679074d68a98bc8891c006b5" },
+      "comment_id": "cm10005",
+      "content": "I really enjoyed your presentation today. Well done!",
+      "post_id": "p50005",
+      "author_id": "u20005",
+      "timestamp": { "$date": "2025-01-22T14:10:05.312Z" }
     },
     {
-        "id": 6,
-        "text": "Wow, that was a great play in the game yesterday! Congrats!",
-        "label": "positive",
-        "type": "announcement",
-        "teacher_name": "Coach Carter",
-        "class_name": "Physical Education",
-        "date": "2025-01-21"
+      "_id": { "$oid": "679074d68a98bc8891c006b6" },
+      "comment_id": "cm10006",
+      "content": "Wow, that was the dumbest thing I've ever read. Do you even think?",
+      "post_id": "p50006",
+      "author_id": "u20006",
+      "timestamp": { "$date": "2025-01-22T15:20:33.789Z" }
     },
     {
-        "id": 7,
-        "text": "This is the worst team I have ever seen. What a joke.",
-        "label": "bullying",
-        "type": "discussion_post",
-        "student_name": "Ryan Davis",
-        "class_name": "Sports Management",
-        "date": "2025-01-20"
+      "_id": { "$oid": "679074d68a98bc8891c006b7" },
+      "comment_id": "cm10007",
+      "content": "Can someone please help me understand the assignment?",
+      "post_id": "p50007",
+      "author_id": "u20007",
+      "timestamp": { "$date": "2025-01-22T16:25:44.101Z" }
     },
     {
-        "id": 8,
-        "text": "Could you be any more annoying? Please stop messaging me.",
-        "label": "bullying",
-        "type": "direct_message",
-        "student_name": "Liam Bennett",
-        "recipient": "Noah Adams",
-        "class_name": "Programming 101",
-        "date": "2025-01-19"
+      "_id": { "$oid": "679074d68a98bc8891c006b8" },
+      "comment_id": "cm10008",
+      "content": "This forum is full of idiots. Why do you all even bother?",
+      "post_id": "p50008",
+      "author_id": "u20008",
+      "timestamp": { "$date": "2025-01-22T17:40:11.932Z" }
     },
     {
-        "id": 9,
-        "text": "Thank you for your help, you've been really kind!",
-        "label": "positive",
-        "type": "discussion_post",
-        "student_name": "Sophia Martinez",
-        "class_name": "Biology II",
-        "date": "2025-01-24"
+      "_id": { "$oid": "679074d68a98bc8891c006b9" },
+      "comment_id": "cm10009",
+      "content": "Great teamwork, everyone! We nailed the project!",
+      "post_id": "p50009",
+      "author_id": "u20009",
+      "timestamp": { "$date": "2025-01-22T18:55:28.556Z" }
     },
     {
-        "id": 10,
-        "text": "Seriously, why do you even bother coming to school?",
-        "label": "bullying",
-        "type": "direct_message",
-        "student_name": "Anonymous",
-        "recipient": "Ethan Taylor",
-        "class_name": "History of Art",
-        "date": "2025-01-20"
-    },
-    {
-        "id": 11,
-        "text": "Everyone, please remember to be respectful in your posts.",
-        "label": "neutral",
-        "type": "announcement",
-        "teacher_name": "Mr. Thompson",
-        "class_name": "Ethics in Society",
-        "date": "2025-01-21"
-    },
-    {
-        "id": 12,
-        "text": "That's a stupid question, how can you not know that?",
-        "label": "bullying",
-        "type": "discussion_post",
-        "student_name": "Olivia Lopez",
-        "class_name": "Physics I",
-        "date": "2025-01-20"
-    },
-    {
-        "id": 13,
-        "text": "Great job on the presentation today, you explained it so well!",
-        "label": "positive",
-        "type": "discussion_post",
-        "student_name": "Emma Wright",
-        "class_name": "Public Speaking",
-        "date": "2025-01-22"
-    },
-    {
-        "id": 14,
-        "text": "Nobody cares about your silly posts, stop spamming the forum.",
-        "label": "bullying",
-        "type": "discussion_post",
-        "student_name": "Jackson Lee",
-        "class_name": "Advanced Chemistry",
-        "date": "2025-01-19"
-    },
-    {
-        "id": 15,
-        "text": "Can we get together to study for the test? I need some help.",
-        "label": "neutral",
-        "type": "direct_message",
-        "student_name": "Isabella Scott",
-        "recipient": "Aiden Brown",
-        "class_name": "Algebra II",
-        "date": "2025-01-21"
-    },
-    {
-        "id": 16,
-        "text": "You're always trying to be the center of attention. It's pathetic.",
-        "label": "bullying",
-        "type": "discussion_post",
-        "student_name": "Evan Garcia",
-        "class_name": "Drama and Theatre",
-        "date": "2025-01-23"
-    },
-    {
-        "id": 17,
-        "text": "I loved your artwork, it was really inspiring!",
-        "label": "positive",
-        "type": "discussion_post",
-        "student_name": "Mia Hall",
-        "class_name": "Graphic Design",
-        "date": "2025-01-24"
-    },
-    {
-        "id": 18,
-        "text": "Don't listen to them, you're doing great and improving a lot!",
-        "label": "positive",
-        "type": "direct_message",
-        "student_name": "Grace King",
-        "recipient": "Ella Carter",
-        "class_name": "Psychology 101",
-        "date": "2025-01-23"
-    },
-    {
-        "id": 19,
-        "text": "You must be dumb if you think that was a smart move.",
-        "label": "bullying",
-        "type": "direct_message",
-        "student_name": "Lucas Turner",
-        "recipient": "Mason Walker",
-        "class_name": "Economics I",
-        "date": "2025-01-22"
-    },
-    {
-        "id": 20,
-        "text": "Keep up the great work, looking forward to seeing more!",
-        "label": "positive",
-        "type": "discussion_post",
-        "student_name": "Harper Young",
-        "class_name": "Creative Writing",
-        "date": "2025-01-23"
+      "_id": { "$oid": "679074d68a98bc8891c006ba" },
+      "comment_id": "cm10010",
+      "content": "You should really just quit now. No one wants you here.",
+      "post_id": "p50010",
+      "author_id": "u20010",
+      "timestamp": { "$date": "2025-01-22T19:35:50.429Z" }
     }
-]
+  ]
+  
 
