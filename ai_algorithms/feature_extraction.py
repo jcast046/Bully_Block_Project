@@ -1,5 +1,6 @@
 import spacy
 import json
+import uuid
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -178,6 +179,65 @@ def validate_features(feature_data):
     
     return feature_data
 
+def determine_severity(validation):
+    """
+    Determines the severity level of detected content based on extracted features.
+
+    Args:
+        validation (dict): Feature validation data including sentiment and flagged entities.
+
+    Returns:
+        str: Severity level ("low", "medium", or "high").
+    """
+    negative_score = validation["sentiment_summary"]["negative"]
+    flagged_entities = len(validation["flagged_entities"])
+
+    if negative_score > 1.5 or flagged_entities > 0:
+        return "high"
+    elif negative_score > 0.5:
+        return "medium"
+    return "low"
+
+def generate_incident_reports(feature_data):
+    """
+    Generates structured incident reports based on extracted features.
+
+    Args:
+        feature_data (list): Processed feature dataset.
+
+    Returns:
+        list: List of incident reports.
+    """
+    incident_reports = []
+    
+    for i, record in enumerate(feature_data):
+        severity = determine_severity(record["validation"])
+
+        incident = {
+            "_id": {"$oid": str(uuid.uuid4())},  # Generate unique MongoDB-like ObjectID
+            "incident_id": f"i{i+10000}",  # Unique incident ID
+            "detected_content_id": f"p{i+5000}",  # Unique detected content ID
+            "content_type": "post",  # Assuming all content is from posts
+            "severity_level": severity,
+            "status": "pending_review"
+        }
+        incident_reports.append(incident)
+
+    return incident_reports
+
+def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_reports.json"):
+    """
+    Saves the generated incident reports to a JSON file.
+
+    Args:
+        incident_reports (list): List of structured incident reports.
+        output_file (str): Path to the output JSON file.
+    """
+    with open(output_file, "w") as f:
+        json.dump(incident_reports, f, indent=4)
+    
+    print(f"Incident reports saved to {output_file}")
+
 def process_and_save_features(input_file, output_file):
     """
     Load text data, extract features, validate them, and save results.
@@ -259,14 +319,22 @@ if __name__ == "__main__":
     """
     Main execution for feature extraction and analysis.
     """
-    text_cleaning.main()
+    text_cleaning.main()  # Run text cleaning first
+
     input_file = "ai_algorithms/processed_data.json"
     output_file = "ai_algorithms/feature_dataset.json"
 
     process_and_save_features(input_file, output_file)
 
-    with open(output_file, 'r') as file:
+    # Load extracted feature data
+    with open(output_file, "r") as file:
         feature_data = json.load(file)
 
+    # Generate and save incident reports
+    incident_reports = generate_incident_reports(feature_data)
+    save_incident_reports(incident_reports, "ai_algorithms/incident_reports.json")
+
+    # Summarize dataset
     summary = summarize_dataset(feature_data)
     visualize_summary(summary)
+
