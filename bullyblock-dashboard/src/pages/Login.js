@@ -25,12 +25,14 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false); // Password visibility
     const navigate = useNavigate();                          // Initalize navigate function
 
+    const baseURL = 'http://localhost:3001/api'; // Base URL for API
+
     // Submit form
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('https://localhost:3001/api/users/login', {
+            const response = await axios.post(`${baseURL}/users/login`, {
                 email: username,
                 password: password,
             }, {

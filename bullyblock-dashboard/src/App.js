@@ -21,9 +21,10 @@ const App = () => {
           <main> {}
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/incidents" element={<PrivateRoute><Incidents /></PrivateRoute>} />
-              <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+              { /* TODO -- Reinsert commented private route before deployment */ }
+              <Route path="/dashboard" element={<Dashboard /*{<PrivateRoute><Dashboard /></PrivateRoute>}*/ />} />
+              <Route path="/incidents" element={<Incidents /*{<PrivateRoute><Incidents /></PrivateRoute>}*/ />} />
+              <Route path="/analytics" element={<Analytics /*{<PrivateRoute><Analytics /></PrivateRoute>}*/ />} />
               <Route path="/register" element={<Register />} />
               <Route path="*" element={<Navigate to="/login" />} />
             </Routes>

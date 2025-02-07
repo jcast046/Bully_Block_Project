@@ -5,6 +5,8 @@ import Button from '../components/common/Button';
 import '../App.css';
 
 const Register = () => {
+    const baseURL = 'http://localhost:3001/api'; // Base URL for API
+
     const [formData, setFormData] = useState({
         role: "",
         username: "",
@@ -25,7 +27,7 @@ const Register = () => {
         e.preventDefault();
         try {
             console.log("Form Data Sent:", formData);
-            await axios.post('https://localhost:3001/api/users/register', formData, {
+            await axios.post(`${baseURL}/users/register`, formData, {
                 headers: {
                     "Content-Type": "application/json"
                 }

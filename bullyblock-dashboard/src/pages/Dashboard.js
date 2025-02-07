@@ -7,9 +7,11 @@ const Dashboard = () => {
    // State for incident count and analytics data
    const [alertCount, setAlertCount] = useState(null);
 
+   const baseURL = 'http://localhost:3001/api'; // Base URL for API
+
     // Fetch incident count from API
     useEffect(() => {
-        axios.get("https://localhost:3001/api/alert/count")
+        axios.get(`${baseURL}/alert/count`)
             .then((response) => setAlertCount(response.data.count))
             .catch((error) => {
                 console.error("Error fetching incidents:", error);
