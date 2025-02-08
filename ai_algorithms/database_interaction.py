@@ -237,10 +237,23 @@ def save_content_as_csv(content: List[Dict[str, str]], filename: str) -> None:
         print(f"\n❌ Error saving content as CSV: {e}")
 
 def fetch_content(content_type: str = "all") -> None:
-    """Fetch all content by type: posts, messages, comments, or a combination."""
+    """Fetch all content by type: posts, messages, comments, or a combination.
+    
+    Prints available search criteria and an example query when fetching content.
+    """
     if not AUTH_TOKEN:
         print("\n⚠️ You must be logged in to fetch content.")
         return
+
+    print("\n🔍 Available search criteria:")
+    print("   - contentType: Filter by type (post, message, comment)")
+    print("   - author: Filter by author ID")
+    print("   - dateRange: Specify a start and end date (YYYY-MM-DD)")
+    print("   - keywords: Search for specific words in content")
+    print("   - mentions: Find content mentioning a specific user")
+    
+    print("\n📌 Example Search Query:")
+    print('   {"contentType": "post", "author": "60f7a2b9d6d4d5289472d2b3", "keywords": ["AI", "ethics"], "dateRange": {"start": "2024-01-01", "end": "2024-12-31"}}')
 
     headers = {
         "Authorization": f"Bearer {AUTH_TOKEN}",
@@ -258,22 +271,18 @@ def fetch_content(content_type: str = "all") -> None:
 
     if response.status_code == 200:
         content = response.json()
-        #print("\n📄 Fetched content:")
-        #print(json.dumps(content, indent=4)) debug
 
-        # Ask user if they want to save the content
         save_choice = input("\nWould you like to save this content? (y/n): ").strip().lower()
         if save_choice == "y":
             file_format = input("\nEnter file format (json/csv): ").strip().lower()
+            filename = input("\nEnter filename to save content (e.g., content): ").strip()
             if file_format == "json":
-                filename = input("\nEnter filename to save content (e.g., content): ").strip()
                 if not filename.endswith(".json"):
-                    filename += ".json"  # Add .json if not already present
+                    filename += ".json"
                 save_content_as_json(content, filename)
             elif file_format == "csv":
-                filename = input("\nEnter filename to save content (e.g., content): ").strip()
                 if not filename.endswith(".csv"):
-                    filename += ".csv"  # Add .csv if not already present
+                    filename += ".csv"
                 save_content_as_csv(content, filename)
             else:
                 print("\n❌ Invalid file format.")
@@ -281,6 +290,7 @@ def fetch_content(content_type: str = "all") -> None:
             print("\n❌ Content not saved.")
     else:
         print("\n❌ Failed to fetch content:", response.json())
+
 
 if __name__ == "__main__":
     print("\n🔑 Login Required")
