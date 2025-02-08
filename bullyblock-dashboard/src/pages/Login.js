@@ -12,7 +12,7 @@ const Login = () => {
     const [password, setPassword] = useState('');            // Password input
     const [error, setError] = useState('');                  // Error messages
     const [showPassword, setShowPassword] = useState(false); // Password visibility
-    const navigate = useNavigate();                          // Initalize navigate function
+    const navigate = useNavigate();                          // Initialize navigate function
 
     const baseURL = 'http://localhost:3001/api'; // Base URL for API
 
