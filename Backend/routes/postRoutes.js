@@ -18,7 +18,5 @@ router.put('/:id', authMiddleware, updatePost);
 // Route to delete a post by ID (Private)
 router.delete('/:id', authMiddleware, deletePost);
 
-console.log('Post Routes Loaded');
-
 // Export the router
 module.exports = router;
