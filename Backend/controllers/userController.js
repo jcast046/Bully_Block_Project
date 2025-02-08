@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 require('dotenv').config(); // Load environment variables
 
 const generatedUserId = () => {
@@ -12,16 +13,19 @@ const generatedUserId = () => {
 // @desc    Register a new user
 // @access  Public
 const registerUser = async (req, res) => {
-    const { user_id, role, username, email, password } = req.body;
+    const { user_id, role, username, email, password, referencedID } = req.body;
 
     // Validate required fields
     if (!role || !username || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
+    // Validate referencedID if provided
+    if (referencedID && !mongoose.Types.ObjectId.isValid(referencedID)) {
+        return res.status(400).json({ error: 'Invalid referencedID' });
+    }
+
     try {
-        // Check if user already exists
-        console.log("Checking if user already exists"); // Debugging
         let existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists' });
@@ -35,28 +39,24 @@ const registerUser = async (req, res) => {
         let newUserId;
         let isUnique = false;
 
-        console.log("Generating unique user_id"); // Debugging
         while (!isUnique) {
             newUserId = generatedUserId();
             const existingId = await User.findOne({ user_id: newUserId });
             if (!existingId) isUnique = true;
         }
 
-        console.log("Generated user_id:", newUserId); // Debugging
-
         // Create new user
-        console.log("Creating new user"); // Debugging
         const user = new User({ 
             user_id: newUserId,
             role, 
             username, 
             email, 
-            password: hashedPassword });
+            password: hashedPassword,
+            referencedID
+        });
         await user.save();
-        console.log("User saved to database"); // Debugging
 
         // Generate JWT Token
-        console.log("Generating JWT Token"); // Debugging
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({ message: "User registered successfully", user, token });
@@ -69,8 +69,6 @@ const registerUser = async (req, res) => {
 // @desc    Authenticate user and get token
 // @access  Public
 const loginUser = async (req, res) => {
-    console.log("Incoming Login Request:", req.body); // Debugging
-
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -78,28 +76,21 @@ const loginUser = async (req, res) => {
     }
 
     try {
-        // Find user by email
-        console.log("Searching for user..."); // Debugging
         const user = await User.findOne({ email });
         if (!user) {
-            console.error("User not found"); // Debugging
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
-        // Compare hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            console.error("Invalid password"); // Debugging
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
-        // Generate JWT Token
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ token, message: "Login successful", user });
 
     } catch (err) {
-        console.error("Login error:", err); // Debugging
         res.status(500).json({ error: 'Server error' });
     }
 };
@@ -113,7 +104,7 @@ const getUsers = async (req, res) => {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        const users = await User.find();
+        const users = await User.find().populate('referencedID');
         res.json(users);
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
@@ -124,7 +115,15 @@ const getUsers = async (req, res) => {
 // @desc    Get one user by ID (Protected)
 // @access  Private
 const getUser = async (req, res) => {
-    res.json(res.resource);
+    try {
+        const user = await User.findById(req.params.id).populate('referencedID');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
 // @route   PUT /api/users/:id
@@ -132,6 +131,10 @@ const getUser = async (req, res) => {
 // @access  Private
 const updateUser = async (req, res) => {
     try {
+        if (req.body.referencedID && !mongoose.Types.ObjectId.isValid(req.body.referencedID)) {
+            return res.status(400).json({ error: 'Invalid referencedID' });
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
             { $set: req.body },
@@ -169,4 +172,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { loginUser, registerUser, loginUser, getUsers, getUser, updateUser, deleteUser };
+module.exports = { registerUser, loginUser, getUsers, getUser, updateUser, deleteUser };

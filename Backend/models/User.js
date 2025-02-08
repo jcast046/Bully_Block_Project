@@ -13,16 +13,14 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true },
 
     // Track the number of incidents the user has been involved in
-    incidentCount: {
-        type: Number,
-        default: 0,
-    },
+    incidentCount: { type: Number, default: 0 },
 
     // Track the number of posts, messages, or comments the user has made
-    postCount: {
-        type: Number,
-        default: 0,
-    },
+    postCount: { type: Number, default: 0 },
+
+    // Add referencedID field to reference another document (e.g., an organization or another user)
+    referencedID: { type: mongoose.Schema.Types.ObjectId, ref: 'SomeCollection' }, // Change 'SomeCollection' to your actual collection name
+
 }, { collection: 'Users', timestamps: true });
 
 module.exports = mongoose.model('Users', UserSchema);

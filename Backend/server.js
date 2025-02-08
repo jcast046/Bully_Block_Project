@@ -27,6 +27,9 @@ const bullyRoutes = require("./routes/bullyRoutes");
 const alertRoutes = require("./routes/alertRoutes");
 const contentRoutes = require("./routes/contentRoutes");
 const incidentRoutes = require("./routes/incidentRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+const postRoutes = require("./routes/postRoutes");
+const commentRoutes = require("./routes/commentRoutes");
 
 // Use Routes
 app.use("/api/users", userRoutes);
@@ -35,6 +38,9 @@ app.use("/api/bully", bullyRoutes);
 app.use("/api/alert", alertRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/incident", incidentRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
 
 // Health check
 app.get("/", (req, res) => {
