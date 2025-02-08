@@ -25,7 +25,8 @@ const userRoutes = require("./routes/userRoutes");
 const schoolRoutes = require("./routes/schoolRoutes");
 const bullyRoutes = require("./routes/bullyRoutes");
 const alertRoutes = require("./routes/alertRoutes");
-const contentRoutes = require("./routes/contentRoutes")
+const contentRoutes = require("./routes/contentRoutes");
+const incidentRoutes = require("./routes/incidentRoutes");
 
 // Use Routes
 app.use("/api/users", userRoutes);
@@ -33,6 +34,7 @@ app.use("/api/schools", schoolRoutes);
 app.use("/api/bully", bullyRoutes);
 app.use("/api/alert", alertRoutes);
 app.use("/api/content", contentRoutes);
+app.use("/api/incident", incidentRoutes);
 
 // Health check
 app.get("/", (req, res) => {

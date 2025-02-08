@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 // @route   POST /api/content
 // @desc    Create a new content post
-// @access  Private (Authenticated users only)
+// @access  Private 
 const createContent = async (req, res) => {
     const { contentType, content, author } = req.body;
 

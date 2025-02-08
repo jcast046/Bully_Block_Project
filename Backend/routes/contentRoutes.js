@@ -1,8 +1,6 @@
 const express = require('express');
 const {createContent, getAllContent, getContent, updateContent, deleteContent} = require('../controllers/contentController');
-// const authMiddleware = require('../middleware/authMiddleware'); // Import authentication middleware
-const getResource = require('../middleware/getResource');
-const Content = require('../models/Content');
+const authMiddleware = require('../middleware/authMiddleware'); // Import authentication middleware
 
 const router = express.Router();
 
@@ -14,7 +12,7 @@ router.get('/', getAllContent);
 // @route   GET /api/content/:id
 // @desc    Get a single content by ID (Protected)
 // @access  Private (Requires Authentication)
-router.get('/:id', getResource(Content), getContent);
+router.get('/:id', getContent);
 
 // @route   POST /api/content
 // @desc    Register a new content (Public)
@@ -24,7 +22,7 @@ router.post('/', createContent);
 // @route   PUT /api/content/:id
 // @desc    Update content by ID (Protected)
 // @access  Private (Requires Authentication)
-router.put('/:id', getResource(Content), updateContent);
+router.put('/:id', updateContent);
 
 // @route   DELETE /api/content/:id
 // @desc    Delete content by ID (Protected)
