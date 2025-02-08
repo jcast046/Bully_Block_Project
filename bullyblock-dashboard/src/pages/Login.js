@@ -1,21 +1,10 @@
 import React, { useContext, useState } from 'react';
-import { AuthContext } from '../AuthContext'; 
+import { AuthContext } from '../AuthContext';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import '../App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Hidden Icon
 import Button from '../components/common/Button';
-
-// Valid user credentials
-const validCredentials = [
-    { username: 'Jacob', password: 'Braley' },
-    { username: 'Joshua', password: 'Castillo' },
-    { username: 'Reagan', password: 'McCoy' },
-    { username: 'Trevor', password: 'Newberry' },
-    { username: 'Nomar', password: 'Rodriguez' },
-    { username: 'Peter', password: 'Spadaro' },
-    { username: 'Skyler', password: 'Williams' },
-];
 
 const Login = () => {
     const { login } = useContext(AuthContext);               // Access login function
@@ -44,8 +33,8 @@ const Login = () => {
             // Store JWT token in local storage
             localStorage.setItem("token", response.data.token);
 
-            // call the context login function (if needed)
-            login();
+            // Call the context login function with user data
+            login(response.data.user);
 
             // Redirect to dashboard
             navigate('/dashboard');
@@ -82,7 +71,7 @@ const Login = () => {
                         ></i>
                     </div>
                 </label>
-                <Button text="Login" type="submit"/>
+                <Button text="Login" type="submit" />
                 <Button text="Register" onClick={() => navigate('/register')} />
             </form>
             {error && <p className="error">{error}</p>}
