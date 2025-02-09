@@ -1,0 +1,20 @@
+[
+    {
+        "contentId": "65e7f9c1b8c7d3a4f2b12345",
+        "userId": "65e7f9c1b8c7d3a4f2b67890",
+        "severityLevel": "high",
+        "status": "pending review"
+    },
+    {
+        "contentId": "65e7f9c1b8c7d3a4f2b54321",
+        "userId": "65e7f9c1b8c7d3a4f2b98765",
+        "severityLevel": "medium",
+        "status": "resolved"
+    },
+    {
+        "contentId": "65e7f9c1b8c7d3a4f2b99999",
+        "userId": "65e7f9c1b8c7d3a4f2b88888",
+        "severityLevel": "low",
+        "status": "pending review"
+    }
+]
