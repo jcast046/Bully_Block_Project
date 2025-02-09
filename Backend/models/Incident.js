@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const IncidentSchema = new mongoose.Schema({
     contentId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Content',
+        required: true,
+        refPath: 'contentType' // Dynamically reference collection
+    },
+
+    contentType: {
+        type: String,
+        enum: ['Message', 'Post', 'Comment'], // Define possible collections
         required: true
     },
 
@@ -32,4 +38,4 @@ const IncidentSchema = new mongoose.Schema({
 
 });
 
-module.exports = mongoose.model('Incident', IncidentSchema);
+module.exports = mongoose.model('Incidents', IncidentSchema);

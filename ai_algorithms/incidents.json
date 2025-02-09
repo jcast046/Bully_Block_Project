@@ -1,19 +1,22 @@
 [
     {
-        "contentId": "65e7f9c1b8c7d3a4f2b12345",
-        "userId": "65e7f9c1b8c7d3a4f2b67890",
+        "contentId": "67a72525505ebcc68be94b6f",
+        "contentType": "Post",
+        "userId": "67a266f393b6b1290c768a34",
         "severityLevel": "high",
         "status": "pending review"
     },
     {
-        "contentId": "65e7f9c1b8c7d3a4f2b54321",
-        "userId": "65e7f9c1b8c7d3a4f2b98765",
+        "contentId": "67a727e1505ebcc68be94b7c",
+        "contentType": "Post",
+        "userId": "67a266f393b6b1290c768a34",
         "severityLevel": "medium",
         "status": "resolved"
     },
     {
-        "contentId": "65e7f9c1b8c7d3a4f2b99999",
-        "userId": "65e7f9c1b8c7d3a4f2b88888",
+        "contentId": "67a727e1505ebcc68be94b82",
+        "contentType": "Post",
+        "userId": "67a266f393b6b1290c768a34",
         "severityLevel": "low",
         "status": "pending review"
     }

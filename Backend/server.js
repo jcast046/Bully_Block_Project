@@ -37,7 +37,7 @@ app.use("/api/schools", schoolRoutes);
 app.use("/api/bully", bullyRoutes);
 app.use("/api/alert", alertRoutes);
 app.use("/api/content", contentRoutes);
-app.use("/api/incident", incidentRoutes);
+app.use("/api/incidents", incidentRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);

@@ -1,27 +1,45 @@
+const mongoose = require('mongoose');
 const Incident = require('../models/Incident');
-const Content = require('../models/Content');
 const User = require('../models/User');
+const Message = require('../models/Message');
+const Post = require('../models/Post');
+const Comment = require('../models/Comment');
+
+// Mapping content types to models
+const contentModels = {
+    Message,
+    Post,
+    Comment
+};
 
 // @route   POST /api/incident
 // @desc    Create a new incident
 // @access  Private
 const createIncident = async (req, res) => {
-    const { contentId, userId, severityLevel, status } = req.body;
+    const { contentId, contentType, userId, severityLevel, status } = req.body;
 
-    if (!contentId || !userId || !severityLevel || !status) {
-        return res.status(400).json({ error: "contentId, userId, severityLevel, and status are required" });
+    if (!contentId || !contentType || !userId || !severityLevel || !status) {
+        return res.status(400).json({ error: "contentId, contentType, userId, severityLevel, and status are required" });
     }
 
-    const validStatuses = ["pending", "resolved", "dismissed"];
-    if (!validStatuses.includes(status)) {
+    if (!["Message", "Post", "Comment"].includes(contentType)) {
+        return res.status(400).json({ error: "Invalid contentType. Must be 'Message', 'Post', or 'Comment'." });
+    }
+
+    if (!["pending review", "resolved"].includes(status)) {
         return res.status(400).json({ error: "Invalid status value" });
     }
 
     try {
-        // Ensure contentId exists in Content collection
-        const contentExists = await Content.findById(contentId);
+        // Ensure contentId exists in the correct collection
+        const ContentModel = contentModels[contentType];
+        if (!ContentModel) {
+            return res.status(400).json({ error: "Invalid contentType" });
+        }
+
+        const contentExists = await ContentModel.findById(contentId);
         if (!contentExists) {
-            return res.status(404).json({ error: "ContentId not found in content collection" });
+            return res.status(404).json({ error: `ContentId not found in ${contentType} collection` });
         }
 
         // Ensure userId exists in User collection
@@ -32,9 +50,10 @@ const createIncident = async (req, res) => {
 
         const newIncident = new Incident({
             contentId,
+            contentType,
             userId,
             severityLevel,
-            status,
+            status
         });
 
         await newIncident.save();
@@ -53,13 +72,19 @@ const getAllIncidents = async (req, res) => {
     try {
         const incidents = await Incident.find()
             .populate({
-                path: 'contentId',
-                select: 'content'
-            })
-            .populate({
                 path: 'userId',
                 select: 'username'
-            });
+            })
+            .lean(); // Convert to plain objects for dynamic population
+
+        // Populate contentId dynamically based on contentType
+        await Promise.all(incidents.map(async (incident) => {
+            const ContentModel = contentModels[incident.contentType];
+            if (ContentModel) {
+                incident.content = await ContentModel.findById(incident.contentId).select('content');
+            }
+        }));
+
         res.json(incidents);
     } catch (err) {
         console.error("Error fetching incidents:", err);
@@ -74,16 +99,21 @@ const getIncident = async (req, res) => {
     try {
         const incident = await Incident.findById(req.params.id)
             .populate({
-                path: 'contentId',
-                select: 'content'
-            })
-            .populate({
                 path: 'userId',
                 select: 'username'
-            });
+            })
+            .lean();
+
         if (!incident) {
             return res.status(404).json({ message: 'Incident not found' });
         }
+
+        // Populate contentId dynamically based on contentType
+        const ContentModel = contentModels[incident.contentType];
+        if (ContentModel) {
+            incident.content = await ContentModel.findById(incident.contentId).select('content');
+        }
+
         res.json(incident);
     } catch (err) {
         console.error(err);
@@ -107,16 +137,19 @@ const updateIncident = async (req, res) => {
             { new: true, runValidators: true }
         )
         .populate({
-            path: 'contentId',
-            select: 'content' 
-        })
-        .populate({
             path: 'userId',
             select: 'username'
-        });
+        })
+        .lean();
 
         if (!incident) {
             return res.status(404).json({ message: 'Incident not found' });
+        }
+
+        // Populate contentId dynamically based on contentType
+        const ContentModel = contentModels[incident.contentType];
+        if (ContentModel) {
+            incident.content = await ContentModel.findById(incident.contentId).select('content');
         }
 
         res.json(incident);
