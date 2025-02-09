@@ -46,6 +46,7 @@ def validate_incident_data(data: List[Dict[str, str]]) -> List[Dict[str, str]]:
     for item in data:
         filtered_item = {
             "contentId": item.get("contentId", "").strip(),
+            "contentType": item.get("contentType", "").strip(),
             "userId": item.get("userId", "").strip(),
             "severityLevel": item.get("severityLevel", "").strip().lower(),
             "status": item.get("status", "").strip().lower(),
@@ -106,7 +107,8 @@ def upload_json(filename: str) -> None:
         if response.status_code == 201:
             print("\n✅ Incident uploaded successfully!")
         else:
-            print("\n❌ Upload failed:", response.json())
+            print("\n❌ Upload failed! Status Code:", response.status_code)
+            print("Response Text:", response.text)
 
 def upload_csv(filename: str) -> None:
     """Convert CSV file to JSON and upload it row by row."""
@@ -142,3 +144,26 @@ def upload_csv(filename: str) -> None:
             print("\n✅ Incident uploaded successfully!")
         else:
             print("\n❌ Upload failed:", response.json())
+
+if __name__ == "__main__":
+    login()
+
+    while True:
+        print("\n👌 Options:")
+        print("1. Upload JSON file")
+        print("2. Upload CSV")
+        print("5. Exit")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "1":
+            filename = input("\nEnter JSON filename: ")
+            upload_json(filename)
+        elif choice == "2":
+            filename = input("\nEnter CSV filename: ")
+            upload_csv(filename)
+        elif choice == "5":
+            print("\n🚪 Exiting...")
+            break
+        else: 
+            print("\n❌ Invalid option.")
