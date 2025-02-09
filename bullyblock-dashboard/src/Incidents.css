@@ -1,0 +1,45 @@
+.incidents-container {
+    padding: 20px;
+    text-align: center;
+}
+
+.incidents-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1em;
+    font-family: 'Arial, sans-serif';
+    min-width: 600px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.incidents-table thead tr {
+    background-color: #c82333;
+    color: #ffffff;
+    text-align: left;
+    border-bottom: 1px solid #dddddd;
+}
+
+.incidents-table th,
+.incidents-table td {
+    padding: 12px 15px;
+    text-align: center;
+}
+
+.incidents-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.incidents-table tbody tr:last-of-type {
+    border-bottom: 2px solid #c82333;
+}
+
+.incidents-table tbody tr.active-row {
+    font-weight: bold;
+    color: #dddddd
+}
+
+.incidents-table tbody tr.resolved {
+    background-color: #f3f3f34b;
+    color: #dddddd; 
+}
