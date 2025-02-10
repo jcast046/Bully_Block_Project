@@ -6,15 +6,15 @@ import { AuthContext } from '../AuthContext';
 
 const Dashboard = () => {
     // State for incident count and analytics data
-    const [alertCount, setAlertCount] = useState(null);
+    const [incidentCount, setIncidentCount] = useState(null);
     const { user } = useContext(AuthContext); // Access user info from context
 
     const baseURL = 'http://localhost:3001/api'; // Base URL for API
 
     // Fetch incident count from API
     useEffect(() => {
-        axios.get(`${baseURL}/alert/count`)
-            .then((response) => setAlertCount(response.data.count))
+        axios.get(`${baseURL}/incidents/count`)
+            .then((response) => setIncidentCount(response.data.count))
             .catch((error) => {
                 console.error("Error fetching incidents:", error);
             });
@@ -23,11 +23,10 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container">
             <h1>Welcome, {user?.username}!</h1> {/* Display the username */}
-            <p>Dashboard page content goes here.</p>
             <div className="dashboard-widget-container">
                 <DashboardWidget
                     title="Incidents"
-                    value={alertCount}
+                    value={incidentCount}
                     description="View Incidents"
                     link="/incidents"
                     icon="fas fa-exclamation-circle"

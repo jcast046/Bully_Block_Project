@@ -29,7 +29,9 @@ const App = () => {
               <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
           </main> {}
-          <Footer /> {}
+          <footer>
+            <Footer /> {}
+          </footer>
         </div>
       </Router>
     </AuthProvider>

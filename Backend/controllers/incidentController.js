@@ -121,6 +121,24 @@ const getIncident = async (req, res) => {
     }
 };
 
+// @route   GET /api/incidents/count
+// @desc    Get total count of incidents
+// @access  Public
+const getIncidentCount = async (req, res) => {
+    try {
+        console.log("Fetching incident count...");
+
+        const count = await Incident.countDocuments();
+
+        console.log(`Incident count: ${count}`);
+
+        res.json({ count });
+    } catch (error) {
+        console.error("Error fetching incident count:", error);
+        res.status(500).json({ error: "Server error", details: error.message });
+    }
+};
+
 // @route   PUT /api/incidents/:id
 // @desc    Update an incident
 // @access  Private
@@ -177,4 +195,4 @@ const deleteIncident = async (req, res) => {
     }
 };
 
-module.exports = { createIncident, getAllIncidents, getIncident, updateIncident, deleteIncident };
+module.exports = { createIncident, getAllIncidents, getIncident, updateIncident, deleteIncident, getIncidentCount };
