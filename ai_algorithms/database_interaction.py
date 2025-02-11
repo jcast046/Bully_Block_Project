@@ -102,14 +102,23 @@ def check_duplicates(new_data: List[Dict[str, str]]) -> bool:
         "Authorization": f"Bearer {AUTH_TOKEN}",
         "Content-Type": "application/json"
     }
-    response = requests.get(f"{API_BASE_URL}/content", headers=headers)
-    if response.status_code == 200:
-        existing_content = response.json()
-        existing_texts = {item["content"] for item in existing_content}
+
+    endpoints = ["/messages", "/comments", "/posts"]
+    existing_texts = set()
+
+    for endpoint in endpoints:
+        response = requests.get(f"{API_BASE_URL}{endpoint}", headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            existing_texts.update(item["content"].strip().lower() for item in data if "content" in item)
+
         for item in new_data:
-            if item["content"] in existing_texts:
+            content = item["content"].strip().lower()
+
+            if content in existing_texts:
                 print("\n⚠️ Duplicate content found! Upload aborted.")
                 return True
+            
     return False
 
 def upload_json(filename: str) -> None:

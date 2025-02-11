@@ -72,6 +72,24 @@ def validate_incident_data(data: List[Dict[str, str]]) -> List[Dict[str, str]]:
     
     return valid_data
 
+# Prevents uploading duplicate incidents by preventing entries with duplicate contentIds
+# I am assuming that there can only be one incident per contentId
+def check_duplicates(new_data: List[Dict[str, str]]) -> bool:
+    """Check for duplicate content before uploading."""
+    headers = {
+        "Authorization": f"Bearer {AUTH_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    response = requests.get(f"{API_BASE_URL}/incidents", headers=headers)
+    if response.status_code == 200:
+        existing_content = response.json()
+        existing_texts = {item["contentId"] for item in existing_content} 
+        for item in new_data:
+            if item["contentId"] in existing_texts: # Checks to see if that specific contentId exists in the incidents collection
+                print("\n⚠️ Duplicate content found! Upload aborted.")
+                return True
+    return False
+
 def upload_json(filename: str) -> None:
     """Upload JSON file contents to the database."""
     if not AUTH_TOKEN:
@@ -92,7 +110,10 @@ def upload_json(filename: str) -> None:
     if not data:
         print("\n❌ No valid data to upload.")
         return
-
+    
+    if check_duplicates(data):
+        return
+    
     headers = {
         "Authorization": f"Bearer {AUTH_TOKEN}",
         "Content-Type": "application/json"
