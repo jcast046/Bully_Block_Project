@@ -220,18 +220,29 @@ def generate_incident_reports(feature_data):
     
     for i, record in enumerate(feature_data):
         severity = determine_severity(record["validation"])
-
+        content_id = content_label(i)
         incident = {
-            "_id": {"$oid": str(uuid.uuid4())},  # Generate unique MongoDB-like ObjectID
+            content_id : {"$oid": str(uuid.uuid4())},  # Generate unique MongoDB-like ObjectID
             "incident_id": f"i{i+10000}",  # Unique incident ID
-            "detected_content_id": f"p{i+5000}",  # Unique detected content ID
-            "content_type": "post",  # Assuming all content is from posts
+            #"detected_content_id": f"p{i+5000}",  # Unique detected content ID
+            "content_type": text_cleaning.get_content_type(i),  # List type of content
             "severity_level": severity,
             "status": "pending_review"
         }
         incident_reports.append(incident)
 
     return incident_reports
+
+def content_label(i):
+    type = text_cleaning.get_content_type(i)
+    if type == "message":
+        return "message_id"
+    elif type == "comment":
+        return "comment_id"
+    elif type == "post":
+        return "post_id"
+    else:
+        return "content_id"
 
 def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_reports.json"):
     """
