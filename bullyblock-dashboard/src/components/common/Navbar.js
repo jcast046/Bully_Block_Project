@@ -4,6 +4,7 @@ import './Navbar.css';
 import logo from '../../assets/images/logo3-white.svg';
 import { AuthContext } from '../../AuthContext';
 import Button from '../common/Button';
+/*import NotificationPopUp from '../common/NotificationPopUp'; */
 
 const Navbar = () => {
     // State to track whether the menu is open or closed

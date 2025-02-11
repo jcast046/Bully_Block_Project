@@ -1,0 +1,59 @@
+.notifications-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .notifications-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: 10px;
+    font-size: 16px;
+    color: white; /* Adjust based on your theme */
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .notifications-dropdown {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: #1e293b; /* Tailwind dark blue */
+    color: white;
+    width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    z-index: 100;
+  }
+  
+  .notification-item {
+    padding: 8px;
+    border-bottom: 1px solid #334155; /* Slightly lighter blue */
+  }
+  
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  
+  .no-notifications {
+    text-align: center;
+    padding: 10px;
+    color: #94a3b8; /* Tailwind gray-400 */
+  }
+  
