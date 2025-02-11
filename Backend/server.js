@@ -20,6 +20,9 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
+// Import canvas-interactions
+const getDiscussions = require("./canvas-interactions/getDiscussions");
+
 // Import Routes
 const userRoutes = require("./routes/userRoutes");
 const schoolRoutes = require("./routes/schoolRoutes");
@@ -46,6 +49,27 @@ app.use("/api/comments", commentRoutes);
 app.get("/", (req, res) => {
     res.status(200).send("BullyBlock API is running...");
 });
+
+// Fetch discussions on startup
+(async () => {
+    try {
+        await getDiscussions();
+        console.log("Initial discussion data fetched.");
+    } catch (error) {
+        console.error("Error fetching initial discussion data:", error);
+    }
+})();
+
+// Fetch discussions every minute
+setInterval(async () => {
+    try {
+        console.log("Fetching discussion data...");
+        await getDiscussions();
+        console.log("Discussion data updated.");
+    } catch (error) {
+        console.error("Error updating discussion data:", error);
+    }
+}, 60000); // get discussions every 60 seconds (300,000 ms)
 
 // Connect to MongoDB and start the server only if successful
 mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true })
