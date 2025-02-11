@@ -318,21 +318,25 @@ def visualize_summary(summary):
     plt.title("POS Tag Distribution")
     plt.xlabel("POS Tags")
     plt.ylabel("Frequency")
+    plt.savefig("ai_algorithms/POS_tag_distribution.png")
     plt.show()
-
+    
     # Plot entity distribution
     plt.bar(summary["Entity Distribution"].keys(), summary["Entity Distribution"].values())
     plt.title("Entity Distribution")
     plt.xlabel("Entity Types")
     plt.ylabel("Frequency")
+    plt.savefig("ai_algorithms/entity_distribution.png")
     plt.show()
-
+    
     # Plot sentiment scores
     plt.bar(summary["Average Sentiments"].keys(), summary["Average Sentiments"].values())
     plt.title("Average Sentiment Scores")
     plt.xlabel("Sentiment Type")
     plt.ylabel("Score")
+    plt.savefig("ai_algorithms/sentiment_scores.png")
     plt.show()
+    
 
 if __name__ == "__main__":
     """
