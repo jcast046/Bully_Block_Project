@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Post = require('../models/Post');
 const User = require('../models/User');
 
@@ -115,4 +116,43 @@ const deletePost = async (req, res) => {
     }
 };
 
-module.exports = { createPost, getAllPosts, getPost, updatePost, deletePost };
+// @route GET /api/posts/search
+// @desc Get posts containing keyword
+// @access Private 
+const searchPosts = async (req, res) => {
+    try {
+        const { keyword } = req.query;
+        if (!keyword) {
+            return res.status(400).json({ error: "Keyword is required" });
+        }
+
+        const sampleDoc = await Post.findOne();
+        if (!sampleDoc) {
+            return res.json([]);
+        }
+
+        // search for strings
+        const fields = Object.keys(sampleDoc.toObject()).filter(field => 
+            typeof sampleDoc[field] === "string"
+        );
+
+        const query = {
+            $or: fields.map(field => ({
+                [field]: { $regex: keyword, $options: 'i' }
+            }))
+        };
+
+        // Check if the keyword is a valid ObjectId to search for author
+        if (mongoose.Types.ObjectId.isValid(keyword)) {
+            query.$or.push({ author: new mongoose.Types.ObjectId(keyword) });
+        }
+
+        const results = await Post.find(query);
+        res.json(results);
+    } catch (err) {
+        console.error("Error in searchPosts:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
+module.exports = { createPost, getAllPosts, getPost, updatePost, deletePost,  searchPosts};
