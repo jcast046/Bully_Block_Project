@@ -72,6 +72,49 @@ def validate_incident_data(data: List[Dict[str, str]]) -> List[Dict[str, str]]:
     
     return valid_data
 
+# Prevents uploading duplicate incidents by preventing entries with duplicate contentIds
+# I am assuming that there can only be one incident per contentId
+def check_duplicates(new_data: List[Dict[str, str]]) -> bool:
+    """Check for duplicate content before uploading."""
+    headers = {
+        "Authorization": f"Bearer {AUTH_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    response = requests.get(f"{API_BASE_URL}/incidents", headers=headers)
+    if response.status_code == 200:
+        existing_content = response.json()
+        existing_texts = {item["contentId"] for item in existing_content} 
+        for item in new_data:
+            if item["contentId"] in existing_texts: # Checks to see if that specific contentId exists in the incidents collection
+                print("\n⚠️ Duplicate content found! Upload aborted.")
+                return True
+    return False
+
+def search_incidents(search_term):
+    try:
+
+        incidents_url = f"{API_BASE_URL}/incidents"
+        incidents_response = requests.get(incidents_url)
+        incidents_response.raise_for_status()
+        incidents = incidents_response.json()
+
+        for incident in incidents:
+            content_id = incident.get("contentId")
+            content_type = incident.get("contentType")
+
+            content_url = f"{API_BASE_URL}/{content_type}s/{content_id}"
+            content_response = requests.get(content_url)
+            content_response.raise_for_status()
+            content_doc = content_response.json()
+
+            if "content" in content_doc:
+                content_text = content_doc["content"]
+                if search_term in content_text:
+                    print("Incident:", incident)
+
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+
 def upload_json(filename: str) -> None:
     """Upload JSON file contents to the database."""
     if not AUTH_TOKEN:
@@ -92,7 +135,10 @@ def upload_json(filename: str) -> None:
     if not data:
         print("\n❌ No valid data to upload.")
         return
-
+    
+    if check_duplicates(data):
+        return
+    
     headers = {
         "Authorization": f"Bearer {AUTH_TOKEN}",
         "Content-Type": "application/json"
@@ -152,6 +198,7 @@ if __name__ == "__main__":
         print("\n👌 Options:")
         print("1. Upload JSON file")
         print("2. Upload CSV")
+        print("3. Search content in incidents")
         print("5. Exit")
 
         choice = input("\nPlease select an option: ")
@@ -162,6 +209,9 @@ if __name__ == "__main__":
         elif choice == "2":
             filename = input("\nEnter CSV filename: ")
             upload_csv(filename)
+        elif choice == "3":
+            search_term = input("Enter the search term: ")
+            search_incidents(search_term)
         elif choice == "5":
             print("\n🚪 Exiting...")
             break

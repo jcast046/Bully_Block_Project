@@ -220,18 +220,29 @@ def generate_incident_reports(feature_data):
     
     for i, record in enumerate(feature_data):
         severity = determine_severity(record["validation"])
-
+        content_id = content_label(i)
         incident = {
-            "_id": {"$oid": str(uuid.uuid4())},  # Generate unique MongoDB-like ObjectID
+            content_id : {"$oid": str(uuid.uuid4())},  # Generate unique MongoDB-like ObjectID
             "incident_id": f"i{i+10000}",  # Unique incident ID
-            "detected_content_id": f"p{i+5000}",  # Unique detected content ID
-            "content_type": "post",  # Assuming all content is from posts
+            #"detected_content_id": f"p{i+5000}",  # Unique detected content ID
+            "content_type": text_cleaning.get_content_type(i),  # List type of content
             "severity_level": severity,
             "status": "pending_review"
         }
         incident_reports.append(incident)
 
     return incident_reports
+
+def content_label(i):
+    type = text_cleaning.get_content_type(i)
+    if type == "message":
+        return "message_id"
+    elif type == "comment":
+        return "comment_id"
+    elif type == "post":
+        return "post_id"
+    else:
+        return "content_id"
 
 def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_reports.json"):
     """
@@ -307,21 +318,25 @@ def visualize_summary(summary):
     plt.title("POS Tag Distribution")
     plt.xlabel("POS Tags")
     plt.ylabel("Frequency")
+    plt.savefig("ai_algorithms/POS_tag_distribution.png")
     plt.show()
-
+    
     # Plot entity distribution
     plt.bar(summary["Entity Distribution"].keys(), summary["Entity Distribution"].values())
     plt.title("Entity Distribution")
     plt.xlabel("Entity Types")
     plt.ylabel("Frequency")
+    plt.savefig("ai_algorithms/entity_distribution.png")
     plt.show()
-
+    
     # Plot sentiment scores
     plt.bar(summary["Average Sentiments"].keys(), summary["Average Sentiments"].values())
     plt.title("Average Sentiment Scores")
     plt.xlabel("Sentiment Type")
     plt.ylabel("Score")
+    plt.savefig("ai_algorithms/sentiment_scores.png")
     plt.show()
+    
 
 if __name__ == "__main__":
     """

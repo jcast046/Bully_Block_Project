@@ -102,14 +102,23 @@ def check_duplicates(new_data: List[Dict[str, str]]) -> bool:
         "Authorization": f"Bearer {AUTH_TOKEN}",
         "Content-Type": "application/json"
     }
-    response = requests.get(f"{API_BASE_URL}/content", headers=headers)
-    if response.status_code == 200:
-        existing_content = response.json()
-        existing_texts = {item["content"] for item in existing_content}
+
+    endpoints = ["/messages", "/comments", "/posts"]
+    existing_texts = set()
+
+    for endpoint in endpoints:
+        response = requests.get(f"{API_BASE_URL}{endpoint}", headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            existing_texts.update(item["content"].strip().lower() for item in data if "content" in item)
+
         for item in new_data:
-            if item["content"] in existing_texts:
+            content = item["content"].strip().lower()
+
+            if content in existing_texts:
                 print("\n⚠️ Duplicate content found! Upload aborted.")
                 return True
+            
     return False
 
 def upload_json(filename: str) -> None:
@@ -291,6 +300,35 @@ def fetch_content(content_type: str = "all") -> None:
     else:
         print("\n❌ Failed to fetch content:", response.json())
 
+def search_content(search_term, content_type):
+    params = {"keyword": search_term}
+    
+    if content_type.lower() == "all":
+        collections = ["posts", "messages", "comments"]
+        results = {}
+
+        for collection in collections:
+            url = f"{API_BASE_URL}/{collection}/search"
+            try:
+                response = requests.get(url, params=params)
+                response.raise_for_status()
+                results[collection] = response.json()  # Store results under each collection
+            except requests.exceptions.RequestException as e:
+                print(f"Error searching {collection}:", e)
+        
+        print(results)  # Print the combined results
+        return results  # Return merged results
+
+    else:
+        url = f"{API_BASE_URL}/{content_type}s/search"
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            results = response.json()
+            print(results)
+            return results
+        except requests.exceptions.RequestException as e:
+            print("Error:", e)
 
 if __name__ == "__main__":
     print("\n🔑 Login Required")
@@ -316,7 +354,7 @@ if __name__ == "__main__":
             content_type = input("\nEnter content type to fetch (post, message, comment, or all): ")
             fetch_content(content_type)
         elif choice == "4":
-            search_term = input("\nEnter search term: ")
+            search_term = input("\nEnter search term (term can be in a string in content or an authorId): ")
             content_type = input("\nEnter content type to search (post, message, comment, or all): ")
             search_content(search_term, content_type)
         elif choice == "5":

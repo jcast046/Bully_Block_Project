@@ -37,6 +37,9 @@ nlp = spacy.load("en_core_web_sm")
 tokenizer = TreebankWordTokenizer()
 stemmer = PorterStemmer()
 
+# List to save the content type of each record
+content_types = []
+
 def anonymize_text(text):
     """
     Anonymize sensitive information in the text.
@@ -132,6 +135,7 @@ def save_processed_data(processed_texts, output_path):
     Save processed text data to a JSON file.
 
     Args:
+        content_types (list): List of content type for each record.
         processed_texts (list): List of processed text records.
         output_path (str): Path to the output JSON file.
     """
@@ -141,6 +145,10 @@ def save_processed_data(processed_texts, output_path):
         print(f"Processed data saved to {output_path}")
     except Exception as e:
         print(f"Error saving processed data: {e}")
+        
+def get_content_type(i):
+    type = content_types[i]
+    return type
 
 def main():
     """
@@ -159,13 +167,20 @@ def main():
         return
 
     processed_texts = []
-
     # Process each record
     for record in dataset:
         # Check for "content" key (since mock dataset uses it)
         if 'content' in record:
             cleaned = clean_text(record['content'], debug=True)
             processed_texts.append({'original': record['content'], 'processed': cleaned})
+            if 'contentType' in record:
+                if record['contentType'] != "post" and record['contentType'] != "message" and record['contentType'] != "comment":
+                    content_types.append("Unspecified")
+                else:    
+                    content_types.append(record['contentType'])
+            else:
+                content_types.append("Unspecified")
+            
         elif 'text' in record:
             cleaned = clean_text(record['text'], debug=True)
             processed_texts.append({'original': record['text'], 'processed': cleaned})

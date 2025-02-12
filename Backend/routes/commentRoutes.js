@@ -1,11 +1,12 @@
 const express = require('express');
-const { createComment, getAllComments, getComment, deleteComment } = require('../controllers/commentController');
+const { createComment, getAllComments, getComment, deleteComment, searchComments } = require('../controllers/commentController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 // Public routes
 router.get('/', getAllComments);  // Get all comments (no authentication needed)
+router.get('/search', searchComments);
 router.get('/:id', getComment);   // Get a comment by ID (no authentication needed)
 
 // Protected routes
