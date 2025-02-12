@@ -45,10 +45,11 @@ def validate_incident_data(data: List[Dict[str, str]]) -> List[Dict[str, str]]:
 
     for item in data:
         filtered_item = {
-            "contentId": item.get("contentId", "").strip(),
-            "contentType": item.get("contentType", "").strip(),
-            "userId": item.get("userId", "").strip(),
-            "severityLevel": item.get("severityLevel", "").strip().lower(),
+            "contentId": item.get("content_id", "").strip(),
+            "incidentId": item.get("incident_id", ""),
+            "authorId": item.get("author_id", "").strip(),
+            "contentType": item.get("content_type", "").strip(),
+            "severityLevel": item.get("severity_level", "").strip().lower(),
             "status": item.get("status", "").strip().lower(),
         }
 
@@ -63,10 +64,12 @@ def validate_incident_data(data: List[Dict[str, str]]) -> List[Dict[str, str]]:
         if filtered_item["status"] not in valid_statuses:
             print(f"\n❌ Invalid status '{filtered_item['status']}' in: {item}")
             continue
+        
 
-        if not is_valid_object_id(filtered_item["contentId"]) or not is_valid_object_id(filtered_item["userId"]):
-            print(f"\n❌ Invalid ObjectId format in: {item}")
-            continue
+        #if not is_valid_object_id(filtered_item["content_id"]) or not is_valid_object_id(filtered_item["userId"]):
+            #print(f"\n❌ Invalid ObjectId format in: {item}")
+            #continue
+
 
         valid_data.append(filtered_item)
     

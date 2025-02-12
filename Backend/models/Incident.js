@@ -2,20 +2,23 @@ const mongoose = require('mongoose');
 
 const IncidentSchema = new mongoose.Schema({
     contentId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required: true,
-        refPath: 'contentType' // Dynamically reference collection
+    },
+
+    incidentId: {
+        type: String,
+        required: true
+    },
+
+    authorId: {
+        type: String,
+        required: true
     },
 
     contentType: {
         type: String,
-        enum: ['Message', 'Post', 'Comment'], // Define possible collections
-        required: true
-    },
-
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Users',
+        enum: ['message', 'post', 'comment'],
         required: true
     },
 

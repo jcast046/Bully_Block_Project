@@ -40,6 +40,12 @@ stemmer = PorterStemmer()
 # List to save the content type of each record
 content_types = []
 
+# List to save content id of each record
+content_ids = []
+
+# List to save author_ids of each record
+author_ids = []
+
 def anonymize_text(text):
     """
     Anonymize sensitive information in the text.
@@ -150,6 +156,14 @@ def get_content_type(i):
     type = content_types[i]
     return type
 
+def get_content_id(i):
+    id = content_ids[i]
+    return id
+
+def get_author_id(i):
+    author_id = author_ids[i]
+    return author_id
+
 def main():
     """
     Main program execution.
@@ -167,25 +181,50 @@ def main():
         return
 
     processed_texts = []
+
     # Process each record
     for record in dataset:
-        # Check for "content" key (since mock dataset uses it)
+        content_id = "Unspecified"  # Default value
+        author_id = record.get('author_id', "Unspecified")  # Extract author_id
+
         if 'content' in record:
             cleaned = clean_text(record['content'], debug=True)
-            processed_texts.append({'original': record['content'], 'processed': cleaned})
+            processed_texts.append({
+                'original': record['content'],
+                'processed': cleaned,
+                'author_id': author_id  # Include author_id in processed data
+            })
+
             if 'contentType' in record:
-                if record['contentType'] != "post" and record['contentType'] != "message" and record['contentType'] != "comment":
-                    content_types.append("Unspecified")
-                else:    
+                if record['contentType'] in ["post", "message", "comment"]:
                     content_types.append(record['contentType'])
+
+                    # Extract the correct content ID based on contentType
+                    if record['contentType'] == "post" and 'post_id' in record:
+                        content_id = record['post_id']
+                    elif record['contentType'] == "message" and 'message_id' in record:
+                        content_id = record['message_id']
+                    elif record['contentType'] == "comment" and 'comment_id' in record:
+                        content_id = record['comment_id']
+                else:
+                    content_types.append("Unspecified")
             else:
                 content_types.append("Unspecified")
-            
+
         elif 'text' in record:
             cleaned = clean_text(record['text'], debug=True)
-            processed_texts.append({'original': record['text'], 'processed': cleaned})
+            processed_texts.append({
+                'original': record['text'],
+                'processed': cleaned,
+                'author_id': author_id  # Include author_id for text-based records
+            })
+
         else:
             print(f"Warning: No valid text field found in record: {record}")
+
+        # Save content_id and author_id
+        content_ids.append(content_id)
+        author_ids.append(author_id)
 
     # Save the processed data
     save_processed_data(processed_texts, output_file)

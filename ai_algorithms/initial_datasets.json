@@ -9,6 +9,7 @@
         "contentType": "comment",
         "content": "Congrats. Hope you did well.",
         "author_id": "u40002",
+        "comment_id": "c60001",
         "post_id": "p30001"
     },
     {
@@ -21,13 +22,14 @@
         "contentType": "comment",
         "content": "Sure. Let's meet in the library at 3.",
         "author_id": "u40004",
+        "comment_id": "c60002",
         "post_id": "p30002"
     },
     {
         "contentType": "message",
         "message_id": "m50001",
         "content": "Hey, do you have the notes from last class?",
-        "author": "u40005",
+        "author_id": "u40005",
         "recipient": "u40006",
         "date": "2025-02-08T14:30:00Z"
     },
@@ -35,7 +37,7 @@
         "contentType": "message",
         "message_id": "m50002",
         "content": "Yeah, I’ll send them to you now.",
-        "author": "u40006",
+        "author_id": "u40006",
         "recipient": "u40005",
         "date": "2025-02-08T14:32:00Z"
     },
@@ -49,7 +51,7 @@
         "contentType": "message",
         "message_id": "m50003",
         "content": "Are you coming to the study session later?",
-        "author": "u40008",
+        "author_id": "u40008",
         "recipient": "u40009",
         "date": "2025-02-08T15:00:00Z"
     },
@@ -57,7 +59,7 @@
         "contentType": "message",
         "message_id": "m50004",
         "content": "I can't today, maybe tomorrow?",
-        "author": "u40009",
+        "author_id": "u40009",
         "recipient": "u40008",
         "date": "2025-02-08T15:05:00Z"
     },
@@ -71,13 +73,14 @@
         "contentType": "comment",
         "content": "Yeah, I can send them to you.",
         "author_id": "u40011",
+        "comment_id": "c60003",
         "post_id": "p30004"
     },
     {
         "contentType": "message",
         "message_id": "m50005",
         "content": "We have a pop quiz tomorrow, just a heads up.",
-        "author": "u40012",
+        "author_id": "u40012",
         "recipient": "u40013",
         "date": "2025-02-08T16:00:00Z"
     },
@@ -85,7 +88,7 @@
         "contentType": "message",
         "message_id": "m50006",
         "content": "Ugh, thanks for letting me know. Gotta cram tonight.",
-        "author": "u40013",
+        "author_id": "u40013",
         "recipient": "u40012",
         "date": "2025-02-08T16:05:00Z"
     },
@@ -99,7 +102,7 @@
         "contentType": "message",
         "message_id": "m50007",
         "content": "Do you wanna practice for the debate competition later?",
-        "author": "u40015",
+        "author_id": "u40015",
         "recipient": "u40016",
         "date": "2025-02-08T17:00:00Z"
     },
@@ -107,7 +110,7 @@
         "contentType": "message",
         "message_id": "m50008",
         "content": "Sure, let's meet after class.",
-        "author": "u40016",
+        "author_id": "u40016",
         "recipient": "u40015",
         "date": "2025-02-08T17:05:00Z"
     },
@@ -133,7 +136,7 @@
         "contentType": "message",
         "message_id": "m50009",
         "content": "Wanna grab lunch later?",
-        "author": "u40020",
+        "author_id": "u40020",
         "recipient": "u40021",
         "date": "2025-02-08T12:30:00Z"
     },
@@ -141,7 +144,7 @@
         "contentType": "message",
         "message_id": "m50010",
         "content": "Sorry, I already have plans. Maybe tomorrow?",
-        "author": "u40021",
+        "author_id": "u40021",
         "recipient": "u40020",
         "date": "2025-02-08T12:35:00Z"
     },
@@ -173,7 +176,7 @@
         "contentType": "message",
         "message_id": "m50011",
         "content": "I heard there's extra credit if we submit our essay early.",
-        "author": "u40026",
+        "author_id": "u40026",
         "recipient": "u40027",
         "date": "2025-02-08T18:30:00Z"
     },
@@ -181,7 +184,7 @@
         "contentType": "message",
         "message_id": "m50012",
         "content": "Really? Thanks for the heads-up!",
-        "author": "u40027",
+        "author_id": "u40027",
         "recipient": "u40026",
         "date": "2025-02-08T18:35:00Z"
     },

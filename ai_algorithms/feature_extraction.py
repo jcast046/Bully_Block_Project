@@ -222,12 +222,13 @@ def generate_incident_reports(feature_data):
         severity = determine_severity(record["validation"])
         content_id = content_label(i)
         incident = {
-            content_id : {"$oid": str(uuid.uuid4())},  # Generate unique MongoDB-like ObjectID
+            "content_id" : text_cleaning.get_content_id(i),  # Generate unique MongoDB-like ObjectID
             "incident_id": f"i{i+10000}",  # Unique incident ID
+            "author_id": text_cleaning.get_author_id(i),
             #"detected_content_id": f"p{i+5000}",  # Unique detected content ID
             "content_type": text_cleaning.get_content_type(i),  # List type of content
             "severity_level": severity,
-            "status": "pending_review"
+            "status": "pending review"
         }
         incident_reports.append(incident)
 
