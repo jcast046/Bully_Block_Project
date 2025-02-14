@@ -200,9 +200,58 @@ def train_lstm():
     loss, accuracy = model.evaluate(X_test, y_test)
     print(f"\nLSTM Model Accuracy: {accuracy:.4f}")
 
+# Train CNN Model
+def train_cnn():
+    """
+    Train a Convolutional Neural Network (CNN) for cyberbullying classification.
+    
+    Steps:
+    1. Tokenize and pad text sequences.
+    2. Train CNN model with dropout and multiple convolutional layers.
+    3. Evaluate model performance.
+    """
+    texts, labels = load_text_data()
+
+    tokenizer = Tokenizer(num_words=5000, oov_token="<OOV>")
+    tokenizer.fit_on_texts(texts)
+    sequences = tokenizer.texts_to_sequences(texts)
+    padded_sequences = pad_sequences(sequences, maxlen=150, padding="post", truncating="post")
+
+    X_train, X_test, y_train, y_test = train_test_split(padded_sequences, labels, test_size=0.2, stratify=labels, random_state=42)
+
+    # Define CNN model architecture
+    model = Sequential([
+        Embedding(input_dim=5000, output_dim=128, input_length=150),
+        SpatialDropout1D(0.3),  
+        
+        # 1D Convolutional layers
+        tf.keras.layers.Conv1D(filters=64, kernel_size=5, activation='relu'),
+        tf.keras.layers.MaxPooling1D(pool_size=2),
+        
+        tf.keras.layers.Conv1D(filters=64, kernel_size=5, activation='relu'),
+        tf.keras.layers.MaxPooling1D(pool_size=2),
+        
+        # Flatten before fully connected layers
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(64, activation="relu"),
+        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(3, activation="softmax")  # Multi-class classification
+    ])
+
+    model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+    
+    # Train the CNN model
+    model.fit(X_train, y_train, epochs=5, batch_size=32, validation_data=(X_test, y_test))
+
+    # Evaluate the CNN model
+    loss, accuracy = model.evaluate(X_test, y_test)
+    print(f"\n CNN Model Accuracy: {accuracy:.4f}")
+
+
 if __name__ == "__main__":
     """
     Main execution: Trains both ML and deep learning models.
     """
-    train_models()
-    train_lstm()
+    train_models()  # Train traditional ML models (Logistic Regression, SVM, Random Forest)
+    train_lstm()  # Train LSTM deep learning model
+    train_cnn()  # Train CNN deep learning model
