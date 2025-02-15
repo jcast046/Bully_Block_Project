@@ -1,5 +1,5 @@
 .incidents-container {
-    padding: 4em;
+    padding: 20px;
     text-align: center;
 }
 
@@ -36,10 +36,15 @@
 
 .incidents-table tbody tr.active-row {
     font-weight: bold;
-    color: #dddddd
+    color: #dddddd;
 }
 
 .incidents-table tbody tr.resolved {
     background-color: #f3f3f34b;
-    color: #dddddd; 
+    color: #dddddd;
+}
+
+.incidents-table tbody tr:hover {
+    background-color: #e0e0e098;
+    cursor: pointer;
 }

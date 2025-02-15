@@ -1,0 +1,32 @@
+.incident-detail-container {
+    padding: 20px;
+    text-align: left;
+}
+
+.incident-detail-container h1 {
+    color: #c82333;
+    margin-bottom: 20px;
+}
+
+.incident-detail-container p {
+    margin: 10px 0;
+}
+
+.incident-detail-container button {
+    padding: 10px 20px;
+    margin: 10px 10px 0 0;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.incident-detail-container button:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+    margin: 20px 0;
+}
