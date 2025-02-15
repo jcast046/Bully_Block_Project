@@ -5,6 +5,7 @@ import Footer from './components/common/Footer';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Incidents from './pages/Incidents';
+import IncidentDetail from './pages/IncidentDetail';
 import Analytics from './pages/Analytics';
 import Register from './pages/Register';
 import { AuthProvider, AuthContext } from './AuthContext';
@@ -18,19 +19,20 @@ const App = () => {
           <header className="App-header">
             <Navbar />
           </header>
-          <main> {}
+          <main>
             <Routes>
               <Route path="/login" element={<Login />} />
               { /* TODO -- Reinsert commented private route before deployment */ }
               <Route path="/dashboard" element={<Dashboard /*{<PrivateRoute><Dashboard /></PrivateRoute>}*/ />} />
               <Route path="/incidents" element={<Incidents /*{<PrivateRoute><Incidents /></PrivateRoute>}*/ />} />
+              <Route path="/incidents/:id" element={<IncidentDetail />} /> {}
               <Route path="/analytics" element={<Analytics /*{<PrivateRoute><Analytics /></PrivateRoute>}*/ />} />
               <Route path="/register" element={<Register />} />
               <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
-          </main> {}
+          </main>
           <footer>
-            <Footer /> {}
+            <Footer />
           </footer>
         </div>
       </Router>
