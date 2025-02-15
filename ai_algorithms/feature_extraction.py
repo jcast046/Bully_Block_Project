@@ -160,7 +160,13 @@ def validate_features(feature_data):
         
         # Identify negative adjectives within the text
         negative_adjectives = sum(
-            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying"]
+            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying", "idiot", 
+                                                                             "loser", "ugly", "hate", "worthless", 
+                                                                             "lame", "embarrassing", "failure", "talentless", 
+                                                                             "weak", "hideous", "gross", "fat", 
+                                                                             "clueless", "brainless", "pathetic", "useless", 
+                                                                             "lonely", "unpopular", "unwanted", "disappear",
+                                                                             "disgusting", "fake", "terrible"]
         )
         
         # Compute sentiment scores at the token level
