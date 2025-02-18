@@ -4,7 +4,7 @@ import './Navbar.css';
 import logo from '../../assets/images/logo3-white.svg';
 import { AuthContext } from '../../AuthContext';
 import Button from '../common/Button';
-/*import NotificationPopUp from '../common/NotificationPopUp'; */
+import NotificationPopUp from '../common/NotificationPopUp';
 
 const Navbar = () => {
     // State to track whether the menu is open or closed
@@ -47,6 +47,7 @@ const Navbar = () => {
                     <Link to="/dashboard">Home</Link>
                     <Link to="/incidents">Incidents</Link>
                     <Link to="/analytics">Analytics</Link>
+                    <div className="/Notifications"><NotificationPopUp /> </div>
                     <Button text="Logout" onClick={handleLogout} className="logout-button" />
                 </div>
             )}
