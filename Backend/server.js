@@ -4,35 +4,21 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
-const helmet = require("helmet");
-const xssClean = require("xss-clean");
 
-const mongoURI = process.env.MONGO_URI;
+const mongoURI = process.env.MONGO_URI
 const app = express();
 const PORT = process.env.PORT || 3001;
 const USE_HTTPS = process.env.USE_HTTPS === "true";
 
-// Security Middleware
-app.use(helmet()); // Security headers
-app.use(xssClean()); // Protect against XSS attacks
-
 // Enable CORS for frontend access
 app.use(cors({
-    origin: 'http://localhost:3000', // React frontend address
+    origin: 'http://localhost:3000', // React frontend address // Use HTTP for local dev
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
 
 // Middleware
 app.use(express.json());
-
-// Import Custom Middleware
-const sanitizeMiddleware = require("./middleware/sanitizeMiddleware");
-const authMiddleware = require("./middleware/authMiddleware");
-
-// Apply Middleware
-app.use(sanitizeMiddleware);
-app.use(authMiddleware);
 
 // Import Routes
 const userRoutes = require("./routes/userRoutes");
@@ -56,13 +42,13 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 
-// Health Check
+// Health check
 app.get("/", (req, res) => {
     res.status(200).send("BullyBlock API is running...");
 });
 
 // Connect to MongoDB and start the server only if successful
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log("MongoDB connected successfully");
 
