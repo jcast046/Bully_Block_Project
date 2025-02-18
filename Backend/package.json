@@ -20,7 +20,9 @@
     "uuid": "^11.0.5"
   },
   "devDependencies": {
+    "helmet": "^8.0.0",
     "jest": "^29.7.0",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.22",
+    "xss-clean": "^0.1.4"
   }
 }
