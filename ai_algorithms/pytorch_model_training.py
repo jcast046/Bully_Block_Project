@@ -22,6 +22,7 @@ Workflow:
 import os
 import json
 import subprocess
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
@@ -31,6 +32,12 @@ from torch.utils.data import Dataset, DataLoader
 # Tokenization & Padding (Using TensorFlow's Tokenizer)
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+#Overall accuracy of each Pytorch Model
+overall_accuracy = []
+
+#Pytorch Model names
+model_names = []
 
 # Ensure all necessary preprocessing steps run before PyTorch training
 def run_preprocessing():
@@ -176,6 +183,9 @@ def train_pytorch_model(model, train_loader, test_loader, model_name):
     """
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
+    
+    epoches = [1, 2, 3, 4, 5]
+    losses = []
 
     # Training Loop
     for epoch in range(5):
@@ -186,8 +196,12 @@ def train_pytorch_model(model, train_loader, test_loader, model_name):
             loss = criterion(outputs, batch_y)
             loss.backward()
             optimizer.step()
+        losses.append(loss.item())
         print(f"Epoch {epoch+1}/5 ({model_name}): Loss = {loss.item():.4f}")
-
+    
+    #Output data to chart
+    model_chart(epoches, model_name, losses)
+ 
     # Evaluation
     model.eval()
     correct, total = 0, 0
@@ -197,8 +211,25 @@ def train_pytorch_model(model, train_loader, test_loader, model_name):
             predicted = torch.argmax(outputs, dim=1)
             correct += (predicted == batch_y).sum().item()
             total += batch_y.size(0)
-
     print(f"\n PyTorch {model_name} Model Accuracy: {correct/total:.4f}")
+    model_names.append(model_name)
+    overall_accuracy.append(correct/total)
+    
+def model_chart(epoches, model_name, losses):   
+    plt.bar(epoches, losses)
+    plt.title("PyTorch " + model_name + " Model Accuracy")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.savefig("ai_algorithms/PyTorch" + model_name + ".png")
+    plt.show()
+
+def overall_chart():
+    plt.bar(model_names, overall_accuracy)
+    plt.title("Pytorch Model Accuracy")
+    plt.xlabel("Pytorch Model")
+    plt.ylabel("Overall Accuracy")
+    plt.savefig("ai_algorithms/PyTorchOverallAccuracy.png")
+    plt.show()
 
 # Train LSTM and CNN Models
 texts, labels = load_text_data()
@@ -218,3 +249,5 @@ test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 train_pytorch_model(LSTMModel(), train_loader, test_loader, "LSTM")
 train_pytorch_model(CNNModel(), train_loader, test_loader, "CNN")
+overall_chart()
+
