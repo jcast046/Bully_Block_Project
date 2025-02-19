@@ -7,6 +7,7 @@ import '../App.css';
 const Register = () => {
     const baseURL = 'http://localhost:3001/api'; // Base URL for API
 
+    // State to handle form data for registration
     const [formData, setFormData] = useState({
         role: "",
         username: "",
@@ -14,8 +15,9 @@ const Register = () => {
         password: "",
     });
 
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // Allows navigation to different pages
 
+    // Handle input changes and update form state
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -23,8 +25,9 @@ const Register = () => {
         });
     };
 
+    // Handle form submission
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission behavior
         try {
             console.log("Form Data Sent:", formData);
             await axios.post(`${baseURL}/users/register`, formData, {
@@ -33,10 +36,10 @@ const Register = () => {
                 }
             });
             alert("User registered successfully");
-            navigate("/login");
+            navigate("/login"); // Redirect user to the login page
         } catch (error) {
-            console.error("Error registering user", error);
-            alert(error.response?.data?.message || "Registration failed")
+            console.error("Error registering user", error); // Log error for debugging
+            alert(error.response?.data?.message || "Registration failed"); // Notify user of failure
         }
     };
 
@@ -68,8 +71,8 @@ const Register = () => {
                     <input type="password" name="password" value={formData.password} onChange={handleChange} required />
                 </label>
                 <br />
-                <Button text="Register" type="submit"/>
-                <Link to='/login' className="link"><h3>Return to Login</h3></Link>
+                <Button text="Register" type="submit" /> {/* Custom button component for form submission */}
+                <Link to='/login' className="link"><h3>Return to Login</h3></Link> {/* Link to navigate back to login page */}
             </form>
         </div>
     );
