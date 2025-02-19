@@ -9,11 +9,14 @@ const upload = multer({ storage });
 // Upload Image
 router.post('/upload', upload.single('file'), imageController.uploadImage);
 
-// Get Image by ID
-router.get('/:id', imageController.getImage);
-
 // Get All Images
 router.get('/', imageController.getAllImages);
+
+// Get most recent images for each type
+router.get('/latest-images', imageController.getLatestImagesByType)
+
+// Get Image by ID
+router.get('/:id', imageController.getImage);
 
 // Delete Image by ID
 router.delete('/:id', imageController.deleteImage);

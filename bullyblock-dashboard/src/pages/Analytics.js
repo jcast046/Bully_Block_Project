@@ -34,22 +34,24 @@ const Analytics = () => {
         }, 1000);
     }, []);
 
-            // Fetch all images in collection
-            const fetchImages = async () => {
-                try {
-                    const response = await fetch('http://localhost:3001/images/');
-                    if (response.ok) {
-                        const imagesData = await response.json();
-                        setImages(imagesData);
-                    } else {
-                        console.error('Error fetching image');
+            // Fetch most recent images for each image type
+            useEffect(() => {
+                const fetchImages = async () => {
+                    try {
+                        const response = await fetch('http://localhost:3001/images/latest-images');
+                        if (response.ok) {
+                            const imagesData = await response.json();
+                            setImages(imagesData);
+                        } else {
+                            console.error('Error fetching image');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching image:', error);
                     }
-                } catch (error) {
-                    console.error('Error fetching image:', error);
-                }
-            };
-
-        fetchImages();
+                };
+            
+                fetchImages(); // Call the function only once
+            }, []);
 
     return (
         <div className="analytics-container">
