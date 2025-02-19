@@ -4,11 +4,17 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
+const xss = require("xss-clean");
 
 const mongoURI = process.env.MONGO_URI
 const app = express();
 const PORT = process.env.PORT || 3001;
 const USE_HTTPS = process.env.USE_HTTPS === "true";
+
+//Security Middleware
+const sanitizeMiddleware = require("./middleware/sanitizeMiddleware");
+app.use(xss());
+app.use(sanitizeMiddleware);
 
 // Enable CORS for frontend access
 app.use(cors({
@@ -19,6 +25,7 @@ app.use(cors({
 
 // Middleware
 app.use(express.json());
+
 
 // Import Routes
 const userRoutes = require("./routes/userRoutes");
@@ -44,6 +51,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use('/images', imageRoutes);
+
 
 // Health check
 app.get("/", (req, res) => {

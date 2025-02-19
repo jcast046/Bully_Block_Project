@@ -1,32 +1,25 @@
 const xss = require("xss-clean");
 
-module.exports = (req, res, next) => {
-    // Sanitize request body
-    if (req.body && typeof req.body === "object") {
-        for (let key in req.body) {
-            if (typeof req.body[key] === "string") {
-                req.body[key] = xss(req.body[key]);
+// Middleware function for deep sanitization
+const sanitizeRequest = (req, res, next) => {
+    // Function to recursively sanitize input data
+    const deepSanitize = (obj) => {
+        if (typeof obj === "string") {
+            return xss(obj);
+        } else if (typeof obj === "object" && obj !== null) {
+            for (let key in obj) {
+                obj[key] = deepSanitize(obj[key]);
             }
         }
-    }
+        return obj;
+    };
 
-    // Sanitize query parameters
-    if (req.query && typeof req.query === "object") {
-        for (let key in req.query) {
-            if (typeof req.query[key] === "string") {
-                req.query[key] = xss(req.query[key]);
-            }
-        }
-    }
-
-    // Sanitize headers
-    if (req.headers && typeof req.headers === "object") {
-        for (let key in req.headers) {
-            if (typeof req.headers[key] === "string") {
-                req.headers[key] = xss(req.headers[key]);
-            }
-        }
-    }
-
+    // Sanitize request body, query, and params
+    req.body = deepSanitize(req.body);
+    req.query = deepSanitize(req.query);
+    
+    // Skip headers sanitization to avoid interfering with authentication
     next();
 };
+
+module.exports = sanitizeRequest;
