@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 # Run text_cleaning.py to create the processed_data.json file
 import text_cleaning
@@ -211,6 +213,19 @@ def determine_severity(validation):
         return "medium"
     return "low"
 
+def compute_tfidf(processed_texts):
+    """
+    Compute TF-IDF features for processed texts.
+
+    Args:
+        processed_texts (list of str): List of cleaned and tokenized text data.
+
+    Returns:
+        numpy.array: TF-IDF feature matrix.
+    """
+    vectorizer = TfidfVectorizer(max_features=500)
+    tfidf_matrix = vectorizer.fit_transform(processed_texts)
+    return tfidf_matrix.toarray(), vectorizer.get_feature_names_out()
 
 def generate_incident_reports(feature_data):
     """
@@ -263,7 +278,66 @@ def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_
         json.dump(incident_reports, f, indent=4)
     
     print(f"Incident reports saved to {output_file}")
+    
+def process_and_save_features(input_file, output_file):
+    """
+    Load text data, extract features, validate them, assign severity levels, and save results.
 
+    Args:
+        input_file (str): Path to the input JSON file.
+        output_file (str): Path to the output JSON/CSV file.
+    """
+    try:
+        with open(input_file, 'r') as file:
+            data = json.load(file)
+        
+        if not isinstance(data, list):
+            print("Error: Input data is not in the expected list format.")
+            return
+        
+        feature_data = []
+        processed_texts = []
+
+        for record in data:
+            if 'original' in record and 'processed' in record:
+                text = record['original']
+                cleaned_text = " ".join(record['processed'])
+                processed_texts.append(cleaned_text)
+
+                features = extract_features(text)
+
+                # Generate feature entry
+                feature_entry = {
+                    "original_text": text,
+                    "cleaned_text": cleaned_text,
+                    "tokens": features['tokens'],
+                    "entities": features['entities']
+                }
+
+                # Validate extracted features
+                validated_entry = validate_features([feature_entry])[0]
+
+                # Assign severity level
+                validated_entry["severity_level"] = determine_severity(validated_entry["validation"])
+
+                feature_data.append(validated_entry)
+
+        # Compute TF-IDF and update feature dataset
+        tfidf_matrix, tfidf_features = compute_tfidf(processed_texts)
+
+        for i, entry in enumerate(feature_data):
+            entry["tfidf_features"] = dict(zip(tfidf_features, tfidf_matrix[i]))
+
+        # Save updated dataset with severity levels
+        with open(output_file, "w") as outfile:
+            json.dump(feature_data, outfile, indent=4)
+
+        print(f"Features with severity levels and TF-IDF saved to {output_file}")
+
+    except Exception as e:
+        print(f"Error processing and saving features: {e}")
+   
+'''
 def process_and_save_features(input_file, output_file):
     """
     Load text data, extract features, validate them, assign severity levels, and save results.
@@ -312,7 +386,7 @@ def process_and_save_features(input_file, output_file):
 
     except Exception as e:
         print(f"Error processing and saving features: {e}")
-
+'''
 def visualize_summary(summary):
     """
     Generate visualizations for dataset summary statistics.
