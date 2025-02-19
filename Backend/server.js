@@ -30,6 +30,8 @@ const incidentRoutes = require("./routes/incidentRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+const imageRoutes = require('./routes/imageRoutes');
+app.use(express.json());
 
 // Use Routes
 app.use("/api/users", userRoutes);
@@ -41,6 +43,7 @@ app.use("/api/incidents", incidentRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
+app.use('/images', imageRoutes);
 
 // Health check
 app.get("/", (req, res) => {
