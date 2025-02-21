@@ -13,6 +13,9 @@ const USE_HTTPS = process.env.USE_HTTPS === "true";
 const SSL_KEY_PATH = process.env.SSL_KEY_PATH || "./config/server.key";
 const SSL_CERT_PATH = process.env.SSL_CERT_PATH || "./config/server.cert";
 
+// Import canvas-interactions
+const fetchData = require("./canvas-interactions/fetchData");
+
 // Security Middleware
 const sanitizeMiddleware = require("./middleware/sanitizeMiddleware");
 app.use(xss());
@@ -86,8 +89,25 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
                 console.log(`HTTP Server running on port ${PORT}`);
             });
         }
+
+        // Fetch Canvas data
+        if (process.env.CANVAS_ACCESS_TOKEN) {
+            // Fetch data on startup
+            (async () => {
+                await fetchData();
+            })();
+        
+            // Fetch data every 5 minutes
+            setInterval(fetchData, 300000);
+        
+        } else {
+            console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
+        }
+
     })
     .catch((err) => {
         console.error("MongoDB connection error:", err);
         process.exit(1); // Exit process on MongoDB connection failure
     });
+
+
