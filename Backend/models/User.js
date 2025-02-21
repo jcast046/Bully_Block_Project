@@ -6,11 +6,11 @@ const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { 
         type: String, 
-        required: true,
+        required: false,
         unique: true,
         match: [/^\S+@\S+\.\S+$/, 'Please enter a valid e-mail address']
     },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
 
     // Track the number of incidents the user has been involved in
     incidentCount: { type: Number, default: 0 },
