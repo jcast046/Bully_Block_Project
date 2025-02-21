@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: './.env' });
 
 const axios = require('axios');
 const fs = require('fs');
@@ -60,7 +60,7 @@ async function getDiscussions() {
   }
 
   // Save extracted data to JSON file
-  fs.writeFileSync('../ai_algorithms/discussion_data.json', JSON.stringify(extractedData, null, 2));
+  fs.writeFileSync('./canvas-interactions/output/discussion_data.json', JSON.stringify(extractedData, null, 2));
   console.log('Data successfully saved to discussion_data.json');
 }
 
