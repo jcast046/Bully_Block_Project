@@ -34,7 +34,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 - **MongoDB**  
   - Stores user data, logs, and incident details; chosen for flexibility and scalability.
 
-### NLP and Machine Learning
+### Artificial Intelligence, NLP, Deep Learning, and Machine Learning
 - **Python**  
   - Used for data preprocessing, feature extraction, and model training pipelines.
 - **NLTK** (Natural Language Toolkit)  
