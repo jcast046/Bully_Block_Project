@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env' });
+require('dotenv').config({ path: '../.env' });
 
 const axios = require('axios');
 const fs = require('fs');
@@ -28,6 +28,7 @@ async function getDiscussions() {
       discussionData.view.forEach(post => {
         if (!post.id || !post.message) return;
 
+        // Get post data
         const postEntry = {
           post_id: post.id.toString(),
           content: post.message,
@@ -41,6 +42,7 @@ async function getDiscussions() {
           post.replies.forEach(reply => {
             if (!reply.id || !reply.message) return;
 
+            // Get comment data
             const replyEntry = {
               comment_id: reply.id.toString(),
               content: reply.message,
@@ -64,5 +66,4 @@ async function getDiscussions() {
   console.log('Data successfully saved to discussion_data.json');
 }
 
-// Export the function for use in server.js
 module.exports = getDiscussions;

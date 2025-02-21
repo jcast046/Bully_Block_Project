@@ -22,6 +22,7 @@ app.use(express.json());
 
 // Import canvas-interactions
 const getDiscussions = require("./canvas-interactions/getDiscussions");
+const getParticipants = require('./canvas-interactions/getParticipants');
 
 // Import Routes
 const userRoutes = require("./routes/userRoutes");
@@ -33,6 +34,7 @@ const incidentRoutes = require("./routes/incidentRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+
 
 // Use Routes
 app.use("/api/users", userRoutes);
@@ -50,26 +52,43 @@ app.get("/", (req, res) => {
     res.status(200).send("BullyBlock API is running...");
 });
 
-// Fetch discussions on startup
-(async () => {
-    try {
-        await getDiscussions();
-        console.log("Initial discussion data fetched.");
-    } catch (error) {
-        console.error("Error fetching initial discussion data:", error);
-    }
-})();
+if (process.env.CANVAS_ACCESS_TOKEN) {
+    // Fetch discussions on startup
+    (async () => {
+        try {
+            await getDiscussions();
+            console.log("discussion data fetched.");
+        } catch (error) {
+            console.error("Error fetching discussion data:", error);
+        }
 
-// Fetch discussions every minute
-setInterval(async () => {
-    try {
-        console.log("Fetching discussion data...");
-        await getDiscussions();
-        console.log("Discussion data updated.");
-    } catch (error) {
-        console.error("Error updating discussion data:", error);
-    }
-}, 60000); // get discussions every 60 seconds (300,000 ms)
+        try {
+            await getParticipants();
+            console.log("participants data fetched.");
+        } catch (error) {
+            console.error("Error fetching participants data:", error);
+        }})();
+
+    // Fetch discussions every minute
+    setInterval(async () => {
+        try {
+            await getDiscussions();
+            console.log("discussion data fetched.");
+        } catch (error) {
+            console.error("Error fetching discussion data:", error);
+        }
+   
+        try {
+            await getParticipants();
+            console.log("participants data fetched.");
+        } catch (error) {
+            console.error("Error fetching participants data:", error);
+        }
+    }, 60000);
+
+} else {
+    console.log("No Canvas access token in .env. Starting server without Canvas interaction.")
+}
 
 // Connect to MongoDB and start the server only if successful
 mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true })

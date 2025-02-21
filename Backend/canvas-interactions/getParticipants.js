@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env' });
+require('dotenv').config({ path: '../.env' });
 
 const axios = require('axios');
 const fs = require('fs');
@@ -9,7 +9,7 @@ const discussionTopics = [24348205, 24631580]; // Ids for discussion assignments
 
 const url = 'https://canvas.instructure.com/api/v1';
 
-// Gets participants from discussion topic
+// Gets participants from each discussion topic
 async function getParticipants() {
   const allParticipants = []; // Reset data for each execution
 
@@ -38,13 +38,9 @@ async function getParticipants() {
   // Save extracted participants to a JSON file
   if (allParticipants.length > 0) {
     fs.writeFileSync('./canvas-interactions/output/participants.json', JSON.stringify(allParticipants, null, 2));
-    console.log('Participants successfully saved to participants.json');
   } else {
     console.log('No participants data to save.');
   }
 }
-
-// Run the function
-// getParticipants();
 
 module.exports =  getParticipants;
