@@ -95,6 +95,45 @@ const loginUser = async (req, res) => {
     }
 };
 
+// @route   POST /api/users/register-student
+// @desc    Register a new student
+// @access  Private
+const registerStudent = async (req, res) => {
+    const { user_id, username } = req.body;
+
+    // Validate required fields
+    if (!user_id || !username) {
+        return res.status(400).json({ error: 'user_id and username are required' });
+    }
+
+    try {
+        // Check if the username already exists
+        let existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Username already taken' });
+        }
+
+        // Check if the user_id already exists
+        let existingId = await User.findOne({ user_id });
+        if (existingId) {
+            return res.status(400).json({ error: 'User ID already exists' });
+        }
+
+        // Create new student user
+        const student = new User({ 
+            user_id, 
+            role: 'student', 
+            username
+        });
+
+        await student.save();
+
+        res.status(201).json({ message: "Student registered successfully", student });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
 // @route   GET /api/users
 // @desc    Get all users (Protected)
 // @access  Private (Admin only)
@@ -108,6 +147,21 @@ const getUsers = async (req, res) => {
         res.json(users);
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
+    }
+};
+
+// @route GET /api/users/canvas-id/user_id
+// @desc Get user by their canvas id
+// @access Private
+const getUserByCanvasId = async (req, res) => {
+    try {
+        const user = await User.findOne({ user_id: req.params.user_id }).populate('referencedID');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -172,4 +226,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUsers, getUser, updateUser, deleteUser };
+module.exports = { registerUser, loginUser, registerStudent, getUsers, getUserByCanvasId, getUser, updateUser, deleteUser };

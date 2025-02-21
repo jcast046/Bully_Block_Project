@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUsers, getUser, registerUser, updateUser, deleteUser, loginUser } = require('../controllers/userController');
+const { getUsers, getUser, registerUser, registerStudent, updateUser, deleteUser, loginUser, getUserByCanvasId } = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware'); // Import authentication middleware
 const getResource = require('../middleware/getResource');
 const User = require('../models/User');
@@ -11,10 +11,20 @@ const router = express.Router();
 // @access  Private (Requires Authentication)
 router.get('/', authMiddleware, getUsers);
 
+// @route GET /api/users/canvas-id/:user_id
+// @desc Get user by their canvas id
+// @access Private
+router.get('/canvas-id/:user_id', authMiddleware, getUserByCanvasId);
+
 // @route   GET /api/users/:id
 // @desc    Get a single user by ID (Protected)
 // @access  Private (Requires Authentication)
 router.get('/:id', authMiddleware, getResource(User), getUser);
+
+// @route POST /api/users/register-student
+// @desc  Add a new student to database
+// @access private
+router.post('/register-student', authMiddleware, registerStudent);
 
 // @route   POST /api/users
 // @desc    Register a new user (Public)
