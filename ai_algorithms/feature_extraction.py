@@ -168,7 +168,7 @@ def validate_features(feature_data):
                                                                              "weak", "hideous", "gross", "fat", 
                                                                              "clueless", "brainless", "pathetic", "useless", 
                                                                              "lonely", "unpopular", "unwanted", "disappear",
-                                                                             "disgusting", "fake", "terrible"]
+                                                                             "disgusting", "fake", "terrible", "cheat"]
         )
         
         # Compute sentiment scores at the token level
@@ -396,7 +396,7 @@ def visualize_summary(summary):
     """
     # Plot POS tag distribution
     plt.bar(summary["POS Distribution"].keys(), summary["POS Distribution"].values())
-    plt.title("POS Tag Distribution")
+    plt.title("Part-of-Speech (POS) Tag Distribution")
     plt.xlabel("POS Tags")
     plt.ylabel("Frequency")
     plt.savefig("ai_algorithms/POS_tag_distribution.png")
