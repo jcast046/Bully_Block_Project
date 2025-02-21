@@ -150,6 +150,18 @@ const getUsers = async (req, res) => {
     }
 };
 
+const getUserByCanvasId = async (req, res) => {
+    try {
+        const user = await User.findOne({ user_id: req.params.user_id }).populate('referencedID');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // @route   GET /api/users/:id
 // @desc    Get one user by ID (Protected)
 // @access  Private
@@ -211,4 +223,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, registerStudent, getUsers, getUser, updateUser, deleteUser };
+module.exports = { registerUser, loginUser, registerStudent, getUsers, getUserByCanvasId, getUser, updateUser, deleteUser };

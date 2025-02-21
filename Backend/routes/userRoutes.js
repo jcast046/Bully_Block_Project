@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUsers, getUser, registerUser, registerStudent, updateUser, deleteUser, loginUser } = require('../controllers/userController');
+const { getUsers, getUser, registerUser, registerStudent, updateUser, deleteUser, loginUser, getUserByCanvasId } = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware'); // Import authentication middleware
 const getResource = require('../middleware/getResource');
 const User = require('../models/User');
@@ -10,6 +10,8 @@ const router = express.Router();
 // @desc    Get all users (Protected)
 // @access  Private (Requires Authentication)
 router.get('/', authMiddleware, getUsers);
+
+router.get('/canvas-id/:user_id', getUserByCanvasId);
 
 // @route   GET /api/users/:id
 // @desc    Get a single user by ID (Protected)
