@@ -279,6 +279,8 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
     """
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.0005)
+    epochs = [1, 2, 3, 4, 5]
+    losses = []
 
     # Train for 5 epochs
     for epoch in range(5):
@@ -292,9 +294,13 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
             loss = criterion(outputs, batch_y)
             loss.backward()
             optimizer.step()
+        losses.append(loss.item())
 
         print(f"Epoch {epoch+1}/5 ({model_name}): Loss = {loss.item():.4f}")
-
+    
+    # Print chart for model showing losses for each epoch
+    model_chart(epochs, model_name, losses)
+    
     # Evaluate model on test set
     model.eval()
     correct, total = 0, 0
@@ -310,9 +316,11 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
 
     accuracy = correct / total
     print(f"\nPyTorch {model_name} Model Accuracy: {accuracy:.4f}")
+    overall_accuracy.append(accuracy)
+    model_names.append(model_name)
 
 
-def model_chart(epoches, model_name, losses):
+def model_chart(epochs, model_name, losses):
     """
     Plots a bar chart of losses over epochs for a given model.
 
@@ -324,7 +332,7 @@ def model_chart(epoches, model_name, losses):
     Side Effects:
         Displays and saves a .png image of the bar chart to 'ai_algorithms' directory.
     """
-    plt.bar(epoches, losses)
+    plt.bar(epochs, losses)
     plt.title("PyTorch " + model_name + " Model Accuracy")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
