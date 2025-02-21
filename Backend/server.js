@@ -6,12 +6,14 @@ const path = require("path");
 const cors = require("cors");
 const xss = require("xss-clean");
 
-const mongoURI = process.env.MONGO_URI
+const mongoURI = process.env.MONGO_URI;
 const app = express();
 const PORT = process.env.PORT || 3001;
 const USE_HTTPS = process.env.USE_HTTPS === "true";
+const SSL_KEY_PATH = process.env.SSL_KEY_PATH || "./config/server.key";
+const SSL_CERT_PATH = process.env.SSL_CERT_PATH || "./config/server.cert";
 
-//Security Middleware
+// Security Middleware
 const sanitizeMiddleware = require("./middleware/sanitizeMiddleware");
 app.use(xss());
 app.use(sanitizeMiddleware);
@@ -26,7 +28,6 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
-
 // Import Routes
 const userRoutes = require("./routes/userRoutes");
 const schoolRoutes = require("./routes/schoolRoutes");
@@ -38,9 +39,7 @@ const messageRoutes = require("./routes/messageRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const imageRoutes = require('./routes/imageRoutes');
-app.use(express.json());
 
-// Use Routes
 app.use("/api/users", userRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/bully", bullyRoutes);
@@ -52,28 +51,37 @@ app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use('/images', imageRoutes);
 
-
 // Health check
 app.get("/", (req, res) => {
     res.status(200).send("BullyBlock API is running...");
 });
 
 // Connect to MongoDB and start the server only if successful
-mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log("MongoDB connected successfully");
 
         if (USE_HTTPS) {
-            // Load SSL certificates
-            const https = require("https");
-            const options = {
-                key: fs.readFileSync(path.join(__dirname, "config", "server.key")),
-                cert: fs.readFileSync(path.join(__dirname, "config", "server.cert"))
-            };
-            https.createServer(options, app).listen(PORT, () => {
-                console.log(`HTTPS Server running on port ${PORT}`);
-            });
+            try {
+                // Load SSL certificates
+                const https = require("https");
+                const options = {
+                    key: fs.readFileSync(path.resolve(__dirname, SSL_KEY_PATH)), // Path to SSL key
+                    cert: fs.readFileSync(path.resolve(__dirname, SSL_CERT_PATH)) // Path to SSL cert
+                };
+
+                // Create HTTPS server
+                https.createServer(options, app).listen(PORT, () => {
+                    console.log(`HTTPS Server running on port ${PORT}`);
+                });
+
+            } catch (error) {
+                console.error("Failed to start HTTPS server:", error);
+                process.exit(1); // Exit if HTTPS fails
+            }
+
         } else {
+            // Start HTTP server if HTTPS is not enabled
             app.listen(PORT, () => {
                 console.log(`HTTP Server running on port ${PORT}`);
             });
@@ -81,5 +89,5 @@ mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true })
     })
     .catch((err) => {
         console.error("MongoDB connection error:", err);
-        process.exit(1);
+        process.exit(1); // Exit process on MongoDB connection failure
     });
