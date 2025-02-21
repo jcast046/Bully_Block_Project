@@ -21,8 +21,7 @@ app.use(cors({
 app.use(express.json());
 
 // Import canvas-interactions
-const getDiscussions = require("./canvas-interactions/getDiscussions");
-const getParticipants = require('./canvas-interactions/getParticipants');
+const fetchData = require("./canvas-interactions/fetchData");
 
 // Import Routes
 const userRoutes = require("./routes/userRoutes");
@@ -53,42 +52,18 @@ app.get("/", (req, res) => {
 });
 
 if (process.env.CANVAS_ACCESS_TOKEN) {
-    // Fetch discussions on startup
+    // Fetch data on startup
     (async () => {
-        try {
-            await getDiscussions();
-            console.log("discussion data fetched.");
-        } catch (error) {
-            console.error("Error fetching discussion data:", error);
-        }
+        await fetchData();
+    })();
 
-        try {
-            await getParticipants();
-            console.log("participants data fetched.");
-        } catch (error) {
-            console.error("Error fetching participants data:", error);
-        }})();
-
-    // Fetch discussions every minute
-    setInterval(async () => {
-        try {
-            await getDiscussions();
-            console.log("discussion data fetched.");
-        } catch (error) {
-            console.error("Error fetching discussion data:", error);
-        }
-   
-        try {
-            await getParticipants();
-            console.log("participants data fetched.");
-        } catch (error) {
-            console.error("Error fetching participants data:", error);
-        }
-    }, 60000);
+    // Fetch data every minute
+    setInterval(fetchData, 60000);
 
 } else {
-    console.log("No Canvas access token in .env. Starting server without Canvas interaction.")
+    console.log("No Canvas access token in .env. Starting server without Canvas interaction.");
 }
+
 
 // Connect to MongoDB and start the server only if successful
 mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true })
@@ -109,6 +84,20 @@ mongoose.connect(mongoURI, {useNewUrlParser: true, useUnifiedTopology: true })
             app.listen(PORT, () => {
                 console.log(`HTTP Server running on port ${PORT}`);
             });
+        }
+
+        // Fetch Canvas data
+        if (process.env.CANVAS_ACCESS_TOKEN) {
+            // Fetch data on startup
+            (async () => {
+                await fetchData();
+            })();
+        
+            // Fetch data every 5 minutes
+            setInterval(fetchData, 300000);
+        
+        } else {
+            console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
         }
     })
     .catch((err) => {

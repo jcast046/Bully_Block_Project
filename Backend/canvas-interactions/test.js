@@ -1,11 +1,9 @@
-const getDiscussions = require("./getDiscussions");
-const getParticipants = require("./getParticipants");
+const startCanvasScheduler = require("./canvasScheduler");
 
 
 (async () => {
     try {
-        await getDiscussions();
-        await getParticipants();
+        startCanvasScheduler;
         console.log("Initial discussion data fetched.");
     } catch (error) {
         console.error("Error:", error);
