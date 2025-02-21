@@ -4,12 +4,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
+    "dev": "nodemon --ignore canvas-interactions/output/ server.js",
     "test:jest": "jest",
     "test:mocha": "mocha",
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
