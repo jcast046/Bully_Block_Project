@@ -52,7 +52,7 @@ const Login = () => {
     return (
         <div className="login-container">
             <h1>Welcome to BullyBlock</h1>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} data-testid="login-form">
                 <label>
                     Email:
                     <input type="email" value={username} onChange={(e) => setUsername(e.target.value)} />
