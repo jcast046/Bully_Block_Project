@@ -29,6 +29,17 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 ### Frontend
 - **React**  
   - Provides a dynamic and responsive dashboard for real-time alerts and analytics.
+- **Directions** 
+  - cd into bullyblock-dashboard
+  - Install dependencies with: npm install
+  - Start the app with: npm start
+      - runs the app in development mode
+  - Run tests with: npm test
+      - launches the test runner
+  - Build the app with: npm run build
+      - builds the app for production to the build folder
+  - Eject the app with: npm run eject
+      - copies configuration files and dependencies into the project
 
 ### Database
 - **MongoDB**  
@@ -55,4 +66,3 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
   - Bundles and optimizes frontend assets.
 - **Babel**  
   - Transpiles modern JavaScript for compatibility with a range of browsers.
-
