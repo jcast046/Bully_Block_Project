@@ -81,6 +81,23 @@ To start the backend server:
   - Implements deep learning architectures (CNNs, LSTMs) with dropout, spatial dropout, and learning-curve visualizations.
 - **PyTorch**  
   - Provides alternative CNN and LSTM implementations using tokenized text (for embeddings) or TF-IDF vectors, employing batch normalization and dropout layers.
+- **How to Run**
+  - **Installations:**
+    - Install Python version 3.11.9 or newer
+    - pip install nltk spacy
+    - pip install pandas matplotlib
+    - pip install numpy scikit-learn tensorflow
+    - pip install torch torchvision torchaudio
+    - Link to download PyTorch: https://download.pytorch.org/whl/cu118
+    - python -m spacy download en_core_web_sm
+    - python -m nltk.downloader stopwords
+    - python -m nltk.downloader vader_lexicon
+  - Run pytorch_model_training.py
+    - This also runs text_cleaning.py, feature_extraction.py, and tensorflow_scikit_model_training.py
+    - **text_cleaning.py:** Read and cleans incoming data by converting the text to lowercase, removing punctation, and stemming. Outputs the cleaned data to the created file processed_data.json.
+    - **feature_extrtaction.py:** Analyzes cleaned text from processed_data.json by identifing parts of speech in the text, assigning a sentiment score based on positive, negative, and neutral words found in the text, and assigning it a security_level of low, medium or high. Produces two output files, with featured_data.json listing the part of speech associated with each word, along with a breakdown of the sentiment analysis and the security_level for each dataset. The other output file, incident_reports.json, outputs the necessary data in a format that matches the database.
+    - **tensorflow_scikit_model_training.py:** Trains two Tensorflow deep machine learning models, LSTM and CNN, with extracted features from the datasets. Outputs the accuracy of each model in each of their 5 epochs and also an overall accurracy.
+    - **pytorch_model_training.py:** Trains two PyTorch deep machine learning models, LSTM and CNN, with extracted features from the datasets. Outputs the accuracy of each model in each of their 5 epochs and also an overall accuracy.
 
 ### Build & Integration Tools
 - **Webpack**  
