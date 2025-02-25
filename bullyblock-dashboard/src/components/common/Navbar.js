@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router';
+import React, { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router';
 import './Navbar.css';
 import logo from '../../assets/images/logo3-white.svg';
 import { AuthContext } from '../../AuthContext';
@@ -13,6 +13,14 @@ const Navbar = () => {
     // Access the isAuthenticated and logout functions from AuthContext
     const { isAuthenticated, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();  // Access the current location
+
+    // Redirect to login page if user is not authenticated and trying to access other pages
+    useEffect(() => {
+        if (!isAuthenticated && location.pathname !== '/login') {
+            navigate('/login');
+        }
+    }, [isAuthenticated, location, navigate]);
 
     // Toggles the menu state between open and closed
     const handleMenuToggle = () => {
@@ -29,11 +37,16 @@ const Navbar = () => {
     const menuToggleClass = `menu-toggle ${isMenuOpen ? 'open' : ''}`;
     const navLinksClass = `nav-links ${isMenuOpen ? 'open' : 'close'}`;
 
+    // Don't render the Navbar on the login page
+    if (location.pathname === '/login') {
+        return null;
+    }
+
     return (
         <nav>
             <div className="nav-header">
                 <div className="nav-logo">
-                    <img src={logo} alt="BullyBlock Logo"/>
+                    <img src={logo} alt="BullyBlock Logo" />
                 </div>
                 <div className={menuToggleClass} onClick={handleMenuToggle}>
                     <span></span>
@@ -47,7 +60,7 @@ const Navbar = () => {
                     <Link to="/dashboard">Home</Link>
                     <Link to="/incidents">Incidents</Link>
                     <Link to="/analytics">Analytics</Link>
-                    <div className="/Notifications"><NotificationPopUp /> </div>
+                    <div className="/Notifications"><NotificationPopUp /></div>
                     <Button text="Logout" onClick={handleLogout} className="logout-button" />
                 </div>
             )}
