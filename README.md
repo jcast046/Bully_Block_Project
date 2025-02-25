@@ -22,10 +22,6 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 
 ## Technologies Used
 
-### Backend
-- **Node.js with Express**  
-  - Handles backend logic, creates RESTful API endpoints, and efficiently manages real-time data.
-
 ### Frontend
 - **React**  
   - Provides a dynamic and responsive dashboard for real-time alerts and analytics.
@@ -41,9 +37,34 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
   - Eject the app with: npm run eject
       - copies configuration files and dependencies into the project
 
+### Backend
+- **Node.js with Express**  
+  - The backend is built with Node.js and Express, which handles routing, API logic, and real-time data processing.
+  - The server provides RESTful API endpoints for managing users, schools, incidents, messages, posts, comments, and alerts.
+  - Middleware is used for security (xss-clean for sanitization, a custom sanitizeMiddleware), CORS handling, and JSON parsing.
+  - HTTPS support is available, configurable via environment variables for SSL key and certificate paths.
+  - The server includes a health check endpoint (/) to confirm service availability.
+  - The backend fetches data from the Canvas LMS API at startup and refreshes it every 5 minutes, if a valid CANVAS_ACCESS_TOKEN is provided.
+ 
+- **Running the Backend**
+To start the backend server:
+  - Before starting the backend, ensure that Node.js and npm are installed.
+  - cd Backend
+  - npm install  # Ensures dependencies like Express and Mongoose are installed
+  - npm start
+    
 ### Database
-- **MongoDB**  
-  - Stores user data, logs, and incident details; chosen for flexibility and scalability.
+- **MongoDB Atlas**  
+  - The application uses MongoDB Atlas, a cloud-hosted NoSQL database, for scalability and offsite data storage.
+  - Mongoose is used to define schemas and interact with MongoDB efficiently.
+  - Stores data for:
+    - Users (authentication, role-based access)
+    - Schools (institution details)
+    - Incidents (cyberbullying reports and related information)
+    - Messages, Posts, and Comments (tracking interactions for analysis)
+    - Alerts (notifications about potential cyberbullying incidents)
+  - The backend connects to MongoDB Atlas using credentials stored in environment variables (MONGO_URI).
+  - If the database connection fails, the server logs an error and exits to prevent operating in a broken state.
 
 ### Artificial Intelligence, NLP, Deep Learning, and Machine Learning
 - **Python**  
