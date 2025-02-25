@@ -39,6 +39,9 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import matplotlib.pyplot as plt
 
+overall_accuracy = []
+model_names = ["LSTM", "CNN"]
+
 
 def load_text_data(filepath="ai_algorithms/feature_dataset.json"):
     """
@@ -177,6 +180,7 @@ def optimize_hyperparameters(X, y):
         grid_search.fit(X, y)
         print(f"\n Best Parameters for {model_name}: {grid_search.best_params_}")
         print(f"Best Accuracy: {grid_search.best_score_:.4f}")
+    
 
 
 def plot_learning_curve(history):
@@ -356,6 +360,8 @@ def train_lstm():
 
     loss, accuracy = model.evaluate(X_test, y_test)
     print(f"\nLSTM Model Accuracy: {accuracy:.4f}")
+    overall_accuracy.append(accuracy)
+    # model_chart(epochs=5, model_name="LSTM", losses)
 
 
 def train_cnn():
@@ -421,7 +427,41 @@ def train_cnn():
 
     loss, accuracy = model.evaluate(X_test, y_test)
     print(f"\nCNN Model Accuracy: {accuracy:.4f}")
+    overall_accuracy.append(accuracy)
+    
+def model_chart(epochs, model_name, losses):
+    """
+    Plots a bar chart of losses over epochs for a given model.
 
+    Args:
+        epoches (list or np.ndarray): The epoch indices.
+        model_name (str): A string identifier for the model.
+        losses (list or np.ndarray): Loss values corresponding to each epoch.
+
+    Side Effects:
+        Displays and saves a .png image of the bar chart to 'ai_algorithms' directory.
+    """
+    plt.bar(epochs, losses)
+    plt.title("Tensorflow " + model_name + " Model Accuracy")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.savefig("ai_algorithms/Tensorflow" + model_name + ".png")
+    plt.show()
+
+def overall_chart():
+    """
+    Plots a bar chart of overall accuracy for different Tensorflow models.
+
+    Side Effects:
+        Uses the global variables `model_names` and `overall_accuracy`.
+        Saves the chart to 'ai_algorithms/TensorflowOverallAccuracy.png'.
+    """
+    plt.bar(model_names, overall_accuracy)
+    plt.title("Tensorflow Model Accuracy")
+    plt.xlabel("Tensorflow Model")
+    plt.ylabel("Overall Accuracy")
+    plt.savefig("ai_algorithms/TensorflowOverallAccuracy.png")
+    plt.show()
 
 if __name__ == "__main__":
     # Ensure feature extraction has been run; if not, execute it
@@ -440,3 +480,6 @@ if __name__ == "__main__":
     # Train deep learning models
     train_lstm()
     train_cnn()
+    
+    # Create overall accuracy chart
+    overall_chart()
