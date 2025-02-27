@@ -50,7 +50,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 To start the backend server:
   - Before starting the backend, ensure that Node.js and npm are installed.
   - cd Backend
-  - npm install  # Ensures dependencies like Express and Mongoose are installed
+  - npm install  # Ensures dependencies like Express, Mongoose and Axios are installed
   - npm start
     
 ### Database
