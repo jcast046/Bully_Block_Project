@@ -4,8 +4,10 @@ const fs = require('fs');
 
 console.log("Loaded ENV:", process.env.EMAIL, process.env.PASSWORD);
 
-const API_URL = "http://localhost:3001/api/";  // Make sure this is the correct URL for your API
+const API_URL = "http://localhost:3001/api/";
 
+// Put EMAIL= and PASSWORD= in .env
+// Must be a registered teacher/admin on the BullyBlock database
 const EMAIL = process.env.EMAIL;
 const PASSWORD = process.env.PASSWORD;
 let TOKEN = '';
