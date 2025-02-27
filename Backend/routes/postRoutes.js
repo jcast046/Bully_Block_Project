@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();  
-const { createPost, getAllPosts, getPost, updatePost, deletePost, searchPosts } = require('../controllers/postController');
+const { createPost, getAllPosts, getPost, getPostByCanvasId, updatePost, deletePost, searchPosts } = require('../controllers/postController');
 const authMiddleware  = require('../middleware/authMiddleware'); // Ensure correct import
 
 // Route to create a new post (Private)
@@ -8,6 +8,9 @@ router.post('/', authMiddleware, createPost);
 
 // Route to get all posts (Public)
 router.get('/', getAllPosts);
+
+// Get post by canvas id (private)
+router.get('/canvas-id/:post_id', authMiddleware, getPostByCanvasId)
 
 router.get('/search', searchPosts);
 

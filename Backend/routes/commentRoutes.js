@@ -1,5 +1,5 @@
 const express = require('express');
-const { createComment, getAllComments, getComment, deleteComment, searchComments } = require('../controllers/commentController');
+const { createComment, getAllComments, getCommentByCanvasId, getComment, deleteComment, searchComments } = require('../controllers/commentController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -7,6 +7,10 @@ const router = express.Router();
 // Public routes
 router.get('/', getAllComments);  // Get all comments (no authentication needed)
 router.get('/search', searchComments);
+
+// Get comment by canvas id (private)
+router.get('/canvas-id/:comment_id', authMiddleware, getCommentByCanvasId);
+
 router.get('/:id', getComment);   // Get a comment by ID (no authentication needed)
 
 // Protected routes

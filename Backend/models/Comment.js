@@ -13,13 +13,11 @@ const CommentSchema = new mongoose.Schema({
         required: true,
     },
     author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true,
     },
     post: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post',
+        type: String,
         required: true, // Each comment belongs to a post
     },
     date: {

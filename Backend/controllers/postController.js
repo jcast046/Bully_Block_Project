@@ -2,39 +2,29 @@ const mongoose = require('mongoose');
 const Post = require('../models/Post');
 const User = require('../models/User');
 
-// Function to generate unique post_id
-const generateUniquePostId = async () => {
-    const lastPost = await Post.find().sort({ _id: -1 }).limit(1);
-    const lastId = lastPost.length > 0 ? lastPost[0].post_id : "p50000";  // Default start value
-    const newId = `p${parseInt(lastId.slice(1)) + 1}`;  // Increment the number part
-    return newId;
-};
-
 // @route   POST /api/posts
 // @desc    Create a new post
 // @access  Private
 const createPost = async (req, res) => {
-    const { content, author } = req.body;
+    const { post_id, content, author_id } = req.body;
 
     // Ensure all required fields are provided
-    if (!content || !author) {
+    if (!content || !author_id) {
         return res.status(400).json({ error: "Content and author are required" });
     }
 
     try {
-        // Generate a unique post_id
-        const newPostId = await generateUniquePostId();
 
         // Ensure the author exists in the users collection
-        const userExists = await User.findById(author);
+        const userExists = await User.findOne({ user_id: author_id });
         if (!userExists) {
             return res.status(404).json({ error: "Author not found in users collection" });
         }
 
         const newPost = new Post({
-            post_id: newPostId,  // Set the unique post_id here
+            post_id,  // Set the unique post_id here
             content,
-            author,
+            author: author_id,
         });
 
         await newPost.save();
@@ -116,6 +106,21 @@ const deletePost = async (req, res) => {
     }
 };
 
+// @route GET /api/posts/canvas-id/post_id
+// @desc Get post by its canvas id
+// @access Private
+const getPostByCanvasId = async (req, res) => {
+    try {
+        const post = await Post.findOne({ post_id: req.params.post_id });
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+        res.json(post);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
 // @route GET /api/posts/search
 // @desc Get posts containing keyword
 // @access Private 
@@ -155,4 +160,4 @@ const searchPosts = async (req, res) => {
     }
 };
 
-module.exports = { createPost, getAllPosts, getPost, updatePost, deletePost,  searchPosts};
+module.exports = { createPost, getAllPosts, getPost, updatePost, deletePost,  getPostByCanvasId, searchPosts};
