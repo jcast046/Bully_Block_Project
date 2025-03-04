@@ -168,7 +168,9 @@ def validate_features(feature_data):
                                                                              "weak", "hideous", "gross", "fat", 
                                                                              "clueless", "brainless", "pathetic", "useless", 
                                                                              "lonely", "unpopular", "unwanted", "disappear",
-                                                                             "disgusting", "fake", "terrible", "cheat"]
+                                                                             "disgusting", "fake", "terrible", "cheat",
+                                                                             "fuck", "gay", "ass", "shit", "whore",
+                                                                             "slut", "bitch", "pussy", "die", "kill"]
         )
         
         # Compute sentiment scores at the token level
@@ -394,28 +396,39 @@ def visualize_summary(summary):
     Args:
         summary (dict): Summary statistics including POS and entity distributions.
     """
+    # Plot proportions
+    screen_width_px = 1280
+    screen_height_px = 720
+    dpi = 100
+    screen_width_in = screen_width_px / dpi
+    screen_height_in = screen_height_px / dpi
+    
     # Plot POS tag distribution
+    plt.figure(figsize=(screen_width_in, screen_height_in))
     plt.bar(summary["POS Distribution"].keys(), summary["POS Distribution"].values())
     plt.title("Part-of-Speech (POS) Tag Distribution")
     plt.xlabel("POS Tags")
     plt.ylabel("Frequency")
-    plt.savefig("ai_algorithms/POS_tag_distribution.png")
+    plt.savefig("ai_algorithms/POS_tag_distribution.png", dpi=dpi, bbox_inches='tight')
     plt.show()
     
+    
     # Plot entity distribution
+    plt.figure(figsize=(screen_width_in, screen_height_in))
     plt.bar(summary["Entity Distribution"].keys(), summary["Entity Distribution"].values())
     plt.title("Entity Distribution")
     plt.xlabel("Entity Types")
     plt.ylabel("Frequency")
-    plt.savefig("ai_algorithms/entity_distribution.png")
+    plt.savefig("ai_algorithms/entity_distribution.png", dpi=dpi, bbox_inches='tight')
     plt.show()
     
     # Plot sentiment scores
+    plt.figure(figsize=(screen_width_in, screen_height_in))
     plt.bar(summary["Average Sentiments"].keys(), summary["Average Sentiments"].values())
     plt.title("Average Sentiment Scores")
     plt.xlabel("Sentiment Type")
     plt.ylabel("Score")
-    plt.savefig("ai_algorithms/sentiment_scores.png")
+    plt.savefig("ai_algorithms/sentiment_scores.png", dpi=dpi, bbox_inches='tight')
     plt.show()
     
 
