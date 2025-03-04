@@ -8,7 +8,7 @@ describe('Navbar Component', () => {
     test('renders the Navbar with logo', () => {
         render(
             <MemoryRouter>
-                <AuthContext.Provider value={{ isAuthenticated: false }}>
+                <AuthContext.Provider value={{ isAuthenticated: true }}>
                     <Navbar />
                 </AuthContext.Provider>
             </MemoryRouter>

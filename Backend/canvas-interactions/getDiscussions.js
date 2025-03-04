@@ -3,7 +3,8 @@ const fs = require('fs');
 
 const courseId = 11104665; // CourseId for course we are tracking
 const accessToken = process.env.CANVAS_ACCESS_TOKEN; // You will need a valid Canvas access token in .env
-const discussionTopics = [24348205, 24631580]; // Ids for discussion assignments we are tracking
+// const discussionTopics = [24348205, 24631580]; // Ids for discussion assignments we are tracking
+const discussionTopics =[24789449, 24789506, 24789472 ] // insult, neutral, kindness
 
 const url = 'https://canvas.instructure.com/api/v1';
 
@@ -28,6 +29,7 @@ async function getDiscussions() {
 
         // Get post data
         const postEntry = {
+          contentType: "post",
           post_id: post.id.toString(),
           content: post.message,
           author_id: post.user_id ? post.user_id.toString() : null,
@@ -42,6 +44,7 @@ async function getDiscussions() {
 
             // Get comment data
             const replyEntry = {
+              contentType: "comment",
               comment_id: reply.id.toString(),
               content: reply.message,
               post_id: post.id.toString(),

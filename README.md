@@ -25,7 +25,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 ### Frontend
 - **React**  
   - Provides a dynamic and responsive dashboard for real-time alerts and analytics.
-- **Directions** 
+- **Running the Frontend** 
   - cd into bullyblock-dashboard
   - Install dependencies with: npm install
   - Start the app with: npm start
@@ -50,7 +50,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 To start the backend server:
   - Before starting the backend, ensure that Node.js and npm are installed.
   - cd Backend
-  - npm install  # Ensures dependencies like Express and Mongoose are installed
+  - npm install  # Ensures dependencies like Express, Mongoose and Axios are installed
   - npm start
     
 ### Database
@@ -81,7 +81,7 @@ To start the backend server:
   - Implements deep learning architectures (CNNs, LSTMs) with dropout, spatial dropout, and learning-curve visualizations.
 - **PyTorch**  
   - Provides alternative CNN and LSTM implementations using tokenized text (for embeddings) or TF-IDF vectors, employing batch normalization and dropout layers.
-- **How to Run**
+- **Running the AI and Machine Learning Engine**
   - **Installations:**
     - Install Python version 3.11.9 or newer
     - pip install nltk spacy

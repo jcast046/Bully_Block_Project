@@ -2,45 +2,35 @@ const Comment = require('../models/Comment');
 const User = require('../models/User');
 const Post = require('../models/Post');
 
-// Function to generate a unique comment_id
-const generateUniqueCommentId = async () => {
-    const lastComment = await Comment.find().sort({ _id: -1 }).limit(1);
-    const lastId = lastComment.length > 0 ? lastComment[0].comment_id : "c10000";  // Default start value
-    const newId = `c${parseInt(lastId.slice(1)) + 1}`;  // Increment the number part
-    return newId;
-};
-
 // @route   POST /api/comments
 // @desc    Create a new comment
 // @access  Private
 const createComment = async (req, res) => {
-    const { content, author, post } = req.body;
+    const { comment_id, content, author_id, post_id } = req.body;
 
     // Ensure all required fields are provided
-    if (!content || !author || !post) {
+    if (!content || !author_id || !post_id) {
         return res.status(400).json({ error: "Content, author, and post are required" });
     }
 
     try {
-        // Generate a unique comment_id
-        const newCommentId = await generateUniqueCommentId();
 
         // Ensure the author and post exist
-        const userExists = await User.findById(author);
-        const postExists = await Post.findById(post);
+        const userExists = await User.findOne({user_id: author_id});
+        const postExists = await Post.findOne({post_id: post_id});
 
         if (!userExists || !postExists) {
             return res.status(404).json({ error: "Author or Post not found" });
         }
 
         const newComment = new Comment({
-            comment_id: newCommentId,  // Set the unique comment_id here
+            comment_id,  // Set the unique comment_id here
             content,
-            author,
-            post,
+            author: author_id,
+            post: post_id,
         });
 
-        await newComment.save();
+        await newComment.save()
         res.status(201).json(newComment);
     } catch (err) {
         console.error(err);
@@ -93,6 +83,21 @@ const deleteComment = async (req, res) => {
     }
 };
 
+// @route GET /api/comments/canvas-id/comment_id
+// @desc Get comment by its canvas id
+// @access Private
+const getCommentByCanvasId = async (req, res) => {
+    try {
+        const comment = await Comment.findOne({ comment_id: req.params.comment_id });
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+        res.json(comment);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
 // @route GET /api/comment/search
 // @desc Get comments containing keyword
 // @access Private 
@@ -133,4 +138,4 @@ const searchComments = async (req, res) => {
 };
 
 
-module.exports = { createComment, getAllComments, getComment, deleteComment, searchComments };
+module.exports = { createComment, getAllComments, getCommentByCanvasId, getComment, deleteComment, searchComments };
