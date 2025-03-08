@@ -134,11 +134,21 @@ const Analytics = () => {
           {images.length > 0 ? (
             <div className="image-gallery">
               {images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image.img}
-                  alt={`visualization ${index + 1}`}
-                />
+                <div key={index} className="image-container">
+                  <h3>
+                    {image.imageType
+                      .split("_")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </h3>
+                  <img
+                    src={image.img}
+                    alt={`${image.imageType} visualization`}
+                  />
+                  <p>Updated: {new Date(image.timestamp).toLocaleString()}</p>
+                </div>
               ))}
             </div>
           ) : (

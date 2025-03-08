@@ -75,3 +75,50 @@
 .analytics-table tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Image Gallery Styles */
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 30px; /* Space between items */
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.image-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.image-container h3 {
+    color: #007bff;
+    margin: 0 0 15px 0;
+    font-size: 1.2rem;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.image-container p {
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .image-gallery {
+        grid-template-columns: 1fr; /* Single column on smaller screens */
+    }
+}
