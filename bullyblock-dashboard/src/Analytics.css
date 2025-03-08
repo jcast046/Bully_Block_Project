@@ -1,6 +1,8 @@
 .analytics-container {
     padding: 4em;
     text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .analytics-table {
@@ -11,18 +13,36 @@
     font-family: 'Arial, sans-serif';
     min-width: 600px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    table-layout: fixed;
 }
 
 .analytics-table thead tr {
     background-color: #007bff; /* Blue header */
     color: #ffffff;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #dddddd;
 }
 
 .analytics-table th,
 .analytics-table td {
     padding: 12px 15px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* First column (Name/School/Date) */
+.analytics-table th:first-child,
+.analytics-table td:first-child {
+    width: 50%;
+    text-align: center;
+}
+
+/* Second column (Number of Incidents) */
+.analytics-table th:last-child,
+.analytics-table td:last-child {
+    width: 50%;
     text-align: center;
 }
 
@@ -46,5 +66,10 @@
 }
 
 .analytics-table tbody tr.no-data td {
-    text-align: center;
+    text-align: inherit;
+}
+
+/* Add hover effect */
+.analytics-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
