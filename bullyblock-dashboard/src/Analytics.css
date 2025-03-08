@@ -95,6 +95,14 @@
     flex-direction: column;
     align-items: center;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.image-container:hover {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
 }
 
 .image-container h3 {
@@ -114,6 +122,75 @@
     color: #888;
     font-size: 0.9rem;
     margin: 0;
+}
+
+/* Modal Preview Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90vh;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 40px 20px 20px 20px; /* Increased top padding to accommodate button */
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content img {
+    max-width: 100%;
+    max-height: calc(90vh - 80px); /* Adjusted to account for increased padding */
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+/* Override any parent button styles */
+.modal-content button.modal-close {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    color: #888 !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: color 0.3s ease !important;
+    opacity: 0.7 !important;
+    min-width: unset !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    z-index: 1 !important; /* Ensure button stays above image */
+}
+
+.modal-content button.modal-close:hover {
+    color: #fff !important;
+    opacity: 1 !important;
+    background: transparent !important;
+}
+
+.modal-content button.modal-close:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Responsive design for smaller screens */

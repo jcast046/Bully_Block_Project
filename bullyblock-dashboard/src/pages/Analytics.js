@@ -8,6 +8,7 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [images, setImages] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -53,6 +54,23 @@ const Analytics = () => {
 
     fetchImages();
   }, []);
+
+  // Handle image click
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+  };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+  };
+
+  // Close modal when clicking outside the image
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setSelectedImage(null);
+    }
+  };
 
   return (
     <div className="analytics-container">
@@ -134,7 +152,11 @@ const Analytics = () => {
           {images.length > 0 ? (
             <div className="image-gallery">
               {images.map((image, index) => (
-                <div key={index} className="image-container">
+                <div
+                  key={index}
+                  className="image-container"
+                  onClick={() => handleImageClick(image)}
+                >
                   <h3>
                     {image.imageType
                       .split("_")
@@ -153,6 +175,21 @@ const Analytics = () => {
             </div>
           ) : (
             <p>Loading images...</p>
+          )}
+
+          {/* Image Preview Modal */}
+          {selectedImage && (
+            <div className="modal-overlay" onClick={handleOverlayClick}>
+              <div className="modal-content">
+                <button className="modal-close" onClick={handleCloseModal}>
+                  ×
+                </button>
+                <img
+                  src={selectedImage.img}
+                  alt={`${selectedImage.imageType} visualization`}
+                />
+              </div>
+            </div>
           )}
         </>
       )}
