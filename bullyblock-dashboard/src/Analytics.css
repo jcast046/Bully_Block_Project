@@ -1,14 +1,16 @@
 .analytics-container {
-    padding: 4em;
+    padding: 20px;
     text-align: center;
-    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin: 0 auto;
 }
 
 .analytics-table {
-    width: 100%;
+    width: 90%;
     border-collapse: collapse;
-    margin: 20px 0;
+    margin: 20px auto;
     font-size: 1em;
     font-family: 'Arial, sans-serif';
     min-width: 600px;
