@@ -40,6 +40,11 @@
 }
 
 .analytics-table tbody tr.no-data {
-    background-color: #f3f3f34b;
-    color: #dddddd;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #888;
+    font-style: italic;
+}
+
+.analytics-table tbody tr.no-data td {
+    text-align: center;
 }
