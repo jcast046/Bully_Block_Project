@@ -36,16 +36,25 @@ function readExistingParticipants() {
 function writeUniqueParticipants(participants) {
   const existingParticipants = readExistingParticipants();
 
-  // Merge without duplicates
-  const uniqueParticipants = [
-    ...existingParticipants,
-    ...participants.filter(
-      (p) => !existingParticipants.some((ep) => ep.user_id === p.user_id)
-    ),
-  ];
+  // Create a Map to store participants uniquely by user_id
+  const participantMap = new Map();
+
+  // Add existing participants to the map
+  existingParticipants.forEach((participant) => {
+    participantMap.set(participant.user_id, participant);
+  });
+
+  // Add new participants, avoiding duplicates by user_id
+  participants.forEach((participant) => {
+    participantMap.set(participant.user_id, participant);
+  });
+
+  // Convert the Map back to an array and write to file
+  const uniqueParticipants = Array.from(participantMap.values());
 
   fs.writeFileSync(outputFile, JSON.stringify(uniqueParticipants, null, 2));
 }
+
 
 /**
  * Fetches participants from Canvas discussion topics.
