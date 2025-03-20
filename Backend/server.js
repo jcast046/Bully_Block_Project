@@ -112,18 +112,21 @@ mongoose
       });
     }
 
-    // Fetch Canvas data every 3 minutes
+    // Fetch Canvas data every 3 minutes (immediately and then scheduled)
     if (process.env.CANVAS_ACCESS_TOKEN) {
       (async () => {
-        await fetchData();
+        await fetchData(); // Run fetchData immediately
+        setInterval(fetchData, 180000); // Schedule it to run every 3 minutes
       })();
-      setInterval(fetchData, 180000); // 3 minutes
     } else {
       console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
     }
 
-    // Upload incidents every 5 minutes
-    setInterval(uploadIncidents, 300000); // 5 minutes
+    // Upload incidents every 5 minutes (delayed start)
+    setTimeout(() => {
+      uploadIncidents(); // First run after 5 minutes
+      setInterval(uploadIncidents, 300000); // Then repeat every 5 minutes
+    }, 300000);
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
