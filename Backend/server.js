@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const fs = require("fs");
@@ -22,11 +22,13 @@ app.use(xss());
 app.use(sanitizeMiddleware);
 
 // Enable CORS for frontend access
-app.use(cors({
-    origin: 'http://localhost:3000', // React frontend address // Use HTTP for local dev
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000", // React frontend address // Use HTTP for local dev
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 
 // Middleware
 app.use(express.json());
@@ -41,7 +43,8 @@ const incidentRoutes = require("./routes/incidentRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
-const imageRoutes = require('./routes/imageRoutes');
+const imageRoutes = require("./routes/imageRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 app.use("/api/users", userRoutes);
 app.use("/api/schools", schoolRoutes);
@@ -52,62 +55,60 @@ app.use("/api/incidents", incidentRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
-app.use('/images', imageRoutes);
+app.use("/images", imageRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Health check
 app.get("/", (req, res) => {
-    res.status(200).send("BullyBlock API is running...");
+  res.status(200).send("BullyBlock API is running...");
 });
 
 // Connect to MongoDB and start the server only if successful
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log("MongoDB connected successfully");
+mongoose
+  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("MongoDB connected successfully");
 
-        if (USE_HTTPS) {
-            try {
-                // Load SSL certificates
-                const https = require("https");
-                const options = {
-                    key: fs.readFileSync(path.resolve(__dirname, SSL_KEY_PATH)), // Path to SSL key
-                    cert: fs.readFileSync(path.resolve(__dirname, SSL_CERT_PATH)) // Path to SSL cert
-                };
+    if (USE_HTTPS) {
+      try {
+        // Load SSL certificates
+        const https = require("https");
+        const options = {
+          key: fs.readFileSync(path.resolve(__dirname, SSL_KEY_PATH)), // Path to SSL key
+          cert: fs.readFileSync(path.resolve(__dirname, SSL_CERT_PATH)), // Path to SSL cert
+        };
 
-                // Create HTTPS server
-                https.createServer(options, app).listen(PORT, () => {
-                    console.log(`HTTPS Server running on port ${PORT}`);
-                });
+        // Create HTTPS server
+        https.createServer(options, app).listen(PORT, () => {
+          console.log(`HTTPS Server running on port ${PORT}`);
+        });
+      } catch (error) {
+        console.error("Failed to start HTTPS server:", error);
+        process.exit(1); // Exit if HTTPS fails
+      }
+    } else {
+      // Start HTTP server if HTTPS is not enabled
+      app.listen(PORT, () => {
+        console.log(`HTTP Server running on port ${PORT}`);
+      });
+    }
 
-            } catch (error) {
-                console.error("Failed to start HTTPS server:", error);
-                process.exit(1); // Exit if HTTPS fails
-            }
+    // Fetch Canvas data
+    if (process.env.CANVAS_ACCESS_TOKEN) {
+      // Fetch data on startup
+      (async () => {
+        await fetchData();
+      })();
 
-        } else {
-            // Start HTTP server if HTTPS is not enabled
-            app.listen(PORT, () => {
-                console.log(`HTTP Server running on port ${PORT}`);
-            });
-        }
-
-        // Fetch Canvas data
-        if (process.env.CANVAS_ACCESS_TOKEN) {
-            // Fetch data on startup
-            (async () => {
-                await fetchData();
-            })();
-        
-            // Fetch data every 5 minutes
-            setInterval(fetchData, 300000);
-        
-        } else {
-            console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
-        }
-
-    })
-    .catch((err) => {
-        console.error("MongoDB connection error:", err);
-        process.exit(1); // Exit process on MongoDB connection failure
-    });
-
-
+      // Fetch data every 5 minutes
+      setInterval(fetchData, 300000);
+    } else {
+      console.log(
+        "No Canvas access token in .env. Starting server without fetching Canvas Data."
+      );
+    }
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1); // Exit process on MongoDB connection failure
+  });

@@ -26,13 +26,58 @@
     color: #555;
 }
 
-.widget-body h2 {
-    margin: 10px 0;
-    font-size: 28px;
+.widget-body {
+    position: relative;
+    overflow: hidden;
 }
 
-.dashboard-widget p {
+.stat-container {
+    position: relative;
+}
+
+.stat-value {
+    margin: 10px 0;
+    font-size: 28px;
+    animation: fadeSlideUp 0.4s ease-out;
+    color: inherit;
+}
+
+.stat-description {
     font-size: 18px;
     color: rgb(67, 67, 67);
     font-weight: 700;
+    animation: fadeSlideUp 0.4s ease-out;
+    animation-delay: 0.1s;
+}
+
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure animations play for each new value */
+.stat-value, .stat-description {
+    animation-fill-mode: both;
+}
+
+/* Optional: Add a fade-out animation when elements are removed */
+.stat-value.exit, .stat-description.exit {
+    animation: fadeSlideDown 0.3s ease-in forwards;
+}
+
+@keyframes fadeSlideDown {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
 }
