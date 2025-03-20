@@ -5,19 +5,20 @@ import '../App.css';
 import '../Incidents.css';
 
 const Incidents = () => {
-    const [incidents, setIncidents] = useState([]); // State to store incidents data
-    const [loading, setLoading] = useState(true); // State to handle loading status
-    const [error, setError] = useState(null); // State to handle error messages
-    const [filter, setFilter] = useState('all'); // State to handle incident filter
-    const navigate = useNavigate(); // Hook to navigate to different pages
+    const [incidents, setIncidents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [filter, setFilter] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1); // State for current page
+    const incidentsPerPage = 100; // Number of incidents per page
+    const navigate = useNavigate();
 
-    // Fetch incidents data from the server when the component mounts
     useEffect(() => {
         const fetchIncidents = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/incidents'); // Fetch data from API
+                const response = await axios.get('http://localhost:3001/api/incidents');
                 setIncidents(response.data);
-                console.log(response.data); // Debugging: Log fetched incidents
+                console.log(response.data);
             } catch (error) {
                 console.error("Error fetching incidents:", error);
                 setError("Failed to load incident data.");
@@ -27,18 +28,33 @@ const Incidents = () => {
         };
 
         fetchIncidents();
-    }, []); // Empty dependency array means this effect runs once when component mounts
+    }, []);
 
-    // Handle filter change
     const handleFilterChange = (e) => {
         setFilter(e.target.value);
-        console.log("Selected filter:", e.target.value); // Debugging: Log selected filter
+        console.log("Selected filter:", e.target.value);
+        setCurrentPage(1); // Reset to the first page when the filter changes
     };
 
-    // Filter incidents based on the selected filter
-    const filteredIncidents = incidents.filter(incident =>
-        filter === 'all' || incident.status === filter
+    const filteredIncidents = incidents.filter(
+        (incident) => filter === 'all' || incident.status === filter
     );
+
+    // Pagination logic
+    const indexOfLastIncident = currentPage * incidentsPerPage;
+    const indexOfFirstIncident = indexOfLastIncident - incidentsPerPage;
+    const currentIncidents = filteredIncidents.slice(
+        indexOfFirstIncident,
+        indexOfLastIncident
+    );
+
+    const totalPages = Math.ceil(filteredIncidents.length / incidentsPerPage);
+
+    const changePage = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     return (
         <div className="incidents-container">
@@ -51,38 +67,61 @@ const Incidents = () => {
                 </select>
             </div>
             {loading ? (
-                <p>Loading incidents...</p> // Display loading message while fetching data
+                <p>Loading incidents...</p>
             ) : error ? (
-                <p className="error">{error}</p> // Display error message if fetching fails
+                <p className="error">{error}</p>
             ) : (
-                <table className="incidents-table">
-                    <thead>
-                        <tr>
-                            <th>Content ID</th>
-                            <th>User ID</th>
-                            <th>Severity Level</th>
-                            <th>Alert Status</th>
-                            <th>Content Summary</th>
-                            <th>Timestamp</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredIncidents.length > 0 ? filteredIncidents.map(incident => (
-                            <tr key={incident._id} className={incident.status === 'resolved' ? 'resolved' : ''} onClick={() => navigate(`/incidents/${incident._id}`)}>
-                                <td>{incident.contentId}</td>
-                                <td>{incident.userId ? incident.userId.username : "Unknown"}</td>
-                                <td>{incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)}</td>
-                                <td>{incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}</td>
-                                <td>{incident.contentSummary || "TBD"}</td>
-                                <td>{new Date(incident.timestamp).toLocaleString()}</td>
-                            </tr>
-                        )) : (
+                <>
+                    <table className="incidents-table">
+                        <thead>
                             <tr>
-                                <td colSpan="6">No incidents found.</td>
+                                <th>Content ID</th>
+                                <th>User ID</th>
+                                <th>Severity Level</th>
+                                <th>Alert Status</th>
+                                <th>Content Summary</th>
+                                <th>Timestamp</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {currentIncidents.length > 0 ? (
+                                currentIncidents.map((incident) => (
+                                    <tr
+                                        key={incident._id}
+                                        className={incident.status === 'resolved' ? 'resolved' : ''}
+                                        onClick={() => navigate(`/incidents/${incident._id}`)}
+                                    >
+                                        <td>{incident.contentId}</td>
+                                        <td>{incident.userId ? incident.userId.username : "Unknown"}</td>
+                                        <td>
+                                            {incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)}
+                                        </td>
+                                        <td>
+                                            {incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}
+                                        </td>
+                                        <td>{incident.contentSummary || "TBD"}</td>
+                                        <td>{new Date(incident.timestamp).toLocaleString()}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6">No incidents found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                    <div className="pagination">
+                        <button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>
+                            Previous
+                        </button>
+                        <span>
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button onClick={() => changePage(currentPage + 1)} disabled={currentPage === totalPages}>
+                            Next
+                        </button>
+                    </div>
+                </>
             )}
         </div>
     );

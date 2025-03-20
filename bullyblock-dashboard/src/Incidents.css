@@ -53,12 +53,11 @@
     cursor: pointer;
 }
 
-/* Filter menu styling */
 .filter-menu {
     width: 90%;
     max-width: 1000px;
     margin: 20px auto;
-    text-align: right;
+    text-align: center;
 }
 
 .filter-menu select {
@@ -68,4 +67,9 @@
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
     cursor: pointer;
+}
+
+.filter-menu select option {
+    background-color: #333;
+    color: white;
 }
