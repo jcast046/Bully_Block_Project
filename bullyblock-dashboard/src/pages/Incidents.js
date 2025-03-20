@@ -36,9 +36,9 @@ const Incidents = () => {
         setCurrentPage(1); // Reset to the first page when the filter changes
     };
 
-    const filteredIncidents = incidents.filter(
-        (incident) => filter === 'all' || incident.status === filter
-    );
+    const filteredIncidents = incidents
+        .filter((incident) => filter === 'all' || incident.status === filter)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Newest incidents first
 
     // Pagination logic
     const indexOfLastIncident = currentPage * incidentsPerPage;
