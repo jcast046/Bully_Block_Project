@@ -16,7 +16,12 @@ const IncidentDetail = () => {
         const fetchIncident = async () => {
             try {
                 const response = await axios.get(`http://localhost:3001/api/incidents/${id}`); // Fetch incident data by ID
-                setIncident(response.data); // Set the incident data
+                const transformedIncident = {
+                    ...response.data,
+                    userId: response.data.author_id, // Map author_id to userId
+                    username: response.data.username || "Unknown" // Add username with fallback
+                };
+                setIncident(transformedIncident); // Set the transformed incident data
             } catch (error) {
                 console.error("Error fetching incident:", error);
                 setError("Failed to load incident data.");
@@ -37,9 +42,9 @@ const IncidentDetail = () => {
             }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
             });
-            setIncident(response.data); // Update incident data with new status
+            setIncident({ ...incident, status: response.data.status }); // Update incident's status locally
         } catch (error) {
-            console.error("Error updating status:", error); 
+            console.error("Error updating status:", error);
         }
     };
 
@@ -52,14 +57,22 @@ const IncidentDetail = () => {
             ) : (
                 <div>
                     <h1>Incident Details</h1>
-                    <p><strong>Content ID:</strong> {incident.contentId}</p>
-                    <p><strong>User ID:</strong> {incident.userId ? incident.userId : "Unknown"}</p> {/* Display 'Unknown' if userId is not available */}
-                    <p><strong>Severity Level:</strong> {incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)}</p>
-                    <p><strong>Alert Status:</strong> {incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}</p>
-                    <p><strong>Timestamp:</strong> {new Date(incident.timestamp).toLocaleString()}</p> {/* Format timestamp */}
-                    <p><strong>Content Summary:</strong> {incident.contentSummary || "TBD"}</p> {/* Display 'TBD' if contentSummary is not available */}
+                    <p><strong>Content ID:</strong> {incident.contentId || "Unknown"}</p> {/* Display Content ID */}
+                    <p><strong>User ID:</strong> {incident.userId || "Unknown"}</p> {/* Display User ID */}
+                    <p><strong>Username:</strong> {incident.username}</p> {/* Display Username */}
+                    <p><strong>Severity Level:</strong> {incident.severityLevel
+                        ? incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)
+                        : "Unknown"}</p> {/* Display Severity Level */}
+                    <p><strong>Alert Status:</strong> {incident.status
+                        ? incident.status.charAt(0).toUpperCase() + incident.status.slice(1)
+                        : "Unknown"}</p> {/* Display Alert Status */}
+                    <p><strong>Timestamp:</strong> {incident.timestamp
+                        ? new Date(incident.timestamp).toLocaleString()
+                        : "Unknown"}</p> {/* Format and display timestamp */}
+                    <p><strong>Content Summary:</strong> {incident.contentSummary || "TBD"}</p> {/* Display Content Summary */}
                     <h1>Full Incident</h1>
-                    <p>{incident.fullContent}</p>
+                    <p>{incident.fullContent || "Full content not available."}</p> {/* Display full content or fallback */}
+
                     <button onClick={handleStatusChange}>
                         Mark as {incident.status === 'pending review' ? 'Resolved' : 'Pending Review'}
                     </button>
