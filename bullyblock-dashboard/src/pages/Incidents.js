@@ -83,6 +83,7 @@ const Incidents = () => {
                             <tr>
                                 <th>Content ID</th>
                                 <th>User ID</th>
+                                <th>Username</th>
                                 <th>Severity Level</th>
                                 <th>Alert Status</th>
                                 <th>Content Summary</th>
@@ -98,7 +99,8 @@ const Incidents = () => {
                                         onClick={() => navigate(`/incidents/${incident._id}`)} // Navigate to the detailed view on click
                                     >
                                         <td>{incident.contentId}</td> {/* Content ID */}
-                                        <td>{incident.userId ? incident.userId.username : "Unknown"}</td> {/* User ID */}
+                                        <td>{incident.authorId}</td> {/* User ID */}
+                                        <td>{incident.username}</td> {/* Username */}
                                         <td>
                                             {incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)}
                                         </td> {/* Severity Level */}
