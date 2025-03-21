@@ -40,6 +40,7 @@ const createIncident = async (req, res) => {
 // @route   GET /api/incidents
 // @desc    Get all incidents
 // @access  Public
+/*
 const getAllIncidents = async (req, res) => {
     try {
         const incidents = await Incident.find();
@@ -49,6 +50,38 @@ const getAllIncidents = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+*/
+
+const getAllIncidents = async (req, res) => {
+    try {
+        const incidents = await Incident.aggregate([
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "authorId",
+                    foreignField: "user_id",
+                    as: "author"
+                }
+            },
+            {
+                $addFields: {
+                    username: { $arrayElemAt: ["$author.username", 0] }
+                }
+            },
+            {
+                $project: {
+                    author: 0
+                }
+            }
+        ]);
+
+        res.json(incidents);
+    } catch (err) {
+        console.error("Error fetching incidents:", err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
 
 // @route   GET /api/incidents/:id
 // @desc    Get a single incident by ID
