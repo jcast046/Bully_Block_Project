@@ -4,35 +4,58 @@ import "../App.css";
 import "../Analytics.css";
 
 const Analytics = () => {
-  const [analyticsData, setAnalyticsData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [images, setImages] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
+  // State for analytics data
+  const [frequentBullies, setFrequentBullies] = useState([]); // Frequent bullies data
+  const [schoolsMostBullying, setSchoolsMostBullying] = useState([]); // Schools with most bullying
+  const [datesHighestBullying, setDatesHighestBullying] = useState([]); // Dates with highest bullying
+  const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
+  const bulliesPerPage = 10; // Max bullies per page
+  const [loading, setLoading] = useState(true); // Handle loading status
+  const [error, setError] = useState(null); // Handle error messages
+  const [images, setImages] = useState([]); // Store images for visualizations
+  const [selectedImage, setSelectedImage] = useState(null); // For modal image preview
 
+  // Fetch analytics data and process frequent bullies
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const [bulliesRes, schoolsRes, datesRes] = await Promise.all([
-          axios.get("http://localhost:3001/api/analytics/frequent-bullies"),
+        const response = await axios.get("http://localhost:3001/api/incidents"); // Fetch all incidents
+        const incidents = response.data;
+
+        // Aggregate incidents by username or author_id
+        const bullyCounts = {};
+        incidents.forEach((incident) => {
+          const userKey = incident.username || incident.author_id || "Unknown";
+          if (!bullyCounts[userKey]) {
+            bullyCounts[userKey] = { name: userKey, incidents: 0 };
+          }
+          bullyCounts[userKey].incidents += 1;
+        });
+
+        // Filter users with 10 or more incidents and sort from most to least
+        const sortedBullies = Object.values(bullyCounts)
+          .filter((bully) => bully.incidents >= 10)
+          .sort((a, b) => b.incidents - a.incidents);
+
+        // Fetch data for schools and dates (already implemented APIs)
+        const [schoolsRes, datesRes] = await Promise.all([
           axios.get("http://localhost:3001/api/analytics/schools-bullying"),
           axios.get("http://localhost:3001/api/analytics/dates-bullying"),
         ]);
 
-        setAnalyticsData({
-          frequentBullies: bulliesRes.data,
-          schoolsMostBullying: schoolsRes.data,
-          datesHighestBullying: datesRes.data,
-        });
+        // Update states with fetched and processed data
+        setFrequentBullies(sortedBullies);
+        setSchoolsMostBullying(schoolsRes.data);
+        setDatesHighestBullying(datesRes.data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching analytics:", error);
-        setError("Failed to load analytics data");
+        console.error("Error fetching analytics:", error); // Log errors
+        setError("Failed to load analytics data"); // Set error message
         setLoading(false);
       }
     };
 
-    fetchAnalytics();
+    fetchAnalytics(); // Fetch data on component mount
   }, []);
 
   // Fetch most recent images for each image type
@@ -41,28 +64,40 @@ const Analytics = () => {
       try {
         const response = await axios.get(
           "http://localhost:3001/images/latest-images"
-        );
+        ); // API for latest images
         if (response.status === 200) {
-          setImages(response.data);
+          setImages(response.data); // Store fetched images
         } else {
-          console.error("Error fetching images");
+          console.error("Error fetching images"); // Log error if status is not OK
         }
       } catch (error) {
-        console.error("Error fetching images:", error);
+        console.error("Error fetching images:", error); // Log errors
       }
     };
 
-    fetchImages();
+    fetchImages(); // Fetch images on component mount
   }, []);
 
-  // Handle image click
+  // Pagination logic for the Frequent Bullies table
+  const indexOfLastBully = currentPage * bulliesPerPage; // Last bully's index on the current page
+  const indexOfFirstBully = indexOfLastBully - bulliesPerPage; // First bully's index on the current page
+  const currentBullies = frequentBullies.slice(indexOfFirstBully, indexOfLastBully); // Bullies to display on the current page
+  const totalPages = Math.ceil(frequentBullies.length / bulliesPerPage); // Total number of pages
+
+  const changePage = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage); // Update the current page
+    }
+  };
+
+  // Handle image click to display modal
   const handleImageClick = (image) => {
     setSelectedImage(image);
   };
 
   // Handle modal close
   const handleCloseModal = () => {
-    setSelectedImage(null);
+    setSelectedImage(null); // Close modal
   };
 
   // Close modal when clicking outside the image
@@ -86,22 +121,38 @@ const Analytics = () => {
           <table className="analytics-table">
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Username</th>
                 <th>Number of Incidents</th>
               </tr>
             </thead>
             <tbody>
-              {analyticsData.frequentBullies.map((bully, index) => (
-                <tr
-                  key={index}
-                  className={bully.incidents === 0 ? "no-data" : ""}
-                >
+              {currentBullies.map((bully, index) => (
+                <tr key={index}>
+                  {/* Display Username or Author ID and Number of Incidents */}
                   <td>{bully.name}</td>
                   <td>{bully.incidents}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {/* Pagination Controls */}
+          <div className="pagination-controls">
+            <button
+              onClick={() => changePage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => changePage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
 
           {/* Schools with Most Bullying Incidents */}
           <h2>Schools with Most Bullying</h2>
@@ -113,11 +164,8 @@ const Analytics = () => {
               </tr>
             </thead>
             <tbody>
-              {analyticsData.schoolsMostBullying.map((school, index) => (
-                <tr
-                  key={index}
-                  className={school.incidents === 0 ? "no-data" : ""}
-                >
+              {schoolsMostBullying.map((school, index) => (
+                <tr key={index}>
                   <td>{school.school}</td>
                   <td>{school.incidents}</td>
                 </tr>
@@ -135,11 +183,8 @@ const Analytics = () => {
               </tr>
             </thead>
             <tbody>
-              {analyticsData.datesHighestBullying.map((date, index) => (
-                <tr
-                  key={index}
-                  className={date.incidents === 0 ? "no-data" : ""}
-                >
+              {datesHighestBullying.map((date, index) => (
+                <tr key={index}>
                   <td>{new Date(date.date).toLocaleDateString()}</td>
                   <td>{date.incidents}</td>
                 </tr>
