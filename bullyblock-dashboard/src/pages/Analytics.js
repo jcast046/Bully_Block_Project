@@ -6,7 +6,7 @@ import "../Analytics.css";
 const Analytics = () => {
   // State for analytics data
   const [frequentBullies, setFrequentBullies] = useState([]); // Frequent bullies data
-  const [schoolsMostBullying, setSchoolsMostBullying] = useState([]); // Schools with most bullying
+  const [severityCounts, setSeverityCounts] = useState({ high: 0, medium: 0, low: 0 }); // Incidents by severity level
   const [datesHighestBullying, setDatesHighestBullying] = useState([]); // Dates with highest bullying
   const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
   const bulliesPerPage = 10; // Max bullies per page
@@ -15,12 +15,21 @@ const Analytics = () => {
   const [images, setImages] = useState([]); // Store images for visualizations
   const [selectedImage, setSelectedImage] = useState(null); // For modal image preview
 
-  // Fetch analytics data and process frequent bullies
+  // Fetch analytics data
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
         const response = await axios.get("http://localhost:3001/api/incidents"); // Fetch all incidents
         const incidents = response.data;
+
+        // Aggregate incidents by severity level
+        const severityCounts = { high: 0, medium: 0, low: 0 };
+        incidents.forEach((incident) => {
+          const severity = incident.severityLevel.toLowerCase();
+          if (severityCounts[severity] !== undefined) {
+            severityCounts[severity] += 1; // Count incidents for each severity level
+          }
+        });
 
         // Aggregate incidents by username or author_id
         const bullyCounts = {};
@@ -37,15 +46,12 @@ const Analytics = () => {
           .filter((bully) => bully.incidents >= 10)
           .sort((a, b) => b.incidents - a.incidents);
 
-        // Fetch data for schools and dates (already implemented APIs)
-        const [schoolsRes, datesRes] = await Promise.all([
-          axios.get("http://localhost:3001/api/analytics/schools-bullying"),
-          axios.get("http://localhost:3001/api/analytics/dates-bullying"),
-        ]);
+        // Fetch data for dates with highest bullying
+        const datesRes = await axios.get("http://localhost:3001/api/analytics/dates-bullying");
 
-        // Update states with fetched and processed data
+        // Update states with fetched data
         setFrequentBullies(sortedBullies);
-        setSchoolsMostBullying(schoolsRes.data);
+        setSeverityCounts(severityCounts);
         setDatesHighestBullying(datesRes.data);
         setLoading(false);
       } catch (error) {
@@ -154,22 +160,28 @@ const Analytics = () => {
             </button>
           </div>
 
-          {/* Schools with Most Bullying Incidents */}
-          <h2>Schools with Most Bullying</h2>
+          {/* Bullying by Severity Level */}
+          <h2>Bullying by Severity Level</h2>
           <table className="analytics-table">
             <thead>
               <tr>
-                <th>School</th>
+                <th>Severity Level</th>
                 <th>Number of Incidents</th>
               </tr>
             </thead>
             <tbody>
-              {schoolsMostBullying.map((school, index) => (
-                <tr key={index}>
-                  <td>{school.school}</td>
-                  <td>{school.incidents}</td>
-                </tr>
-              ))}
+              <tr>
+                <td>High</td>
+                <td>{severityCounts.high}</td>
+              </tr>
+              <tr>
+                <td>Medium</td>
+                <td>{severityCounts.medium}</td>
+              </tr>
+              <tr>
+                <td>Low</td>
+                <td>{severityCounts.low}</td>
+              </tr>
             </tbody>
           </table>
 
