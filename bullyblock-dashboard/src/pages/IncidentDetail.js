@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router';
 import axios from 'axios';
 import '../App.css';
 import '../IncidentDetail.css';
 
 const IncidentDetail = () => {
     const { id } = useParams(); // Get incident ID from URL parameters
+    const location = useLocation(); // Access location to retrieve passed state
     const [incident, setIncident] = useState(null); // State to store incident data
     const [loading, setLoading] = useState(true); // State to handle loading status
     const [error, setError] = useState(null); // State to handle error messages
     const navigate = useNavigate(); // Hook to navigate to different pages
+
+    // Retrieve current page from location state or default to page 1
+    const currentPage = location.state?.currentPage || 1;
 
     // Fetch incident data from the server when the component first renders
     useEffect(() => {
@@ -48,6 +52,13 @@ const IncidentDetail = () => {
         }
     };
 
+    // Function to extract plain text from HTML string
+    const extractText = (htmlString) => {
+        const parser = new DOMParser();
+        const parsedDocument = parser.parseFromString(htmlString, 'text/html');
+        return parsedDocument.body.textContent || "Full content not available."; // Return plain text or fallback
+    };
+
     return (
         <div className="incident-detail-container">
             {loading ? (
@@ -58,7 +69,7 @@ const IncidentDetail = () => {
                 <div>
                     <h1>Incident Details</h1>
                     <p><strong>Content ID:</strong> {incident.contentId || "Unknown"}</p> {/* Display Content ID */}
-                    <p><strong>User ID:</strong> {incident.userId || "Unknown"}</p> {/* Display User ID */}
+                    <p><strong>User ID:</strong> {incident.authorId || "Unknown"}</p> {/* Display User ID */}
                     <p><strong>Username:</strong> {incident.username}</p> {/* Display Username */}
                     <p><strong>Severity Level:</strong> {incident.severityLevel
                         ? incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)
@@ -71,12 +82,15 @@ const IncidentDetail = () => {
                         : "Unknown"}</p> {/* Format and display timestamp */}
                     <p><strong>Content Summary:</strong> {incident.contentSummary || "TBD"}</p> {/* Display Content Summary */}
                     <h1>Full Incident</h1>
-                    <p>{incident.fullContent || "Full content not available."}</p> {/* Display full content or fallback */}
+                    <p>{extractText(incident.content)}</p> {/* Clean and display full content */}
 
                     <button onClick={handleStatusChange}>
                         Mark as {incident.status === 'pending review' ? 'Resolved' : 'Pending Review'}
                     </button>
-                    <button onClick={() => navigate('/incidents')}>Back to Incident Reports</button> {/* Button to navigate back to the incidents page */}
+                    {/* Pass current page back to Incidents */}
+                    <button onClick={() => navigate('/incidents', { state: { currentPage } })}>
+                        Back to Incident Reports
+                    </button>
                 </div>
             )}
         </div>
