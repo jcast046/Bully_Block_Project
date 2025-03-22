@@ -1,4 +1,5 @@
 const Incident = require('../models/Incident');
+const mongoose = require('mongoose');
 
 // @route   POST /api/incidents
 // @desc    Create a new incident
@@ -42,7 +43,27 @@ const createIncident = async (req, res) => {
 // @access  Public
 const getAllIncidents = async (req, res) => {
     try {
-        const incidents = await Incident.find();
+        const incidents = await Incident.aggregate([
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "authorId",
+                    foreignField: "user_id",
+                    as: "author"
+                }
+            },
+            {
+                $addFields: {
+                    username: { $arrayElemAt: ["$author.username", 0] }
+                }
+            },
+            {
+                $project: {
+                    author: 0
+                }
+            }
+        ]);
+
         res.json(incidents);
     } catch (err) {
         console.error("Error fetching incidents:", err);
@@ -50,23 +71,140 @@ const getAllIncidents = async (req, res) => {
     }
 };
 
+
 // @route   GET /api/incidents/:id
 // @desc    Get a single incident by ID
 // @access  Public
 const getIncident = async (req, res) => {
     try {
-        const incident = await Incident.findById(req.params.id);
+        const incident = await Incident.aggregate([
+            // Match the specific incident by ID
+            {
+                $match: { _id: new mongoose.Types.ObjectId(req.params.id) }
+            },
 
-        if (!incident) {
+            // Lookup user info
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "authorId",
+                    foreignField: "user_id",
+                    as: "author"
+                }
+            },
+            {
+                $addFields: {
+                    username: { $arrayElemAt: ["$author.username", 0] }
+                }
+            },
+
+            // Lookup content from the Posts collection
+            {
+                $lookup: {
+                    from: "posts",
+                    let: { contentId: "$contentId", type: "$contentType" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$$type", "post"] },
+                                        { $eq: ["$post_id", "$$contentId"] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $project: { content: 1, _id: 0 } }
+                    ],
+                    as: "postContent"
+                }
+            },
+
+            // Lookup content from the Messages collection
+            {
+                $lookup: {
+                    from: "messages",
+                    let: { contentId: "$contentId", type: "$contentType" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$$type", "message"] },
+                                        { $eq: ["$message_id", "$$contentId"] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $project: { content: 1, _id: 0 } }
+                    ],
+                    as: "messageContent"
+                }
+            },
+
+            // Lookup content from the Comments collection
+            {
+                $lookup: {
+                    from: "comments",
+                    let: { contentId: "$contentId", type: "$contentType" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$$type", "comment"] },
+                                        { $eq: ["$comment_id", "$$contentId"] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $project: { content: 1, _id: 0 } }
+                    ],
+                    as: "commentContent"
+                }
+            },
+
+            // Merge the correct content field based on contentType
+            {
+                $addFields: {
+                    content: {
+                        $cond: {
+                            if: { $eq: ["$contentType", "post"] },
+                            then: { $arrayElemAt: ["$postContent.content", 0] },
+                            else: {
+                                $cond: {
+                                    if: { $eq: ["$contentType", "message"] },
+                                    then: { $arrayElemAt: ["$messageContent.content", 0] },
+                                    else: { $arrayElemAt: ["$commentContent.content", 0] }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+
+            // Remove unnecessary fields
+            {
+                $project: {
+                    author: 0,
+                    postContent: 0,
+                    messageContent: 0,
+                    commentContent: 0
+                }
+            }
+        ]);
+
+        if (!incident || incident.length === 0) {
             return res.status(404).json({ message: 'Incident not found' });
         }
 
-        res.json(incident);
+        res.json(incident[0]);
     } catch (err) {
-        console.error(err);
+        console.error("Error fetching incident:", err);
         res.status(500).json({ error: 'Server error' });
     }
 };
+
 
 // @route   GET /api/incidents/count
 // @desc    Get total count of incidents

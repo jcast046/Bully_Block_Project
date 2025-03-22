@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import axios from 'axios';
 import '../App.css';
 import '../Incidents.css';
 
 const Incidents = () => {
-    
     const [incidents, setIncidents] = useState([]); // State to store incidents data
     const [loading, setLoading] = useState(true); // Handle loading status
     const [error, setError] = useState(null); // State for error messages
     const [filter, setFilter] = useState('all'); // Track the current filter
-    const [currentPage, setCurrentPage] = useState(1); // State for the current page
-    const incidentsPerPage = 100; // Number of incidents per page
+    const location = useLocation(); // Get state from navigation
+    const [currentPage, setCurrentPage] = useState(location.state?.currentPage || 1); // Retrieve current page from state or default to 1
+    const incidentsPerPage = 50; // Number of incidents per page
     const navigate = useNavigate(); // Hook for navigating to other pages
 
     // Fetch incidents from the backend API
@@ -83,6 +83,7 @@ const Incidents = () => {
                             <tr>
                                 <th>Content ID</th>
                                 <th>User ID</th>
+                                <th>Username</th>
                                 <th>Severity Level</th>
                                 <th>Alert Status</th>
                                 <th>Content Summary</th>
@@ -95,10 +96,11 @@ const Incidents = () => {
                                     <tr
                                         key={incident._id} // Unique key for each row
                                         className={incident.status === 'resolved' ? 'resolved' : ''} // Highlight resolved incidents
-                                        onClick={() => navigate(`/incidents/${incident._id}`)} // Navigate to the detailed view on click
+                                        onClick={() => navigate(`/incidents/${incident._id}`, { state: { currentPage } })} // Navigate to the detailed view and pass current page
                                     >
                                         <td>{incident.contentId}</td> {/* Content ID */}
-                                        <td>{incident.userId ? incident.userId.username : "Unknown"}</td> {/* User ID */}
+                                        <td>{incident.authorId}</td> {/* User ID */}
+                                        <td>{incident.username}</td> {/* Username */}
                                         <td>
                                             {incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)}
                                         </td> {/* Severity Level */}
