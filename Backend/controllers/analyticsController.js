@@ -4,24 +4,26 @@ const User = require("../models/User");
 // Get frequent bullies (users with most incidents)
 const getFrequentBullies = async (req, res) => {
   try {
-    const bullies = await User.aggregate([
-      {
-        $match: { incidentCount: { $gt: 0 } },
-      },
-      {
-        $project: {
-          name: "$username",
-          incidents: "$incidentCount",
-          _id: 0,
-        },
-      },
-      {
-        $sort: { incidents: -1 },
-      },
-      {
-        $limit: 10,
-      },
-    ]);
+    const incidents = await Incident.find();
+
+    // Aggregate incidents by username or author_id
+    const bullyCounts = {};
+    incidents.forEach((incident) => {
+      const userKey = incident.username || incident.author_id;
+      // Skip if no valid user identifier is found
+      if (!userKey) return;
+
+      if (!bullyCounts[userKey]) {
+        bullyCounts[userKey] = { name: userKey, incidents: 0 };
+      }
+      bullyCounts[userKey].incidents += 1;
+    });
+
+    // Filter users with 10 or more incidents and sort from most to least
+    const bullies = Object.values(bullyCounts)
+      .filter((bully) => bully.incidents >= 10)
+      .sort((a, b) => b.incidents - a.incidents)
+      .slice(0, 10); // Limit to top 10
 
     // If no bullies found, return default data
     if (bullies.length === 0) {

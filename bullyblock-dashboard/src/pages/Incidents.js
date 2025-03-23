@@ -61,81 +61,100 @@ const Incidents = () => {
         }
     };
 
-    return (
-        <div className="incidents-container">
-            <h1>Incident Reports</h1>
-            <div className="filter-menu">
-                {/* Dropdown for selecting a filter */}
-                <select id="filter" value={filter} onChange={handleFilterChange}>
-                    <option value="all">All</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="pending review">Pending review</option>
-                </select>
-            </div>
-            {loading ? (
-                <p>Loading incidents...</p> // Display loading message
-            ) : error ? (
-                <p className="error">{error}</p> // Display error message
-            ) : (
-                <>
-                    <table className="incidents-table">
-                        <thead>
-                            <tr>
-                                <th>Content ID</th>
-                                <th>User ID</th>
-                                <th>Username</th>
-                                <th>Severity Level</th>
-                                <th>Alert Status</th>
-                                <th>Content Summary</th>
-                                <th>Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentIncidents.length > 0 ? (
-                                currentIncidents.map((incident) => (
-                                    <tr
-                                        key={incident._id} // Unique key for each row
-                                        className={incident.status === 'resolved' ? 'resolved' : ''} // Highlight resolved incidents
-                                        onClick={() => navigate(`/incidents/${incident._id}`, { state: { currentPage } })} // Navigate to the detailed view and pass current page
-                                    >
-                                        <td>{incident.contentId}</td> {/* Content ID */}
-                                        <td>{incident.authorId}</td> {/* User ID */}
-                                        <td>{incident.username}</td> {/* Username */}
-                                        <td>
-                                            {incident.severityLevel.charAt(0).toUpperCase() + incident.severityLevel.slice(1)}
-                                        </td> {/* Severity Level */}
-                                        <td>
-                                            {incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}
-                                        </td> {/* Alert Status */}
-                                        <td>{incident.contentSummary || "TBD"}</td> {/* Content Summary */}
-                                        <td>{new Date(incident.timestamp).toLocaleString()}</td> {/* Timestamp */}
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="6">No incidents found.</td> {/* No matching incidents */}
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                    <div className="pagination">
-                        {/* Previous button */}
-                        <button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>
-                            Previous
-                        </button>
-                        {/* Page indicator */}
-                        <span>
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        {/* Next button */}
-                        <button onClick={() => changePage(currentPage + 1)} disabled={currentPage === totalPages}>
-                            Next
-                        </button>
-                    </div>
-                </>
-            )}
-        </div>
-    );
+  return (
+    <div className="incidents-container">
+      <h1>Incident Reports</h1>
+      <div className="filter-menu">
+        {/* Dropdown for selecting a filter */}
+        <select id="filter" value={filter} onChange={handleFilterChange}>
+          <option value="all">All</option>
+          <option value="resolved">Resolved</option>
+          <option value="pending review">Pending review</option>
+        </select>
+      </div>
+      {loading ? (
+        <p>Loading incidents...</p> // Display loading message
+      ) : error ? (
+        <p className="error">{error}</p> // Display error message
+      ) : (
+        <>
+          <table className="incidents-table">
+            <thead>
+              <tr>
+                <th>Content ID</th>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Severity Level</th>
+                <th>Alert Status</th>
+                <th>Content Summary</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentIncidents.length > 0 ? (
+                currentIncidents.map((incident) => (
+                  <tr
+                    key={incident._id} // Unique key for each row
+                    className={incident.status === "resolved" ? "resolved" : ""} // Highlight resolved incidents
+                    onClick={() =>
+                      navigate(`/incidents/${incident._id}`, {
+                        state: { currentPage },
+                      })
+                    } // Navigate to the detailed view and pass current page
+                  >
+                    <td>{incident.contentId}</td> {/* Content ID */}
+                    <td>{incident.authorId}</td> {/* User ID */}
+                    <td>{incident.username}</td> {/* Username */}
+                    <td>
+                      {incident.severityLevel.charAt(0).toUpperCase() +
+                        incident.severityLevel.slice(1)}
+                    </td>{" "}
+                    {/* Severity Level */}
+                    <td>
+                      {incident.status.charAt(0).toUpperCase() +
+                        incident.status.slice(1)}
+                    </td>{" "}
+                    {/* Alert Status */}
+                    <td>{incident.contentSummary || "TBD"}</td>{" "}
+                    {/* Content Summary */}
+                    <td>
+                      {new Date(incident.timestamp).toLocaleString()}
+                    </td>{" "}
+                    {/* Timestamp */}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6">No incidents found.</td>{" "}
+                  {/* No matching incidents */}
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <div className="pagination-controls">
+            {/* Previous button */}
+            <button
+              onClick={() => changePage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {/* Page indicator */}
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            {/* Next button */}
+            <button
+              onClick={() => changePage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
 };
 
 export default Incidents;

@@ -6,7 +6,11 @@ import "../Analytics.css";
 const Analytics = () => {
   // State for analytics data
   const [frequentBullies, setFrequentBullies] = useState([]); // Frequent bullies data
-  const [severityCounts, setSeverityCounts] = useState({ high: 0, medium: 0, low: 0 }); // Incidents by severity level
+  const [severityCounts, setSeverityCounts] = useState({
+    high: 0,
+    medium: 0,
+    low: 0,
+  }); // Incidents by severity level
   const [datesHighestBullying, setDatesHighestBullying] = useState([]); // Dates with highest bullying
   const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
   const bulliesPerPage = 10; // Max bullies per page
@@ -47,7 +51,9 @@ const Analytics = () => {
           .sort((a, b) => b.incidents - a.incidents);
 
         // Fetch data for dates with highest bullying
-        const datesRes = await axios.get("http://localhost:3001/api/analytics/dates-bullying");
+        const datesRes = await axios.get(
+          "http://localhost:3001/api/analytics/dates-bullying"
+        );
 
         // Update states with fetched data
         setFrequentBullies(sortedBullies);
@@ -87,7 +93,10 @@ const Analytics = () => {
   // Pagination logic for the Frequent Bullies table
   const indexOfLastBully = currentPage * bulliesPerPage; // Last bully's index on the current page
   const indexOfFirstBully = indexOfLastBully - bulliesPerPage; // First bully's index on the current page
-  const currentBullies = frequentBullies.slice(indexOfFirstBully, indexOfLastBully); // Bullies to display on the current page
+  const currentBullies = frequentBullies.slice(
+    indexOfFirstBully,
+    indexOfLastBully
+  ); // Bullies to display on the current page
   const totalPages = Math.ceil(frequentBullies.length / bulliesPerPage); // Total number of pages
 
   const changePage = (newPage) => {
