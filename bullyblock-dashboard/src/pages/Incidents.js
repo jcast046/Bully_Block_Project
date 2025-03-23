@@ -1,65 +1,69 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router';
-import axios from 'axios';
-import '../App.css';
-import '../Incidents.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router";
+import axios from "axios";
+import "../App.css";
+import "../Incidents.css";
 
 const Incidents = () => {
-    const [incidents, setIncidents] = useState([]); // State to store incidents data
-    const [loading, setLoading] = useState(true); // Handle loading status
-    const [error, setError] = useState(null); // State for error messages
-    const [filter, setFilter] = useState('all'); // Track the current filter
-    const location = useLocation(); // Get state from navigation
-    const [currentPage, setCurrentPage] = useState(location.state?.currentPage || 1); // Retrieve current page from state or default to 1
-    const incidentsPerPage = 50; // Number of incidents per page
-    const navigate = useNavigate(); // Hook for navigating to other pages
+  const [incidents, setIncidents] = useState([]); // State to store incidents data
+  const [loading, setLoading] = useState(true); // Handle loading status
+  const [error, setError] = useState(null); // State for error messages
+  const [filter, setFilter] = useState("all"); // Track the current filter
+  const location = useLocation(); // Get state from navigation
+  const [currentPage, setCurrentPage] = useState(
+    location.state?.currentPage || 1
+  ); // Retrieve current page from state or default to 1
+  const incidentsPerPage = 50; // Number of incidents per page
+  const navigate = useNavigate(); // Hook for navigating to other pages
 
-    // Fetch incidents from the backend API
-    useEffect(() => {
-        const fetchIncidents = async () => {
-            try {
-                const response = await axios.get('http://localhost:3001/api/incidents'); // API call
-                setIncidents(response.data); // Store the response data
-                console.log(response.data); // Log data for debugging
-            } catch (error) {
-                console.error("Error fetching incidents:", error); // Log errors if fetch fails
-                setError("Failed to load incident data."); // Set error message
-            } finally {
-                setLoading(false); // Set loading to false once done
-            }
-        };
-
-        fetchIncidents(); // Trigger data fetch on component mount
-    }, []);
-
-    // Handle filter changes
-    const handleFilterChange = (e) => {
-        setFilter(e.target.value); // Update the selected filter
-        console.log("Selected filter:", e.target.value); // Log filter for debugging
-        setCurrentPage(1); // Reset to the first page when filter changes
+  // Fetch incidents from the backend API
+  useEffect(() => {
+    const fetchIncidents = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/incidents"); // API call
+        setIncidents(response.data); // Store the response data
+        console.log(response.data); // Log data for debugging
+      } catch (error) {
+        console.error("Error fetching incidents:", error); // Log errors if fetch fails
+        setError("Failed to load incident data."); // Set error message
+      } finally {
+        setLoading(false); // Set loading to false once done
+      }
     };
 
-    // Filter and sort incidents
-    const filteredIncidents = incidents
-        .filter((incident) => filter === 'all' || incident.status === filter) // Apply the filter
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Show newest incidents first
+    fetchIncidents(); // Trigger data fetch on component mount
+  }, []);
 
-    // Pagination logic
-    const indexOfLastIncident = currentPage * incidentsPerPage; // Last incident's index for the current page
-    const indexOfFirstIncident = indexOfLastIncident - incidentsPerPage; // First incident's index for the current page
-    const currentIncidents = filteredIncidents.slice( // Slice incidents for the current page
-        indexOfFirstIncident,
-        indexOfLastIncident
-    );
+  // Handle filter changes
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value); // Update the selected filter
+    console.log("Selected filter:", e.target.value); // Log filter for debugging
+    setCurrentPage(1); // Reset to the first page when filter changes
+  };
 
-    const totalPages = Math.ceil(filteredIncidents.length / incidentsPerPage); // Total number of pages
+  // Filter and sort incidents
+  const filteredIncidents = incidents
+    .filter((incident) => filter === "all" || incident.status === filter) // Apply the filter
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Show newest incidents first
 
-    // Handle pagination navigation
-    const changePage = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) { // Check if the new page is valid
-            setCurrentPage(newPage); // Update the current page
-        }
-    };
+  // Pagination logic
+  const indexOfLastIncident = currentPage * incidentsPerPage; // Last incident's index for the current page
+  const indexOfFirstIncident = indexOfLastIncident - incidentsPerPage; // First incident's index for the current page
+  const currentIncidents = filteredIncidents.slice(
+    // Slice incidents for the current page
+    indexOfFirstIncident,
+    indexOfLastIncident
+  );
+
+  const totalPages = Math.ceil(filteredIncidents.length / incidentsPerPage); // Total number of pages
+
+  // Handle pagination navigation
+  const changePage = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      // Check if the new page is valid
+      setCurrentPage(newPage); // Update the current page
+    }
+  };
 
   return (
     <div className="incidents-container">
@@ -86,7 +90,6 @@ const Incidents = () => {
                 <th>Username</th>
                 <th>Severity Level</th>
                 <th>Alert Status</th>
-                <th>Content Summary</th>
                 <th>Timestamp</th>
               </tr>
             </thead>
@@ -94,8 +97,8 @@ const Incidents = () => {
               {currentIncidents.length > 0 ? (
                 currentIncidents.map((incident) => (
                   <tr
-                    key={incident._id} // Unique key for each row
-                    className={incident.status === "resolved" ? "resolved" : ""} // Highlight resolved incidents
+                    key={incident._id}
+                    className={incident.status === "resolved" ? "resolved" : ""}
                     onClick={() =>
                       navigate(`/incidents/${incident._id}`, {
                         state: { currentPage },
@@ -108,25 +111,17 @@ const Incidents = () => {
                     <td>
                       {incident.severityLevel.charAt(0).toUpperCase() +
                         incident.severityLevel.slice(1)}
-                    </td>{" "}
-                    {/* Severity Level */}
+                    </td>
                     <td>
                       {incident.status.charAt(0).toUpperCase() +
                         incident.status.slice(1)}
-                    </td>{" "}
-                    {/* Alert Status */}
-                    <td>{incident.contentSummary || "TBD"}</td>{" "}
-                    {/* Content Summary */}
-                    <td>
-                      {new Date(incident.timestamp).toLocaleString()}
-                    </td>{" "}
-                    {/* Timestamp */}
+                    </td>
+                    <td>{new Date(incident.timestamp).toLocaleString()}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6">No incidents found.</td>{" "}
-                  {/* No matching incidents */}
+                  <td colSpan="6">No incidents found.</td>
                 </tr>
               )}
             </tbody>
