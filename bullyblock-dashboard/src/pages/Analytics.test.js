@@ -11,11 +11,11 @@ describe("Analytics Page", () => {
       { name: "Jane Smith", incidents: 12 },
       { name: "Mike Johnson", incidents: 10 },
     ],
-    schoolsMostBullying: [
-      { school: "Lincoln High", incidents: 30 },
-      { school: "Roosevelt Academy", incidents: 25 },
-      { school: "Jefferson Middle", incidents: 22 },
-    ],
+    severityCounts: {
+      high: 30,
+      medium: 25,
+      low: 22,
+    },
     datesHighestBullying: [
       { date: "2025-01-10", incidents: 10 },
       { date: "2025-02-14", incidents: 9 },

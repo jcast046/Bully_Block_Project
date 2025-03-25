@@ -17,10 +17,6 @@ const Navbar = () => {
 
   // Redirect to login page if user is not authenticated and trying to access other pages
   useEffect(() => {
-    const publicRoutes = ["/login", "/register"];
-    if (!isAuthenticated && !publicRoutes.includes(location.pathname)) {
-      navigate("/login");
-    }
   }, [isAuthenticated, location, navigate]);
 
   // Toggles the menu state between open and closed
@@ -38,10 +34,8 @@ const Navbar = () => {
   const menuToggleClass = `menu-toggle ${isMenuOpen ? "open" : ""}`;
   const navLinksClass = `nav-links ${isMenuOpen ? "open" : "close"}`;
 
-  // Don't render the Navbar on the login page
-  if (location.pathname === "/login") {
-    return null;
-  }
+  // Render logo only and hide navigation options on the login page
+  const isLoginPage = location.pathname === "/login";
 
   return (
     <nav>
@@ -49,28 +43,32 @@ const Navbar = () => {
         <div className="nav-logo">
           <img src={logo} alt="BullyBlock Logo" />
         </div>
-        <div className={menuToggleClass} onClick={handleMenuToggle}>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        {!isLoginPage && (
+          <>
+            <div className={menuToggleClass} onClick={handleMenuToggle}>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            {isAuthenticated && (
+              <div className={navLinksClass}>
+                <Link to="/dashboard">Home</Link>
+                <Link to="/incidents">Incidents</Link>
+                <Link to="/analytics">Analytics</Link>
+                <div className="/Notifications">
+                  <NotificationPopUp />
+                </div>
+                <Button
+                  text="Logout"
+                  onClick={handleLogout}
+                  className="logout-button"
+                />
+              </div>
+            )}
+          </>
+        )}
       </div>
-      {isAuthenticated && (
-        <div className={navLinksClass}>
-          <Link to="/dashboard">Home</Link>
-          <Link to="/incidents">Incidents</Link>
-          <Link to="/analytics">Analytics</Link>
-          <div className="/Notifications">
-            <NotificationPopUp />
-          </div>
-          <Button
-            text="Logout"
-            onClick={handleLogout}
-            className="logout-button"
-          />
-        </div>
-      )}
     </nav>
   );
 };

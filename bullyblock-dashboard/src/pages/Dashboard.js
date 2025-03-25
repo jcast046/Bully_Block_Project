@@ -27,15 +27,41 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const [bulliesRes, schoolsRes, datesRes] = await Promise.all([
-          axios.get(`${baseURL}/analytics/frequent-bullies`),
-          axios.get(`${baseURL}/analytics/schools-bullying`),
+        const [incidentsRes, datesRes] = await Promise.all([
+          axios.get(`${baseURL}/incidents`),
           axios.get(`${baseURL}/analytics/dates-bullying`),
         ]);
 
+        // Calculate severity counts from incidents
+        const severityCounts = { high: 0, medium: 0, low: 0 };
+        incidentsRes.data.forEach((incident) => {
+          const severity = incident.severityLevel.toLowerCase();
+          if (severityCounts[severity] !== undefined) {
+            severityCounts[severity] += 1;
+          }
+        });
+
+        // Aggregate incidents by username or author_id
+        const bullyCounts = {};
+        incidentsRes.data.forEach((incident) => {
+          const userKey = incident.username || incident.author_id || "Unknown";
+          if (!bullyCounts[userKey]) {
+            bullyCounts[userKey] = { name: userKey, incidents: 0 };
+          }
+          bullyCounts[userKey].incidents += 1;
+        });
+
+        // Filter users with 10 or more incidents and sort from most to least
+        const sortedBullies = Object.values(bullyCounts)
+          .filter((bully) => bully.incidents >= 10)
+          .sort((a, b) => b.incidents - a.incidents);
+
         setAnalyticsData({
-          frequentBullies: bulliesRes.data[0],
-          schoolsMostBullying: schoolsRes.data[0],
+          frequentBullies: sortedBullies[0] || {
+            name: "No incidents reported",
+            incidents: 0,
+          },
+          severityCounts,
           datesHighestBullying: datesRes.data[0],
         });
       } catch (error) {
@@ -46,30 +72,27 @@ const Dashboard = () => {
     fetchAnalytics();
   }, []);
 
-  // Cycle through analytics stats every 5 seconds
-  useEffect(() => {
-    if (!analyticsData) return;
-
-    const interval = setInterval(() => {
-      setCurrentStatIndex((prevIndex) => (prevIndex + 1) % 3);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [analyticsData]);
-
   // Get current analytics stat
-  const getCurrentStat = () => {
+  const getStats = () => {
     if (!analyticsData)
-      return { value: "Loading...", description: "View Bullying Trends" };
+      return [{ value: "Loading...", description: "View Bullying Trends" }];
 
-    const stats = [
+    return [
       {
         value: analyticsData.frequentBullies.incidents,
         description: `Most Incidents: ${analyticsData.frequentBullies.name}`,
       },
       {
-        value: analyticsData.schoolsMostBullying.incidents,
-        description: `Highest School Rate: ${analyticsData.schoolsMostBullying.school}`,
+        value: analyticsData.severityCounts.high,
+        description: "High Severity Incidents",
+      },
+      {
+        value: analyticsData.severityCounts.medium,
+        description: "Medium Severity Incidents",
+      },
+      {
+        value: analyticsData.severityCounts.low,
+        description: "Low Severity Incidents",
       },
       {
         value: `Max ${analyticsData.datesHighestBullying.incidents} Incidents`,
@@ -78,11 +101,21 @@ const Dashboard = () => {
         ).toLocaleDateString()}`,
       },
     ];
-
-    return stats[currentStatIndex];
   };
 
-  const currentStat = getCurrentStat();
+  const stats = getStats();
+  const currentStat = stats[currentStatIndex];
+
+  // Cycle through analytics stats every 5 seconds
+  useEffect(() => {
+    if (!analyticsData) return;
+
+    const interval = setInterval(() => {
+      setCurrentStatIndex((prevIndex) => (prevIndex + 1) % stats.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [analyticsData, stats.length]);
 
   return (
     <div className="dashboard-container">
