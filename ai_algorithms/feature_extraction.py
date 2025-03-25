@@ -410,7 +410,7 @@ def visualize_summary(summary):
     plt.xlabel("POS Tags")
     plt.ylabel("Frequency")
     plt.savefig("ai_algorithms/POS_tag_distribution.png", dpi=dpi, bbox_inches='tight')
-    plt.show()
+    #plt.show()
     
     
     # Plot entity distribution
@@ -420,7 +420,7 @@ def visualize_summary(summary):
     plt.xlabel("Entity Types")
     plt.ylabel("Frequency")
     plt.savefig("ai_algorithms/entity_distribution.png", dpi=dpi, bbox_inches='tight')
-    plt.show()
+    #plt.show()
     
     # Plot sentiment scores
     plt.figure(figsize=(screen_width_in, screen_height_in))
@@ -429,7 +429,7 @@ def visualize_summary(summary):
     plt.xlabel("Sentiment Type")
     plt.ylabel("Score")
     plt.savefig("ai_algorithms/sentiment_scores.png", dpi=dpi, bbox_inches='tight')
-    plt.show()
+    #plt.show()
     
 
 if __name__ == "__main__":

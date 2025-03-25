@@ -211,7 +211,7 @@ def plot_learning_curve(history):
     plt.legend()
     plt.title("Accuracy Curve")
 
-    plt.show()
+    #plt.show()
 
 
 def compare_models(models):

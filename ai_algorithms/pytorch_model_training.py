@@ -337,7 +337,7 @@ def model_chart(epochs, model_name, losses):
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.savefig("ai_algorithms/PyTorch" + model_name + ".png")
-    plt.show()
+    #plt.show()
 
 
 def overall_chart():
@@ -353,7 +353,7 @@ def overall_chart():
     plt.xlabel("PyTorch Model")
     plt.ylabel("Overall Accuracy")
     plt.savefig("ai_algorithms/PyTorchOverallAccuracy.png")
-    plt.show()
+    #plt.show()
 
 
 # ------------------------------------------------------------------------------
