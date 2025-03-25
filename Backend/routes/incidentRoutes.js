@@ -3,17 +3,14 @@ const {createIncident, getAllIncidents, getIncident, getIncidentCount, updateInc
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
+// Public routes
 router.get('/', getAllIncidents);
-
-// GET total count of incidents
 router.get("/count", getIncidentCount);
-
 router.get('/:id', getIncident);
 
-router.post('/', createIncident);
-
-router.put('/:id', updateIncident);
-
-router.delete('/:id', deleteIncident);
+// Private routes (authentication required)
+router.post('/', authMiddleware, createIncident);
+router.put('/:id', authMiddleware, updateIncident);
+router.delete('/:id', authMiddleware, deleteIncident);
 
 module.exports = router;

@@ -1,3 +1,8 @@
+/**
+ * @file server.js
+ * @description Server entry point with MongoDB connection and API routes setup.
+ */
+
 require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
@@ -6,17 +11,27 @@ const path = require("path");
 const cors = require("cors");
 const xss = require("xss-clean");
 
+/**
+ * @type {string} The MongoDB URI string for connection.
+ */
 const mongoURI = process.env.MONGO_URI;
+
+/**
+ * @type {express.Application} Express app instance.
+ */
 const app = express();
 const PORT = process.env.PORT || 3001;
 const USE_HTTPS = process.env.USE_HTTPS === "true";
 const SSL_KEY_PATH = process.env.SSL_KEY_PATH || "./config/server.key";
 const SSL_CERT_PATH = process.env.SSL_CERT_PATH || "./config/server.cert";
 
-// Import canvas-interactions
+// Import necessary modules
 const fetchData = require("./canvas-interactions/fetchData");
+const uploadIncidents = require("./incident-interactions/uploadIncidents"); // Import upload function
 
-// Security Middleware
+/**
+ * @type {function} Middleware to sanitize user input to prevent XSS attacks.
+ */
 const sanitizeMiddleware = require("./middleware/sanitizeMiddleware");
 app.use(xss());
 app.use(sanitizeMiddleware);
@@ -63,19 +78,23 @@ app.get("/", (req, res) => {
   res.status(200).send("BullyBlock API is running...");
 });
 
-// Connect to MongoDB and start the server only if successful
+/**
+ * Connect to MongoDB and start the server only if successful.
+ * @returns {Promise<void>} Resolves once the connection is successful.
+ */
 mongoose
   .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("MongoDB connected successfully");
 
+    // Set up HTTPS or HTTP server
     if (USE_HTTPS) {
       try {
         // Load SSL certificates
         const https = require("https");
         const options = {
-          key: fs.readFileSync(path.resolve(__dirname, SSL_KEY_PATH)), // Path to SSL key
-          cert: fs.readFileSync(path.resolve(__dirname, SSL_CERT_PATH)), // Path to SSL cert
+          key: fs.readFileSync(path.resolve(__dirname, SSL_KEY_PATH)),
+          cert: fs.readFileSync(path.resolve(__dirname, SSL_CERT_PATH)),
         };
 
         // Create HTTPS server
@@ -87,28 +106,32 @@ mongoose
         process.exit(1); // Exit if HTTPS fails
       }
     } else {
-      // Start HTTP server if HTTPS is not enabled
+      // Start HTTP server
       app.listen(PORT, () => {
         console.log(`HTTP Server running on port ${PORT}`);
       });
     }
 
-    // Fetch Canvas data
+    // Fetch Canvas data every 3 minutes (immediately and then scheduled)
     if (process.env.CANVAS_ACCESS_TOKEN) {
-      // Fetch data on startup
       (async () => {
-        await fetchData();
+        await fetchData(); // Run fetchData immediately
+        setInterval(fetchData, 180000); // Schedule it to run every 3 minutes
       })();
-
-      // Fetch data every 5 minutes
-      setInterval(fetchData, 300000);
     } else {
-      console.log(
-        "No Canvas access token in .env. Starting server without fetching Canvas Data."
-      );
+      console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
     }
+
+    // Upload incidents every 5 minutes (delayed start)
+    setTimeout(() => {
+      uploadIncidents(); // First run after 5 minutes
+      setInterval(uploadIncidents, 300000); // Then repeat every 5 minutes
+    }, 300000);
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
     process.exit(1); // Exit process on MongoDB connection failure
   });
+
+// Export mongoose for use in other modules
+module.exports = mongoose;

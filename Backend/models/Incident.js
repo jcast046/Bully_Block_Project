@@ -8,37 +8,48 @@ const IncidentSchema = new mongoose.Schema({
 
     incidentId: {
         type: String,
-        required: true
+        required: true,
+        unique: true, // Ensures incidentId is unique
+        index: true,  // Optimizes search performance
     },
 
     authorId: {
         type: String,
-        required: true
+        required: true,
     },
 
     contentType: {
         type: String,
         enum: ['message', 'post', 'comment'],
-        required: true
+        required: true,
     },
+
+    content: { 
+        type: String, 
+        required: true 
+    }, // Stores the actual message/post/comment content
 
     severityLevel: {
         type: String,
         enum: ['low', 'medium', 'high'],
-        required: true
+        required: true,
     },
 
     status: {
         type: String,
         enum: ['pending review', 'resolved'],
-        required: true
+        required: true,
     },
 
     timestamp: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        index: true, // Allows querying incidents by date efficiently
     }
 
-});
+}, { timestamps: true });
 
-module.exports = mongoose.model('Incidents', IncidentSchema);
+// Ensure uniqueness at the database level
+IncidentSchema.index({ incidentId: 1 }, { unique: true });
+
+module.exports = mongoose.model('Incident', IncidentSchema);
