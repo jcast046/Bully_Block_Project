@@ -29,18 +29,40 @@ def analyze_sentiment(tokens):
         dict: Aggregated sentiment scores (positive, negative, neutral).
     """
     sia = SentimentIntensityAnalyzer()
+    
+    # Get sentiment scores for each token
     scores = [sia.polarity_scores(token[0]) for token in tokens]
-
+    
     if not scores:  # Avoid division by zero
         return {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
 
-    # Normalize sentiment values to ensure balanced distribution
-    total_tokens = len(scores)
-    return {
-        "positive": sum(score['pos'] for score in scores) / total_tokens,
-        "negative": sum(score['neg'] for score in scores) / total_tokens,
-        "neutral": sum(score['neu'] for score in scores) / total_tokens
-    }
+    # Calculate raw scores
+    total_pos = sum(score['pos'] for score in scores)
+    total_neg = sum(score['neg'] for score in scores)
+    total_neu = sum(score['neu'] for score in scores)
+    
+    # Calculate compound score for overall sentiment
+    compound = sum(score['compound'] for score in scores)
+    
+    # Normalize based on compound score
+    if compound > 0.05:  # Positive sentiment
+        return {
+            "positive": min(1.0, total_pos * 1.5),
+            "negative": max(0.0, total_neg * 0.5),
+            "neutral": max(0.0, total_neu * 0.3)
+        }
+    elif compound < -0.05:  # Negative sentiment
+        return {
+            "positive": max(0.0, total_pos * 0.5),
+            "negative": min(1.0, total_neg * 1.5),
+            "neutral": max(0.0, total_neu * 0.3)
+        }
+    else:  # Neutral sentiment
+        return {
+            "positive": total_pos,
+            "negative": total_neg,
+            "neutral": total_neu
+        }
 
 def analyze_overall_sentiment(text):
     """
@@ -190,6 +212,25 @@ def validate_features(feature_data):
                                                                              "fuckwit", "twatwaffle", "cunt", "pussyass", "assclown", "shitbag", "fuckface",
                                                                              "retard"]
         )
+
+        #  Identify positive adjectives within the text
+        positive_adjectives = sum(
+            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["amazing", "awesome", "brilliant", "excellent", "fantastic", "great", "incredible", 
+                                                                             "outstanding", "perfect", "phenomenal", "remarkable", "spectacular", "superb", 
+                                                                             "terrific", "wonderful", "beautiful", "brave", "bright", "calm", "cheerful", 
+                                                                             "clever", "confident", "creative", "determined", "energetic", "friendly", 
+                                                                             "generous", "gentle", "happy", "helpful", "honest", "intelligent", "kind", 
+                                                                             "loving", "loyal", "patient", "peaceful", "polite", "powerful", "proud", 
+                                                                             "reliable", "respectful", "responsible", "sincere", "smart", "strong", 
+                                                                             "successful", "talented", "thoughtful", "trustworthy", "wise", "witty", 
+                                                                             "worthy", "admirable", "adorable", "agreeable", "charming", "courageous", 
+                                                                             "dedicated", "diligent", "elegant", "enthusiastic", "excited", "faithful", 
+                                                                             "fearless", "graceful", "grateful", "heroic", "hopeful", "humble", "inspiring", 
+                                                                             "joyful", "magnificent", "marvelous", "noble", "optimistic", "passionate", 
+                                                                             "radiant", "splendid", "stellar", "supportive", "tender", "thoughtful", 
+                                                                             "triumphant", "valiant", "valuable", "vibrant", "victorious", "virtuous", 
+                                                                             "warm", "welcome", "worthy", "zealous"]
+        )
         
         # Compute sentiment scores at the token level
         sentiment_scores = [sia.polarity_scores(token[0]) for token in tokens]
@@ -207,6 +248,7 @@ def validate_features(feature_data):
             "token_count": token_count,
             "entity_count": entity_count,
             "negative_adjectives": negative_adjectives,
+            "positive_adjectives": positive_adjectives,
             "sentiment_summary": sentiment_summary,
             "flagged_entities": flagged_entities
         }
@@ -223,14 +265,56 @@ def determine_severity(validation):
     Returns:
         str: Severity level ("low", "medium", or "high").
     """
+    # Get sentiment scores
     negative_score = validation["sentiment_summary"]["negative"]
+    positive_score = validation["sentiment_summary"]["positive"]
+    neutral_score = validation["sentiment_summary"]["neutral"]
+    
+    # Get adjective counts
+    negative_adj_count = validation["negative_adjectives"]
+    positive_adj_count = validation["positive_adjectives"]
+    
+    # Get flagged entities
     flagged_entities = len(validation["flagged_entities"])
-
-    #  Adjusting thresholds
-    if negative_score >= 1.5 or flagged_entities >= 2:
+    
+    # Calculate overall sentiment balance
+    sentiment_balance = positive_score - negative_score
+    
+    # High severity conditions:
+    # 1. High negative sentiment with multiple negative adjectives
+    # 2. Multiple flagged entities
+    # 3. Strong negative sentiment imbalance
+    # 4. Single negative adjective with high negative sentiment
+    if (negative_score >= 0.8 and negative_adj_count >= 1) or \
+       flagged_entities >= 2 or \
+       sentiment_balance <= -0.8 or \
+       (negative_adj_count >= 1 and negative_score >= 0.5):
         return "high"
-    elif 0.3 <= negative_score < 1.5 or flagged_entities == 1:  
+    
+    # Medium severity conditions:
+    # 1. Moderate negative sentiment with some negative adjectives
+    # 2. Single flagged entity
+    # 3. Slight negative sentiment imbalance
+    # 4. High neutral sentiment with negative adjectives
+    elif (0.3 <= negative_score < 0.8 and negative_adj_count >= 1) or \
+         flagged_entities == 1 or \
+         -0.5 <= sentiment_balance < 0 or \
+         (neutral_score > 0.7 and negative_adj_count >= 1):
         return "medium"
+    
+    # Low severity conditions:
+    # 1. Positive sentiment outweighs negative
+    # 2. No negative adjectives and no flagged entities
+    # 3. Strong positive sentiment or positive adjectives
+    # 4. High neutral sentiment with positive adjectives
+    elif sentiment_balance > 0 or \
+         (negative_adj_count == 0 and flagged_entities == 0) or \
+         positive_score >= 0.8 or \
+         positive_adj_count >= 1 or \
+         (neutral_score > 0.7 and positive_adj_count >= 1):
+        return "low"
+    
+    # Default to low severity if no clear indicators
     return "low"
 
 def compute_tfidf(processed_texts):
