@@ -47,21 +47,21 @@ def analyze_sentiment(tokens):
     # Normalize based on compound score
     if compound > 0.05:  # Positive sentiment
         return {
-            "positive": min(1.0, total_pos * 1.5),
-            "negative": max(0.0, total_neg * 0.5),
-            "neutral": max(0.0, total_neu * 0.3)
+            "positive": min(1.0, total_pos * 2.0),
+            "negative": max(0.0, total_neg * 0.3),
+            "neutral": max(0.0, total_neu * 0.2)
         }
     elif compound < -0.05:  # Negative sentiment
         return {
-            "positive": max(0.0, total_pos * 0.5),
-            "negative": min(1.0, total_neg * 1.5),
-            "neutral": max(0.0, total_neu * 0.3)
+            "positive": max(0.0, total_pos * 0.3),
+            "negative": min(1.0, total_neg * 2.0),
+            "neutral": max(0.0, total_neu * 0.2)
         }
     else:  # Neutral sentiment
         return {
-            "positive": total_pos,
-            "negative": total_neg,
-            "neutral": total_neu
+            "positive": total_pos * 0.8,
+            "negative": total_neg * 0.8,
+            "neutral": total_neu * 0.5
         }
 
 def analyze_overall_sentiment(text):
@@ -213,7 +213,7 @@ def validate_features(feature_data):
                                                                              "retard"]
         )
 
-        #  Identify positive adjectives within the text
+        # Identify positive adjectives within the text
         positive_adjectives = sum(
             1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["amazing", "awesome", "brilliant", "excellent", "fantastic", "great", "incredible", 
                                                                              "outstanding", "perfect", "phenomenal", "remarkable", "spectacular", "superb", 
@@ -232,12 +232,15 @@ def validate_features(feature_data):
                                                                              "warm", "welcome", "worthy", "zealous"]
         )
         
-        # Compute sentiment scores at the token level
-        sentiment_scores = [sia.polarity_scores(token[0]) for token in tokens]
+        # Get overall text sentiment
+        text = " ".join(token[0] for token in tokens)
+        overall_sentiment = sia.polarity_scores(text)
+        
+        # Combine token-level and overall sentiment
         sentiment_summary = {
-            "positive": sum(score['pos'] for score in sentiment_scores),
-            "negative": sum(score['neg'] for score in sentiment_scores),
-            "neutral": sum(score['neu'] for score in sentiment_scores)
+            "positive": max(overall_sentiment['pos'], sum(score['pos'] for score in [sia.polarity_scores(token[0]) for token in tokens])),
+            "negative": max(overall_sentiment['neg'], sum(score['neg'] for score in [sia.polarity_scores(token[0]) for token in tokens])),
+            "neutral": min(overall_sentiment['neu'], sum(score['neu'] for score in [sia.polarity_scores(token[0]) for token in tokens]))
         }
         
         # Identify flagged entities based on context
