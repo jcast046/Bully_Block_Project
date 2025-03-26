@@ -188,9 +188,7 @@ def validate_features(feature_data):
                                                                              "horse shit", "piss", "pissed", "pissed off","son of a bitch", "bitching", "screw you",
                                                                              "suck my", "sucking", "lick me", "dickwad", "dickface", "asswipe", "shitshow", 
                                                                              "fuckwit", "twatwaffle", "cunt", "pussyass", "assclown", "shitbag", "fuckface",
-                                                                             "retard",
-
-                                                                            ]
+                                                                             "retard"]
         )
         
         # Compute sentiment scores at the token level
