@@ -162,15 +162,35 @@ def validate_features(feature_data):
         
         # Identify negative adjectives within the text
         negative_adjectives = sum(
-            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying", "idiot", 
-                                                                             "loser", "ugly", "hate", "worthless", 
-                                                                             "lame", "embarrassing", "failure", "talentless", 
-                                                                             "weak", "hideous", "gross", "fat", 
-                                                                             "clueless", "brainless", "pathetic", "useless", 
-                                                                             "lonely", "unpopular", "unwanted", "disappear",
-                                                                             "disgusting", "fake", "terrible", "cheat",
-                                                                             "fuck", "gay", "ass", "shit", "whore",
-                                                                             "slut", "bitch", "pussy", "die", "kill"]
+            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying", "idiot", "loser", "ugly", "hate", "worthless",
+                                                                             "lame", "embarrassing", "failure", "talentless", "weak", "hideous", "gross", "fat",
+                                                                             "clueless", "brainless", "pathetic", "useless", "lonely", "unpopular", "unwanted",
+                                                                             "disappear", "disgusting", "fake", "terrible", "cheat", "fuck", "gay", "ass", "shit",
+                                                                             "whore", "slut", "bitch", "pussy", "die", "kill", "trash", "garbage", "cringe",
+                                                                             "dumbass", "scum", "fail", "awful", "toxic", "clown", "stinks", "waste", "losers",
+                                                                             "bozo", "coward", "weirdo", "dipshit", "fatass", "nobody", "moron", "idiotic",
+                                                                             "spineless", "incompetent", "ridiculous", "foolish", "dunce", "imbecile", "dimwit",
+                                                                             "simpleton", "asshole", "bitchass", "dick", "fucking", "motherfucker",
+                                                                             "nasty", "pig", "uninstall", "creepy", "scumbag", "cheater", "unloved", "unwanted",
+                                                                             "broke", "smelly", "creature", "joke", "lowlife", "rat", "kill yourself", "loser", 
+                                                                             "nobody", "ugly", "worthless", "disgusting", "freak", "sick", "pathetic",
+                                                                             "disgrace", "wretched", "sickening", "repulsive", "detestable", "abominable", "vile",
+                                                                             "no one likes you", "nobody cares", "go die", "shut up", "get lost", "go away",
+                                                                             "waste of space", "walking L", "drop out", "go cry", "stop talking", "just quit",
+                                                                             "your mom", "poor", "failure at life", "so annoying", "hate you", "why are you here",
+                                                                             "disease", "social suicide", "cringe af", "walking disaster", "born on a highway",
+                                                                             "should be illegal", "mental case", "go choke", "too dumb to live", "choke on",
+                                                                             "dumbest person", "disappointment", "busted", "rotten", "clapped", "bald",
+                                                                             "gremlin", "lard", "toothpick", "snitch", "wannabe", "poser", "zero purpose",
+                                                                             "waste of air", "reject", "bot", "get wrecked", "you suck",  "shithead", "dickhead", 
+                                                                             "jackass", "bastard", "motherfucker", "cocksucker", "cock","douche", "douchebag", 
+                                                                             "prick", "twat", "ballsack", "nutsack", "tit", "tits", "nipple", "hella", "bullshit",
+                                                                             "horse shit", "piss", "pissed", "pissed off","son of a bitch", "bitching", "screw you",
+                                                                             "suck my", "sucking", "lick me", "dickwad", "dickface", "asswipe", "shitshow", 
+                                                                             "fuckwit", "twatwaffle", "cunt", "pussyass", "assclown", "shitbag", "fuckface",
+                                                                             "retard",
+
+                                                                            ]
         )
         
         # Compute sentiment scores at the token level
