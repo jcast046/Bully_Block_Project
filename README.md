@@ -44,7 +44,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
   - Middleware is used for security (xss-clean for sanitization, a custom sanitizeMiddleware), CORS handling, and JSON parsing.
   - HTTPS support is available, configurable via environment variables for SSL key and certificate paths.
   - The server includes a health check endpoint (/) to confirm service availability.
-  - The backend fetches data from the Canvas LMS API at startup and refreshes it every 5 minutes, if a valid CANVAS_ACCESS_TOKEN is provided.
+  - The backend fetches data from the Canvas LMS API at startup and refreshes it every 3 minutes, if a valid CANVAS_ACCESS_TOKEN is provided.
  
 - **Running the Backend**
 To start the backend server:
