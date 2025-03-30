@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const createIncident = async (req, res) => {
     const { incidentId, contentId, contentType, severityLevel, status, authorId } = req.body;
 
+    // Input validation
     if (!incidentId || !contentId || !contentType || !severityLevel || !status || !authorId) {
         return res.status(400).json({ error: "All fields (incidentId, contentId, contentType, severityLevel, status, and authorId) are required." });
     }
@@ -15,11 +16,21 @@ const createIncident = async (req, res) => {
         return res.status(400).json({ error: "Invalid contentType. Must be 'message', 'post', or 'comment'." });
     }
 
+    if (!["low", "medium", "high"].includes(severityLevel.toLowerCase())) {
+        return res.status(400).json({ error: "Invalid severityLevel. Must be 'low', 'medium', or 'high'." });
+    }
+
     if (!["pending review", "resolved"].includes(status)) {
         return res.status(400).json({ error: "Invalid status value" });
     }
 
     try {
+        // Check if the incident already exists
+        const existingIncident = await Incident.findOne({ incidentId });
+        if (existingIncident) {
+            return res.status(400).json({ error: "Incident with this incidentId already exists." });
+        }
+
         const newIncident = new Incident({
             incidentId,
             contentId,

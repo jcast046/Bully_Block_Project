@@ -16,8 +16,7 @@ const ImageSchema = new mongoose.Schema({
         enum: ['entity_distribution', 
             'POS_tag_distribution', 
             'sentiment_scores',
-            'CNN',
-            'LSTM',
+            'PyTorch_LSTM_Loss',
             'overall_accuracy']
     },
 

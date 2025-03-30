@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
+from nltk.util import ngrams
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
@@ -18,6 +19,12 @@ nlp = spacy.load("en_core_web_sm")
 # Download VADER lexicon for sentiment analysis
 nltk.download('vader_lexicon')
 
+low_severity = 0
+high_severity = 0
+
+severity_levels = ["low", "high"]
+severity_level_totals = [low_severity, high_severity]
+
 def analyze_sentiment(tokens):
     """
     Compute sentiment scores for individual tokens and normalize them.
@@ -29,18 +36,40 @@ def analyze_sentiment(tokens):
         dict: Aggregated sentiment scores (positive, negative, neutral).
     """
     sia = SentimentIntensityAnalyzer()
+    
+    # Get sentiment scores for each token
     scores = [sia.polarity_scores(token[0]) for token in tokens]
-
+    
     if not scores:  # Avoid division by zero
         return {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
 
-    # Normalize sentiment values to ensure balanced distribution
-    total_tokens = len(scores)
-    return {
-        "positive": sum(score['pos'] for score in scores) / total_tokens,
-        "negative": sum(score['neg'] for score in scores) / total_tokens,
-        "neutral": sum(score['neu'] for score in scores) / total_tokens
-    }
+    # Calculate raw scores
+    total_pos = sum(score['pos'] for score in scores)
+    total_neg = sum(score['neg'] for score in scores)
+    total_neu = sum(score['neu'] for score in scores)
+    
+    # Calculate compound score for overall sentiment
+    compound = sum(score['compound'] for score in scores)
+    
+    # Normalize based on compound score
+    if compound > 0.05:  # Positive sentiment
+        return {
+            "positive": min(1.0, total_pos * 2.0),
+            "negative": max(0.0, total_neg * 0.3),
+            "neutral": max(0.0, total_neu * 0.2)
+        }
+    elif compound < -0.05:  # Negative sentiment
+        return {
+            "positive": max(0.0, total_pos * 0.3),
+            "negative": min(1.0, total_neg * 2.0),
+            "neutral": max(0.0, total_neu * 0.2)
+        }
+    else:  # Neutral sentiment
+        return {
+            "positive": total_pos * 0.8,
+            "negative": total_neg * 0.8,
+            "neutral": total_neu * 0.5
+        }
 
 def analyze_overall_sentiment(text):
     """
@@ -152,6 +181,37 @@ def validate_features(feature_data):
     """
     sia = SentimentIntensityAnalyzer()
     
+    # Assign custom severity lexicon for negative words
+    severity_lexicon = {
+        "stupid": -0.3, "dumb": -0.3, "annoying": -0.3, "idiot": -0.3, "loser": -0.3, "ugly": -0.8, "hate": -0.6, "worthless": -0.8,
+        "lame": -0.3, "embarrassing": -0.3, "failure": -0.3, "talentless":-0.3, "weak": -0.3, "hideous": -0.3, "gross": -0.3, "fat": -0.3,
+        "clueless": -0.3, "brainless": -0.3, "pathetic": -0.3, "useless": -0.3, "lonely": -0.3, "unpopular": -0.3, "unwanted": -0.3,
+        "disappear": -0.3, "disgusting": -0.3, "fake": -0.3, "terrible": -0.3, "cheat": -0.3, "fuck": -1, "gay": -1, "ass": -1, "shit": -1,
+        "whore": -1.5, "slut": -1.5, "bitch": -1.5, "pussy": -0.3, "die": -1.5, "kill": -1.5, "trash": -0.3, "garbage": -0.3, "cringe": -0.3,
+        "dumbass": -0.3, "scum": -0.3, "fail":-0.3, "awful": -0.3, "toxic": -0.3, "clown": -0.3, "stinks": -0.3, "waste": -0.3, "losers": -0.3,
+        "bozo": -0.3, "coward": -0.3, "weirdo": -0.3, "dipshit": -0.3, "fatass": -0.3, "nobody": -0.3, "moron": -0.3, "idiotic": -0.3,
+        "spineless": -0.3, "incompetent": -0.3, "ridiculous": -0.3, "foolish": -0.3, "dunce": -0.3, "imbecile": -0.3, "dimwit": -0.3,
+        "simpleton": -0.3, "asshole": -0.3, "bitchass": -0.3, "dick": -0.3, "fucking": -0.3, "motherfucker": -0.3,
+        "nasty": -0.3, "pig": -0.3, "uninstall": -0.3, "creepy": -0.3, "scumbag": -0.3, "cheater": -0.3, "unloved": -0.3, "unwanted": -0.3,
+        "broke": -0.3, "smelly": -0.3, "creature": -0.3, "joke": -0.3, "lowlife": -0.3, "rat": -0.3, "kill yourself": -0.3, "loser": -0.3, 
+        "nobody": -0.3, "ugly": -0.3, "worthless": -0.3, "disgusting": -0.3, "freak": -0.3, "sick": -0.3, "pathetic": -0.3,
+        "disgrace": -0.3, "wretched": -0.3, "sickening": -0.3, "repulsive": -0.3, "detestable": -0.3, "abominable": -0.3, "vile": -0.3,
+        "no one likes you": -0.3, "nobody cares": -0.3, "go die": -0.3, "shut up": -0.3, "get lost": -0.3, "go away": -0.3,
+        "waste of space": -0.3, "walking L": -0.3, "drop out": -0.3, "go cry": -0.3, "stop talking": -0.3, "just quit": -0.3,
+        "your mom": -0.3, "poor": -0.3, "failure at life": -0.3, "so annoying": -0.3, "hate you": -0.3, "why are you here": -0.3,
+        "disease": -0.3, "social suicide": -0.3, "cringe af": -0.3, "walking disaster": -0.3, "born on a highway": -0.3,
+        "should be illegal": -0.3, "mental case": -0.3, "go choke": -0.3, "too dumb to live": -0.3, "choke on": -0.3,
+        "dumbest person": -0.3, "disappointment": -0.3, "busted": -0.3, "rotten": -0.3, "clapped": -0.3, "bald": -0.3,
+        "gremlin": -0.3, "lard": -0.3, "toothpick": -0.3, "snitch": -0.3, "wannabe": -0.3, "poser": -0.3, "zero purpose": -0.3,
+        "waste of air": -0.3, "reject": -0.3, "bot": -0.3, "get wrecked": -0.3, "you suck": -0.3, "shithead": -0.3, "dickhead": -0.3, 
+        "jackass": -0.3, "bastard": -0.3, "motherfucker": -0.3, "cocksucker": -0.3, "cock": -0.3,"douche": -0.3, "douchebag": -0.3, 
+        "prick": -0.3, "twat": -0.3, "ballsack": -0.3, "nutsack": -0.3, "tit": -0.3, "tits": -0.3, "nipple": -0.3, "hella": -0.3, "bullshit": -0.3,
+        "horse shit": -0.3, "piss": -0.3, "pissed": -0.3, "pissed off": -0.3,"son of a bitch": -0.3, "bitching": -0.3, "screw you": -0.3,
+        "suck my": -0.3, "sucking": -0.3, "lick me": -0.3, "dickwad": -0.3, "dickface": -0.3, "asswipe": -0.3, "shitshow": -0.3, 
+        "fuckwit": -0.3, "twatwaffle": -0.3, "cunt": -1.5, "pussyass": -0.3, "assclown": -0.3, "shitbag": -0.3, "fuckface": -0.3,
+        "retard": -0.8       
+    }
+    
     for record in feature_data:
         tokens = record['tokens']
         entities = record['entities']
@@ -160,25 +220,91 @@ def validate_features(feature_data):
         token_count = len(tokens)
         entity_count = len(entities)
         
+        # Initialize severity score
+        custom_negative_score = 0
+        
+        # Iterate through tokens and collect custom negative score
+        for token, _ in tokens:
+            token_lower = token.lower()
+            if token_lower in severity_lexicon:
+                # Add severity score if word is in lexicon
+                custom_negative_score += abs(severity_lexicon[token_lower])
+        
+        # Create bigrams from tokens
+        # token_list = [token.lower() for token, pos in tokens]
+        # bigrams = [" ".join(bigram) for bigram in ngrams(token_list, 2)]
+        
         # Identify negative adjectives within the text
         negative_adjectives = sum(
-            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying", "idiot", 
-                                                                             "loser", "ugly", "hate", "worthless", 
-                                                                             "lame", "embarrassing", "failure", "talentless", 
-                                                                             "weak", "hideous", "gross", "fat", 
-                                                                             "clueless", "brainless", "pathetic", "useless", 
-                                                                             "lonely", "unpopular", "unwanted", "disappear",
-                                                                             "disgusting", "fake", "terrible", "cheat",
-                                                                             "fuck", "gay", "ass", "shit", "whore",
-                                                                             "slut", "bitch", "pussy", "die", "kill"]
+            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["stupid", "dumb", "annoying", "idiot", "loser", "ugly", "hate", "worthless",
+                                                                             "lame", "embarrassing", "failure", "talentless", "weak", "hideous", "gross", "fat",
+                                                                             "clueless", "brainless", "pathetic", "useless", "lonely", "unpopular", "unwanted",
+                                                                             "disappear", "disgusting", "fake", "terrible", "cheat", "fuck", "gay", "ass", "shit",
+                                                                             "whore", "slut", "bitch", "pussy", "die", "kill", "trash", "garbage", "cringe",
+                                                                             "dumbass", "scum", "fail", "awful", "toxic", "clown", "stinks", "waste", "losers",
+                                                                             "bozo", "coward", "weirdo", "dipshit", "fatass", "nobody", "moron", "idiotic",
+                                                                             "spineless", "incompetent", "ridiculous", "foolish", "dunce", "imbecile", "dimwit",
+                                                                             "simpleton", "asshole", "bitchass", "dick", "fucking", "motherfucker",
+                                                                             "nasty", "pig", "uninstall", "creepy", "scumbag", "cheater", "unloved", "unwanted",
+                                                                             "broke", "smelly", "creature", "joke", "lowlife", "rat", "kill yourself", "loser", 
+                                                                             "nobody", "ugly", "worthless", "disgusting", "freak", "sick", "pathetic",
+                                                                             "disgrace", "wretched", "sickening", "repulsive", "detestable", "abominable", "vile",
+                                                                             "no one likes you", "nobody cares", "go die", "shut up", "get lost", "go away",
+                                                                             "waste of space", "walking L", "drop out", "go cry", "stop talking", "just quit",
+                                                                             "your mom", "poor", "failure at life", "so annoying", "hate you", "why are you here",
+                                                                             "disease", "social suicide", "cringe af", "walking disaster", "born on a highway",
+                                                                             "should be illegal", "mental case", "go choke", "too dumb to live", "choke on",
+                                                                             "dumbest person", "disappointment", "busted", "rotten", "clapped", "bald",
+                                                                             "gremlin", "lard", "toothpick", "snitch", "wannabe", "poser", "zero purpose",
+                                                                             "waste of air", "reject", "bot", "get wrecked", "you suck",  "shithead", "dickhead", 
+                                                                             "jackass", "bastard", "motherfucker", "cocksucker", "cock","douche", "douchebag", 
+                                                                             "prick", "twat", "ballsack", "nutsack", "tit", "tits", "nipple", "hella", "bullshit",
+                                                                             "horse shit", "piss", "pissed", "pissed off","son of a bitch", "bitching", "screw you",
+                                                                             "suck my", "sucking", "lick me", "dickwad", "dickface", "asswipe", "shitshow", 
+                                                                             "fuckwit", "twatwaffle", "cunt", "pussyass", "assclown", "shitbag", "fuckface",
+                                                                             "retard"]
+        )
+
+        # Identify positive adjectives within the text
+        positive_adjectives = sum(
+            1 for token, pos in tokens if pos == "ADJ" and token.lower() in ["amazing", "awesome", "brilliant", "excellent", "fantastic", "great", "incredible", 
+                                                                             "outstanding", "perfect", "phenomenal", "remarkable", "spectacular", "superb", 
+                                                                             "terrific", "wonderful", "beautiful", "brave", "bright", "calm", "cheerful", 
+                                                                             "clever", "confident", "creative", "determined", "energetic", "friendly", 
+                                                                             "generous", "gentle", "happy", "helpful", "honest", "intelligent", "kind", 
+                                                                             "loving", "loyal", "patient", "peaceful", "polite", "powerful", "proud", 
+                                                                             "reliable", "respectful", "responsible", "sincere", "smart", "strong", 
+                                                                             "successful", "talented", "thoughtful", "trustworthy", "wise", "witty", 
+                                                                             "worthy", "admirable", "adorable", "agreeable", "charming", "courageous", 
+                                                                             "dedicated", "diligent", "elegant", "enthusiastic", "excited", "faithful", 
+                                                                             "fearless", "graceful", "grateful", "heroic", "hopeful", "humble", "inspiring", 
+                                                                             "joyful", "magnificent", "marvelous", "noble", "optimistic", "passionate", 
+                                                                             "radiant", "splendid", "stellar", "supportive", "tender", "thoughtful", 
+                                                                             "triumphant", "valiant", "valuable", "vibrant", "victorious", "virtuous", 
+                                                                             "warm", "welcome", "worthy", "zealous"]
         )
         
-        # Compute sentiment scores at the token level
-        sentiment_scores = [sia.polarity_scores(token[0]) for token in tokens]
+        # Get overall text sentiment
+        text = " ".join(token[0] for token in tokens)
+        overall_sentiment = sia.polarity_scores(text)
+        
+        # Calculate token-level sentiment
+        token_sentiment_scores = [sia.polarity_scores(token[0]) for token in tokens]
+        
+        
+        # Sum up individual token sentiment scores
+        token_positive = sum(score['pos'] for score in token_sentiment_scores)
+        token_negative = sum(score['neg'] for score in token_sentiment_scores)
+        token_neutral = sum(score['neu'] for score in token_sentiment_scores)
+        
+        # Combine custom severity score with VADER negative sentiment
+        total_negative = token_negative + custom_negative_score
+        
+        # Combine token-level and overall sentiment
         sentiment_summary = {
-            "positive": sum(score['pos'] for score in sentiment_scores),
-            "negative": sum(score['neg'] for score in sentiment_scores),
-            "neutral": sum(score['neu'] for score in sentiment_scores)
+            "positive": max(overall_sentiment['pos'], token_positive),
+            "negative": max(overall_sentiment['neg'], token_negative),
+            "neutral": min(overall_sentiment['neu'], token_neutral)
         }
         
         # Identify flagged entities based on context
@@ -189,6 +315,9 @@ def validate_features(feature_data):
             "token_count": token_count,
             "entity_count": entity_count,
             "negative_adjectives": negative_adjectives,
+            "positive_adjectives": positive_adjectives,
+            "custom_negative_score:": custom_negative_score,
+            "total_negative": total_negative,
             "sentiment_summary": sentiment_summary,
             "flagged_entities": flagged_entities
         }
@@ -203,17 +332,68 @@ def determine_severity(validation):
         validation (dict): Feature validation data including sentiment and flagged entities.
 
     Returns:
-        str: Severity level ("low", "medium", or "high").
+        str: Severity level ("zero", "low", or "high").
     """
-    negative_score = validation["sentiment_summary"]["negative"]
+    # Get combined total negative score
+    total_negative = validation.get("total_negative", 0)
+    
+    # Get sentiment scores
+    positive_score = validation["sentiment_summary"]["positive"]
+    neutral_score = validation["sentiment_summary"]["neutral"]
+    
+    # Get adjective counts
+    negative_adj_count = validation["negative_adjectives"]
+    positive_adj_count = validation["positive_adjectives"]
+    
+    # Get flagged entities
     flagged_entities = len(validation["flagged_entities"])
-
-    #  Adjusting thresholds
-    if negative_score >= 1.5 or flagged_entities >= 2:
-        return "high"
-    elif 0.3 <= negative_score < 1.5 or flagged_entities == 1:  
-        return "medium"
-    return "low"
+    
+    # Calculate overall sentiment balance
+    sentiment_balance = positive_score - total_negative
+    
+    # High severity conditions:
+    # 1. High negative sentiment with multiple negative adjectives
+    # 2. Multiple flagged entities
+    # 3. Strong negative sentiment imbalance
+    # 4. Single negative adjective with high negative sentiment
+    if ( total_negative > 1.5 and negative_adj_count >= 1) or \
+        ( total_negative >= 2.5 and negative_adj_count == 0) or \
+        flagged_entities >= 2 or \
+        sentiment_balance <= -2 or \
+        (negative_adj_count >= 1 and total_negative >= 1.5):
+            global high_severity
+            high_severity += 1 
+            return "high" 
+    
+    # Low severity conditions:
+    # 1. Moderate negative sentiment with some negative adjectives
+    # 2. High negative sentiment with no negative adjectives
+    # 3. Single flagged entity
+    # 4. Slight negative sentiment imbalance
+    # 5. High neutral sentiment with negative adjectives
+    elif (0.3 <= total_negative < 1.5 and negative_adj_count >= 1) or \
+         (total_negative >= 1.5 and negative_adj_count == 0) or \
+         flagged_entities == 1 or \
+         -0.5 <= sentiment_balance < 0 or \
+         (neutral_score > 0.7 and negative_adj_count >= 0):
+            global low_severity
+            low_severity += 1
+            return "low"
+    
+    # Zero severity conditions:
+    # 1. Positive sentiment outweighs negative
+    # 2. No negative adjectives and no flagged entities
+    # 3. Strong positive sentiment or positive adjectives
+    # 4. High neutral sentiment with positive adjectives
+    elif sentiment_balance > 0 or \
+         (negative_adj_count == 0 and flagged_entities == 0) or \
+         positive_score >= 0.8 or \
+         positive_adj_count >= 1 or \
+         (neutral_score > 0.7 and positive_adj_count >= 1):
+        return "zero"
+    
+    # Default to low severity if no clear indicators
+    return "zero"
 
 def compute_tfidf(processed_texts):
     """
@@ -243,12 +423,10 @@ def generate_incident_reports(feature_data):
     
     for i, record in enumerate(feature_data):
         severity = determine_severity(record["validation"])
-        content_id = content_label(i)
         incident = {
             "content_id" : text_cleaning.get_content_id(i),  # Generate unique MongoDB-like ObjectID
             "incident_id": f"i{i+10000}",  # Unique incident ID
             "author_id": text_cleaning.get_author_id(i),
-            #"detected_content_id": f"p{i+5000}",  # Unique detected content ID
             "content_type": text_cleaning.get_content_type(i),  # List type of content
             "severity_level": severity,
             "status": "pending review"
@@ -256,17 +434,6 @@ def generate_incident_reports(feature_data):
         incident_reports.append(incident)
 
     return incident_reports
-
-def content_label(i):
-    type = text_cleaning.get_content_type(i)
-    if type == "message":
-        return "message_id"
-    elif type == "comment":
-        return "comment_id"
-    elif type == "post":
-        return "post_id"
-    else:
-        return "content_id"
 
 def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_reports.json"):
     """
@@ -397,20 +564,20 @@ def visualize_summary(summary):
         summary (dict): Summary statistics including POS and entity distributions.
     """
     # Plot proportions
-    screen_width_px = 1280
-    screen_height_px = 720
+    screen_width_px = 1920
+    screen_height_px = 1080
     dpi = 100
     screen_width_in = screen_width_px / dpi
     screen_height_in = screen_height_px / dpi
     
     # Plot POS tag distribution
-    plt.figure(figsize=(screen_width_in, screen_height_in))
+    plt.figure(figsize=(1280/100, 720/100))
     plt.bar(summary["POS Distribution"].keys(), summary["POS Distribution"].values())
     plt.title("Part-of-Speech (POS) Tag Distribution")
     plt.xlabel("POS Tags")
     plt.ylabel("Frequency")
     plt.savefig("ai_algorithms/POS_tag_distribution.png", dpi=dpi, bbox_inches='tight')
-    plt.show()
+    #plt.show()
     
     
     # Plot entity distribution
@@ -420,7 +587,7 @@ def visualize_summary(summary):
     plt.xlabel("Entity Types")
     plt.ylabel("Frequency")
     plt.savefig("ai_algorithms/entity_distribution.png", dpi=dpi, bbox_inches='tight')
-    plt.show()
+    #plt.show()
     
     # Plot sentiment scores
     plt.figure(figsize=(screen_width_in, screen_height_in))
@@ -429,7 +596,18 @@ def visualize_summary(summary):
     plt.xlabel("Sentiment Type")
     plt.ylabel("Score")
     plt.savefig("ai_algorithms/sentiment_scores.png", dpi=dpi, bbox_inches='tight')
-    plt.show()
+    #plt.show()
+    
+    # Plot severity levels
+    plt.figure(figsize=(screen_width_in, screen_height_in))
+    plt.bar(severity_levels, [low_severity / 2, high_severity / 2])
+    plt.title("Severity Level Incidents")
+    plt.xlabel("Severity Level")
+    plt.ylabel("Total Incidents")
+    plt.savefig("ai_algorithms/severity_levels.png", dpi=dpi, bbox_inches='tight')
+    
+    print(f"Low Severity: {low_severity / 2}")
+    print(f"High Severity: {high_severity / 2}")
     
 
 if __name__ == "__main__":
