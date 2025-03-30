@@ -1,22 +1,22 @@
 """
-Model Training for Cyberbullying Classification
+Model Training for Cyberbullying Classification.
 
-This script trains machine learning (Logistic Regression, SVM, Random Forest)
-and deep learning (LSTM, CNN) models using extracted features from the dataset.
+This script implements machine learning and deep learning models for binary classification
+of cyberbullying severity. It includes feature extraction, model training, and performance
+evaluation.
 
-Modules:
-    - json, random, numpy, pandas, os, subprocess
-    - sklearn (for ML models): TfidfVectorizer, LogisticRegression, SVC, RandomForestClassifier
-    - sklearn.model_selection: train_test_split, StratifiedKFold, cross_val_score, GridSearchCV
-    - sklearn.metrics: classification_report
-    - sklearn.utils: resample
-    - tensorflow (for deep learning models): Keras layers, tokenizers, sequences
-    - matplotlib for plotting 
+Dependencies:
+    - sklearn: Machine learning models and utilities
+    - tensorflow.keras: Deep learning models and preprocessing
+    - numpy, pandas: Data manipulation
+    - matplotlib: Visualization
+    - json, os, subprocess: File and system operations
 
-Usage:
-    1. Ensure feature extraction is done (feature_extraction.py).
-    2. Run this script to train ML and DL models.
-    3. Compare performance metrics for final model selection.
+Workflow:
+    1. Load and preprocess data
+    2. Train classical ML models (Logistic Regression, SVM, Random Forest)
+    3. Train deep learning models (LSTM, CNN)
+    4. Evaluate and compare model performance
 """
 
 import json
@@ -39,21 +39,24 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import matplotlib.pyplot as plt
 
+# Global variables for tracking model performance
 overall_accuracy = []
 model_names = ["LSTM", "CNN"]
 
 
 def load_text_data(filepath="ai_algorithms/feature_dataset.json"):
-    """
-    Loads raw text data and severity labels for deep learning training.
+    """Load raw text data and severity labels for deep learning training.
 
     Args:
-        filepath (str): Path to the feature dataset JSON file.
+        filepath (str): Path to the feature dataset JSON file
 
     Returns:
         tuple:
-            - texts (list of str): List of text content.
-            - labels (np.ndarray): Binary labels (1 = cyberbullying, 0 = not bullying).
+            - list: List of text content
+            - np.ndarray: Binary labels (0 for low, 1 for high severity)
+
+    Raises:
+        FileNotFoundError: If the feature dataset is not found
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(
@@ -65,25 +68,31 @@ def load_text_data(filepath="ai_algorithms/feature_dataset.json"):
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
-    labels = np.array([1 if record["severity_level"] == "high" else 0 for record in data])
+    labels = np.array([
+        0 if record["severity_level"] == "low"
+        else 1  # high severity
+        for record in data
+    ])
 
     return texts, labels
 
 
 def load_feature_data(filepath="ai_algorithms/feature_dataset.json"):
-    """
-    Loads numerical features and labels from the dataset for machine learning training.
+    """Load numerical features and labels from the dataset.
 
-    This function combines TF-IDF features and numeric features such as token count,
+    Combines TF-IDF features with numeric features such as token count,
     named entities, sentiment scores, etc.
 
     Args:
-        filepath (str): Path to the feature dataset JSON file.
+        filepath (str): Path to the feature dataset JSON file
 
     Returns:
         tuple:
-            - X (np.ndarray): Feature matrix (TF-IDF + numeric features).
-            - y (np.ndarray): Target labels encoded as 0 (low), 1 (medium), 2 (high).
+            - np.ndarray: Feature matrix (TF-IDF + numeric features)
+            - np.ndarray: Binary labels (0 for low, 1 for high severity)
+
+    Raises:
+        FileNotFoundError: If the feature dataset is not found
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(
@@ -95,12 +104,19 @@ def load_feature_data(filepath="ai_algorithms/feature_dataset.json"):
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
+    
+    # Convert severity levels to binary labels
     y = np.array([
         0 if record["severity_level"] == "low"
-        else 1 if record["severity_level"] == "medium"
-        else 2
+        else 1  # high severity
         for record in data
     ])
+
+    # Print class distribution
+    unique, counts = np.unique(y, return_counts=True)
+    print("\nOriginal Dataset Class Distribution:")
+    for severity, count in zip(['Low', 'High'], counts):
+        print(f"{severity}: {count} samples")
 
     # Numeric features
     numeric_features = np.array([
@@ -127,15 +143,14 @@ def load_feature_data(filepath="ai_algorithms/feature_dataset.json"):
 
 
 def cross_validate_models(X, y):
-    """
-    Performs cross-validation on multiple machine learning models.
+    """Perform cross-validation on multiple machine learning models.
 
-    This function uses a StratifiedKFold approach to preserve class distribution
-    across folds, and prints out the mean accuracy for each model.
+    Uses StratifiedKFold to preserve class distribution across folds and prints
+    mean accuracy for each model.
 
     Args:
-        X (np.ndarray): Feature matrix.
-        y (np.ndarray): Target labels (0, 1, 2 for severity levels).
+        X (np.ndarray): Feature matrix
+        y (np.ndarray): Binary labels (0 for low, 1 for high severity)
     """
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     models = {
@@ -151,13 +166,13 @@ def cross_validate_models(X, y):
 
 
 def optimize_hyperparameters(X, y):
-    """
-    Performs hyperparameter tuning via GridSearchCV to find the best hyperparameters
-    for each model.
+    """Perform hyperparameter tuning via GridSearchCV.
+
+    Finds the best hyperparameters for each model using cross-validation.
 
     Args:
-        X (np.ndarray): Feature matrix.
-        y (np.ndarray): Target labels (0, 1, 2 for severity levels).
+        X (np.ndarray): Feature matrix
+        y (np.ndarray): Binary labels (0 for low, 1 for high severity)
     """
     param_grid = {
         'Logistic Regression': {'C': [0.01, 0.1, 1, 10]},
@@ -176,20 +191,19 @@ def optimize_hyperparameters(X, y):
 
     for model_name, model in models.items():
         grid_search = GridSearchCV(model, param_grid[model_name],
-                                   cv=3, scoring='accuracy')
+                                 cv=3, scoring='accuracy')
         grid_search.fit(X, y)
         print(f"\n Best Parameters for {model_name}: {grid_search.best_params_}")
         print(f"Best Accuracy: {grid_search.best_score_:.4f}")
-    
 
 
 def plot_learning_curve(history):
-    """
-    Plots training and validation loss, as well as accuracy for a deep learning model.
+    """Plot training and validation metrics for a deep learning model.
+
+    Creates a figure with two subplots showing loss and accuracy curves.
 
     Args:
-        history (History): A Keras History object containing loss and accuracy
-            metrics for both training and validation sets.
+        history (History): Keras History object containing training metrics
     """
     plt.figure(figsize=(12, 4))
 
@@ -215,13 +229,10 @@ def plot_learning_curve(history):
 
 
 def compare_models(models):
-    """
-    Compares machine learning and deep learning models and selects
-    the best one based on accuracy.
+    """Compare models and select the best one based on accuracy.
 
     Args:
-        models (dict): A dictionary where keys are model names (str)
-            and values are their corresponding accuracy (float).
+        models (dict): Dictionary mapping model names to their accuracies
 
     Example:
         models = {
@@ -236,16 +247,17 @@ def compare_models(models):
 
 
 def train_models():
-    """
-    Trains Logistic Regression, SVM, and Random Forest models with balanced data.
+    """Train and evaluate classical machine learning models.
 
     Steps:
-        1. Loads and splits feature data.
-        2. Resamples data to ensure class balance.
-        3. Trains the ML models.
-        4. Prints a classification report for each model.
+        1. Load and split feature data
+        2. Resample data to ensure class balance
+        3. Train Logistic Regression, SVM, and Random Forest models
+        4. Print classification reports for each model
     """
     X, y = load_feature_data()
+    
+    # Split data while preserving class distribution
     X_train, X_test, y_train, y_test = train_test_split(
         X, y,
         test_size=0.2,
@@ -253,30 +265,40 @@ def train_models():
         random_state=42
     )
 
+    # Print split distribution
+    print("\nTraining Set Distribution:")
+    unique, counts = np.unique(y_train, return_counts=True)
+    for severity, count in zip(['Low', 'High'], counts):
+        print(f"{severity}: {count} samples")
+
+    print("\nTest Set Distribution:")
+    unique, counts = np.unique(y_test, return_counts=True)
+    for severity, count in zip(['Low', 'High'], counts):
+        print(f"{severity}: {count} samples")
+
     # Separate samples by severity level
     train_data = list(zip(X_train, y_train))
     low_samples = [d for d in train_data if d[1] == 0]
-    medium_samples = [d for d in train_data if d[1] == 1]
-    high_samples = [d for d in train_data if d[1] == 2]
+    high_samples = [d for d in train_data if d[1] == 1]
+
+    # Ensure we have samples for each class
+    if len(low_samples) == 0 or len(high_samples) == 0:
+        print("Warning: One or more classes have no samples!")
+        return
 
     # Resample minority classes to match the majority class count
-    max_samples = max(len(low_samples), len(medium_samples), len(high_samples))
+    max_samples = max(len(low_samples), len(high_samples))
 
-    if len(low_samples) > 0:
-        low_samples = resample(
-            low_samples, replace=True, n_samples=max_samples, random_state=42
-        )
-    if len(medium_samples) > 0:
-        medium_samples = resample(
-            medium_samples, replace=True, n_samples=max_samples, random_state=42
-        )
-    if len(high_samples) > 0:
-        high_samples = resample(
-            high_samples, replace=True, n_samples=max_samples, random_state=42
-        )
+    # Resample each class
+    low_samples = resample(
+        low_samples, replace=True, n_samples=max_samples, random_state=42
+    )
+    high_samples = resample(
+        high_samples, replace=True, n_samples=max_samples, random_state=42
+    )
 
     # Combine and shuffle
-    balanced_train_data = low_samples + medium_samples + high_samples
+    balanced_train_data = low_samples + high_samples
     random.shuffle(balanced_train_data)
 
     # Unpack balanced data
@@ -284,42 +306,61 @@ def train_models():
     X_train = np.array(X_train)
     y_train = np.array(y_train)
 
-    # Train ML models
-    log_reg = LogisticRegression(max_iter=500, solver='lbfgs')
+    # Print balanced distribution
+    print("\nBalanced Training Set Distribution:")
+    unique, counts = np.unique(y_train, return_counts=True)
+    for severity, count in zip(['Low', 'High'], counts):
+        print(f"{severity}: {count} samples")
+
+    # Train ML models with class weights
+    class_weights = dict(zip(range(2), 1.0 / np.bincount(y_train)))
+
+    log_reg = LogisticRegression(
+        max_iter=500,
+        solver='lbfgs',
+        class_weight=class_weights
+    )
     log_reg.fit(X_train, y_train)
     y_pred_lr = log_reg.predict(X_test)
 
-    svm_model = SVC(kernel='linear', C=1.0)
+    svm_model = SVC(
+        kernel='linear',
+        C=1.0,
+        class_weight=class_weights
+    )
     svm_model.fit(X_train, y_train)
     y_pred_svm = svm_model.predict(X_test)
 
-    rf_model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
+    rf_model = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=5,
+        random_state=42,
+        class_weight=class_weights
+    )
     rf_model.fit(X_train, y_train)
     y_pred_rf = rf_model.predict(X_test)
 
     # Evaluate Models
     print("\n**Logistic Regression Performance**")
-    print(classification_report(y_test, y_pred_lr))
+    print(classification_report(y_test, y_pred_lr, labels=[0, 1], target_names=['Low', 'High']))
 
     print("\n**Support Vector Machine (SVM) Performance**")
-    print(classification_report(y_test, y_pred_svm))
+    print(classification_report(y_test, y_pred_svm, labels=[0, 1], target_names=['Low', 'High']))
 
     print("\n**Random Forest Classifier Performance**")
-    print(classification_report(y_test, y_pred_rf))
+    print(classification_report(y_test, y_pred_rf, labels=[0, 1], target_names=['Low', 'High']))
 
 
 def train_lstm():
-    """
-    Trains an LSTM-based deep learning model for cyberbullying classification.
+    """Train an LSTM-based deep learning model.
 
     Steps:
-        1. Tokenize and pad text sequences.
-        2. Train the LSTM model with dropout to prevent overfitting.
-        3. Evaluate model performance (accuracy).
+        1. Tokenize and pad text sequences
+        2. Train the LSTM model with dropout
+        3. Evaluate model performance
 
     Note:
-        The model expects 3 output units (Dense layer) for multi-class
-        classification (low, medium, high). Make sure your labels match.
+        The model uses binary classification (low vs. high severity)
     """
     texts, labels = load_text_data()
 
@@ -344,11 +385,11 @@ def train_lstm():
         SpatialDropout1D(0.5),
         LSTM(128, dropout=0.5, recurrent_dropout=0.5),
         Dense(64, activation="relu"),
-        Dense(3, activation="softmax")
+        Dense(1, activation="sigmoid")  # Binary classification
     ])
 
     model.compile(
-        loss="sparse_categorical_crossentropy",
+        loss="binary_crossentropy",
         optimizer="adam",
         metrics=["accuracy"]
     )
@@ -361,21 +402,18 @@ def train_lstm():
     loss, accuracy = model.evaluate(X_test, y_test)
     print(f"\nLSTM Model Accuracy: {accuracy:.4f}")
     overall_accuracy.append(accuracy)
-    # model_chart(epochs=5, model_name="LSTM", losses)
 
 
 def train_cnn():
-    """
-    Trains a Convolutional Neural Network (CNN) for cyberbullying classification.
+    """Train a CNN-based deep learning model.
 
     Steps:
-        1. Tokenize and pad text sequences.
-        2. Build a CNN model with dropout and multiple convolutional layers.
-        3. Evaluate model performance (accuracy).
+        1. Tokenize and pad text sequences
+        2. Build and train the CNN model
+        3. Evaluate model performance
 
     Note:
-        The model expects 3 output units for multi-class classification (low, medium, high).
-        Adjust the final Dense layer and loss function accordingly if your dataset is binary.
+        The model uses binary classification (low vs. high severity)
     """
     texts, labels = load_text_data()
 
@@ -410,11 +448,11 @@ def train_cnn():
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(64, activation="relu"),
         tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.Dense(3, activation="softmax")
+        tf.keras.layers.Dense(1, activation="sigmoid")  # Binary classification
     ])
 
     model.compile(
-        loss="sparse_categorical_crossentropy",
+        loss="binary_crossentropy",
         optimizer="adam",
         metrics=["accuracy"]
     )
@@ -428,43 +466,48 @@ def train_cnn():
     loss, accuracy = model.evaluate(X_test, y_test)
     print(f"\nCNN Model Accuracy: {accuracy:.4f}")
     overall_accuracy.append(accuracy)
-    
+
+
 def model_chart(epochs, model_name, losses):
-    """
-    Plots a bar chart of losses over epochs for a given model.
+    """Plot training losses over epochs.
 
     Args:
-        epoches (list or np.ndarray): The epoch indices.
-        model_name (str): A string identifier for the model.
-        losses (list or np.ndarray): Loss values corresponding to each epoch.
+        epochs (list): List of epoch numbers
+        model_name (str): Name of the model
+        losses (list): List of loss values
 
     Side Effects:
-        Displays and saves a .png image of the bar chart to 'ai_algorithms' directory.
+        - Creates and displays a matplotlib figure
+        - Saves the chart as a PNG file
     """
     plt.bar(epochs, losses)
-    plt.title("Tensorflow " + model_name + " Model Accuracy")
+    plt.title(f"Tensorflow {model_name} Model Training Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.savefig("ai_algorithms/Tensorflow" + model_name + ".png")
+    plt.savefig(f"ai_algorithms/Tensorflow{model_name}Loss.png")
     plt.show()
 
+
 def overall_chart():
-    """
-    Plots a bar chart of overall accuracy for different Tensorflow models.
+    """Plot overall accuracy comparison for all models.
+
+    Creates a bar chart comparing the accuracies of different models using
+    the global variables model_names and overall_accuracy.
 
     Side Effects:
-        Uses the global variables `model_names` and `overall_accuracy`.
-        Saves the chart to 'ai_algorithms/TensorflowOverallAccuracy.png'.
+        - Creates and displays a matplotlib figure
+        - Saves the chart as a PNG file
     """
     plt.bar(model_names, overall_accuracy)
-    plt.title("Tensorflow Model Accuracy")
-    plt.xlabel("Tensorflow Model")
-    plt.ylabel("Overall Accuracy")
+    plt.title("Tensorflow Model Accuracy Comparison")
+    plt.xlabel("Model")
+    plt.ylabel("Accuracy")
     plt.savefig("ai_algorithms/TensorflowOverallAccuracy.png")
     plt.show()
 
+
 if __name__ == "__main__":
-    # Ensure feature extraction has been run; if not, execute it
+    # Ensure feature extraction has been run
     if not os.path.exists("ai_algorithms/feature_dataset.json"):
         print("Feature dataset missing. Running `feature_extraction.py`...")
         subprocess.run(["python", "ai_algorithms/feature_extraction.py"], check=True)

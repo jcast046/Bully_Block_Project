@@ -1,24 +1,24 @@
 """
-PyTorch Model Training for Cyberbullying Classification
+PyTorch Model Training for Cyberbullying Classification.
 
-This script runs preprocessing, trains LSTM and CNN models using PyTorch, 
-and evaluates their performance.
+This script implements deep learning models (LSTM and CNN) for binary classification
+of cyberbullying severity using PyTorch. It includes data preprocessing, model training,
+and performance evaluation.
 
-Modules:
-    - torch: For deep learning models (LSTM, CNN).
-    - sklearn: For data splitting.
-    - TensorFlow/Keras: For tokenization and sequence padding.
-    - subprocess: For running external preprocessing scripts.
-    - json, os, numpy: For data handling and manipulation.
-    - matplotlib: For plotting charts.
+Dependencies:
+    - torch: Deep learning framework
+    - sklearn: Data splitting and preprocessing
+    - tensorflow.keras: Text tokenization and sequence padding
+    - matplotlib: Visualization
+    - numpy: Numerical operations
+    - json, os, subprocess: File and system operations
 
 Workflow:
-    1. Run preprocessing scripts (text_cleaning.py, feature_extraction.py, 
-       tensorflow_scikit_model_training.py).
-    2. Load preprocessed text data (TF-IDF and tokenized sequences).
-    3. Define a custom PyTorch `Dataset` class.
-    4. Implement LSTM and CNN models in PyTorch.
-    5. Train and evaluate both models; generate accuracy metrics and charts.
+    1. Run preprocessing scripts (text_cleaning.py, feature_extraction.py)
+    2. Load and preprocess data (TF-IDF and tokenized sequences)
+    3. Create PyTorch datasets and dataloaders
+    4. Train and evaluate LSTM and CNN models
+    5. Generate performance visualizations
 """
 
 import os
@@ -31,31 +31,26 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
-# Tokenization & Padding (Using TensorFlow's Tokenizer)
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.feature_extraction.text import TfidfVectorizer
 import torch.nn.functional as F
 
-# Global variables to track model accuracy
+# Global variables for tracking model performance
 overall_accuracy = []
 model_names = []
 
 
 def run_preprocessing():
-    """Run necessary preprocessing scripts to generate required datasets.
+    """Execute preprocessing scripts in sequence.
 
-    This function executes the following scripts in sequence:
-    1. text_cleaning.py - Cleans and normalizes the input text data
-    2. feature_extraction.py - Extracts features from cleaned text
-    3. tensorflow_scikit_model_training.py - Prepares data for model training
+    Runs the following scripts in order:
+    1. text_cleaning.py: Cleans and normalizes input text
+    2. feature_extraction.py: Extracts features from cleaned text
+    3. tensorflow_scikit_model_training.py: Prepares data for model training
 
     Raises:
-        FileNotFoundError: If the preprocessed dataset 'ai_algorithms/feature_dataset.json'
-            is not found after running the scripts.
-
-    Returns:
-        None
+        FileNotFoundError: If feature_dataset.json is not found after preprocessing.
     """
     scripts = [
         "ai_algorithms/text_cleaning.py",
@@ -77,19 +72,22 @@ def load_tfidf_data(filepath="ai_algorithms/feature_dataset.json"):
     """Load and transform text data into TF-IDF features.
 
     Args:
-        filepath (str, optional): Path to the feature dataset JSON file.
-            Defaults to "ai_algorithms/feature_dataset.json".
+        filepath (str): Path to the feature dataset JSON file.
 
     Returns:
-        tuple: Contains:
-            - X_tfidf (np.ndarray): TF-IDF feature matrix of shape [n_samples, n_features].
-            - labels (np.ndarray): Binary labels (1 for high severity, 0 otherwise).
+        tuple:
+            - np.ndarray: TF-IDF feature matrix [n_samples, n_features]
+            - np.ndarray: Binary labels (0.0 for low, 1.0 for high severity)
     """
     with open(filepath, "r") as file:
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
-    labels = np.array([1 if record["severity_level"] == "high" else 0 for record in data])
+    labels = np.array([
+        0.0 if record["severity_level"] == "low"
+        else 1.0  # high severity
+        for record in data
+    ])
 
     vectorizer = TfidfVectorizer(max_features=5000, stop_words="english")
     X_tfidf = vectorizer.fit_transform(texts).toarray()
@@ -101,20 +99,22 @@ def load_tokenized_data(filepath="ai_algorithms/feature_dataset.json"):
     """Load and tokenize text data for sequence-based models.
 
     Args:
-        filepath (str, optional): Path to the feature dataset JSON file.
-            Defaults to "ai_algorithms/feature_dataset.json".
+        filepath (str): Path to the feature dataset JSON file.
 
     Returns:
-        tuple: Contains:
-            - X_tokenized (np.ndarray): Padded sequence of tokens with shape
-              [n_samples, max_sequence_length].
-            - labels (np.ndarray): Binary labels (1 for high severity, 0 otherwise).
+        tuple:
+            - np.ndarray: Padded token sequences [n_samples, max_sequence_length]
+            - np.ndarray: Binary labels (0.0 for low, 1.0 for high severity)
     """
     with open(filepath, "r") as file:
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
-    labels = np.array([1 if record["severity_level"] == "high" else 0 for record in data])
+    labels = np.array([
+        0.0 if record["severity_level"] == "low"
+        else 1.0  # high severity
+        for record in data
+    ])
 
     tokenizer = Tokenizer(num_words=5000, oov_token="<OOV>")
     tokenizer.fit_on_texts(texts)
@@ -125,34 +125,40 @@ def load_tokenized_data(filepath="ai_algorithms/feature_dataset.json"):
 
 
 class TextDataset(Dataset):
-    """Custom PyTorch Dataset for handling text data.
+    """Custom PyTorch Dataset for text classification.
 
-    This class handles both tokenized sequences and TF-IDF vectors, converting them
-    to appropriate PyTorch tensors for model training.
+    Handles both tokenized sequences and TF-IDF vectors, converting them to
+    appropriate PyTorch tensors for model training.
 
     Args:
-        texts (np.ndarray): Input features (tokenized sequences or TF-IDF vectors).
-        labels (np.ndarray): Target labels.
-        use_tfidf (bool, optional): If True, treats texts as TF-IDF vectors and
-            converts to FloatTensor. Otherwise, uses LongTensor for tokenized data.
-            Defaults to False.
+        texts (np.ndarray): Input features (tokenized sequences or TF-IDF vectors)
+        labels (np.ndarray): Target labels
+        use_tfidf (bool): If True, treats texts as TF-IDF vectors and converts to
+            FloatTensor. Otherwise, uses LongTensor for tokenized data.
 
     Attributes:
-        texts (torch.Tensor): Feature matrix in tensor form (float or long).
-        labels (torch.Tensor): Target labels in tensor form.
-        use_tfidf (bool): Flag indicating feature format.
+        texts (torch.Tensor): Feature matrix in tensor form
+        labels (torch.Tensor): Target labels in tensor form
+        use_tfidf (bool): Flag indicating feature format
     """
 
     def __init__(self, texts, labels, use_tfidf=False):
+        """Initialize the dataset.
+
+        Args:
+            texts (np.ndarray): Input features
+            labels (np.ndarray): Target labels
+            use_tfidf (bool): Whether to use TF-IDF features
+        """
         self.use_tfidf = use_tfidf
         self.texts = torch.tensor(texts, dtype=torch.float if use_tfidf else torch.long)
-        self.labels = torch.tensor(labels, dtype=torch.long)
+        self.labels = torch.tensor(labels, dtype=torch.float)
 
     def __len__(self):
-        """Return the total number of samples in the dataset.
+        """Return the total number of samples.
 
         Returns:
-            int: Number of samples.
+            int: Number of samples in the dataset
         """
         return len(self.texts)
 
@@ -160,45 +166,53 @@ class TextDataset(Dataset):
         """Get a sample from the dataset.
 
         Args:
-            idx (int): Index of the sample to retrieve.
+            idx (int): Index of the sample to retrieve
 
         Returns:
-            tuple: Contains:
-                - torch.Tensor: Feature matrix for the sample.
-                - torch.Tensor: Label for the sample.
+            tuple: (feature_tensor, label_tensor)
         """
         return self.texts[idx], self.labels[idx]
 
 
 class LSTMModel(nn.Module):
-    """LSTM-based model for text classification.
+    """Bidirectional LSTM model with attention for text classification.
 
-    A bidirectional LSTM model with attention mechanism for sequence classification.
-    Uses word embeddings and multiple LSTM layers with dropout for regularization.
+    A deep learning model that uses word embeddings, bidirectional LSTM layers,
+    attention mechanism, and fully connected layers for binary classification.
 
     Args:
-        vocab_size (int, optional): Size of the vocabulary. Defaults to 5000.
-        embedding_dim (int, optional): Dimension of word embeddings. Defaults to 300.
-        hidden_dim (int, optional): Number of hidden units in LSTM. Defaults to 256.
-        output_dim (int, optional): Number of output classes. Defaults to 3.
+        vocab_size (int): Size of the vocabulary (default: 5000)
+        embedding_dim (int): Dimension of word embeddings (default: 300)
+        hidden_dim (int): Number of hidden units in LSTM (default: 256)
+        output_dim (int): Number of output classes (default: 1 for binary)
 
     Attributes:
-        embedding (nn.Embedding): Word embedding layer.
-        lstm1 (nn.LSTM): First bidirectional LSTM layer.
-        lstm2 (nn.LSTM): Second bidirectional LSTM layer.
-        attention (nn.Sequential): Attention mechanism layers.
-        fc1 (nn.Linear): First fully connected layer.
-        bn1 (nn.BatchNorm1d): Batch normalization layer.
-        dropout (nn.Dropout): Dropout layer for regularization.
-        fc2 (nn.Linear): Output layer.
-        softmax (nn.Softmax): Softmax activation for probabilities.
+        embedding (nn.Embedding): Word embedding layer
+        lstm1 (nn.LSTM): First bidirectional LSTM layer
+        lstm2 (nn.LSTM): Second bidirectional LSTM layer
+        attention (nn.Sequential): Attention mechanism layers
+        fc1 (nn.Linear): First fully connected layer
+        bn1 (nn.BatchNorm1d): Batch normalization layer
+        dropout (nn.Dropout): Dropout layer
+        fc2 (nn.Linear): Output layer
+        sigmoid (nn.Sigmoid): Sigmoid activation
     """
 
-    def __init__(self, vocab_size=5000, embedding_dim=300, hidden_dim=256, output_dim=3):
+    def __init__(self, vocab_size=5000, embedding_dim=300, hidden_dim=256, output_dim=1):
+        """Initialize the LSTM model architecture.
+
+        Args:
+            vocab_size (int): Size of the vocabulary
+            embedding_dim (int): Dimension of word embeddings
+            hidden_dim (int): Number of hidden units in LSTM
+            output_dim (int): Number of output classes
+        """
         super(LSTMModel, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.lstm1 = nn.LSTM(embedding_dim, hidden_dim, num_layers=1, batch_first=True, bidirectional=True, dropout=0.2)
-        self.lstm2 = nn.LSTM(hidden_dim * 2, hidden_dim, num_layers=1, batch_first=True, bidirectional=True, dropout=0.2)
+        self.lstm1 = nn.LSTM(embedding_dim, hidden_dim, num_layers=1, batch_first=True, 
+                            bidirectional=True, dropout=0.2)
+        self.lstm2 = nn.LSTM(hidden_dim * 2, hidden_dim, num_layers=1, batch_first=True, 
+                            bidirectional=True, dropout=0.2)
         self.attention = nn.Sequential(
             nn.Linear(hidden_dim * 2, hidden_dim),
             nn.Tanh(),
@@ -208,16 +222,16 @@ class LSTMModel(nn.Module):
         self.bn1 = nn.BatchNorm1d(128)
         self.dropout = nn.Dropout(0.3)
         self.fc2 = nn.Linear(128, output_dim)
-        self.softmax = nn.Softmax(dim=1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        """Forward pass of the LSTM model.
+        """Forward pass of the model.
 
         Args:
-            x (torch.Tensor): Input tensor of shape [batch_size, sequence_length].
+            x (torch.Tensor): Input tensor of shape [batch_size, sequence_length]
 
         Returns:
-            torch.Tensor: Output probabilities of shape [batch_size, output_dim].
+            torch.Tensor: Output probabilities of shape [batch_size, 1]
         """
         x = self.embedding(x)
         x, _ = self.lstm1(x)
@@ -232,26 +246,33 @@ class LSTMModel(nn.Module):
         x = F.relu(x)
         x = self.dropout(x)
         x = self.fc2(x)
-        return self.softmax(x)
+        return self.sigmoid(x)
 
 
 class CNNModel(nn.Module):
-    """CNN-based model for text classification using TF-IDF features.
+    """Deep CNN model for text classification using TF-IDF features.
 
-    A deep neural network with multiple fully connected layers, batch normalization,
+    A fully connected neural network with multiple layers, batch normalization,
     and dropout for regularization. Uses LeakyReLU activation for better gradient flow.
 
     Args:
-        input_dim (int): Dimension of input TF-IDF vectors.
-        output_dim (int, optional): Number of output classes. Defaults to 3.
+        input_dim (int): Dimension of input TF-IDF vectors
+        output_dim (int): Number of output classes (default: 1 for binary)
 
     Attributes:
-        fc1-fc5 (nn.Linear): Fully connected layers with decreasing dimensions.
-        bn1-bn4 (nn.BatchNorm1d): Batch normalization layers.
-        dropout1-dropout4 (nn.Dropout): Dropout layers for regularization.
+        fc1-fc5 (nn.Linear): Fully connected layers with decreasing dimensions
+        bn1-bn4 (nn.BatchNorm1d): Batch normalization layers
+        dropout1-dropout4 (nn.Dropout): Dropout layers
+        sigmoid (nn.Sigmoid): Sigmoid activation
     """
 
-    def __init__(self, input_dim, output_dim=3):
+    def __init__(self, input_dim, output_dim=1):
+        """Initialize the CNN model architecture.
+
+        Args:
+            input_dim (int): Dimension of input TF-IDF vectors
+            output_dim (int): Number of output classes
+        """
         super(CNNModel, self).__init__()
         self.fc1 = nn.Linear(input_dim, 2048)
         self.bn1 = nn.BatchNorm1d(2048)
@@ -270,15 +291,16 @@ class CNNModel(nn.Module):
         self.dropout4 = nn.Dropout(0.3)
         
         self.fc5 = nn.Linear(256, output_dim)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        """Forward pass of the CNN model.
+        """Forward pass of the model.
 
         Args:
-            x (torch.Tensor): Input tensor of shape [batch_size, input_dim].
+            x (torch.Tensor): Input tensor of shape [batch_size, input_dim]
 
         Returns:
-            torch.Tensor: Output logits of shape [batch_size, output_dim].
+            torch.Tensor: Output probabilities of shape [batch_size, 1]
         """
         x = self.fc1(x)
         x = self.bn1(x)
@@ -301,33 +323,29 @@ class CNNModel(nn.Module):
         x = self.dropout4(x)
         
         x = self.fc5(x)
-        return x
+        return self.sigmoid(x)
 
 
 def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=False):
     """Train and evaluate a PyTorch model.
 
-    This function handles the training loop, including optimization, learning rate
-    scheduling, early stopping, and model evaluation. It saves the best model based
-    on both loss and accuracy metrics.
+    Handles the training loop, including optimization, learning rate scheduling,
+    early stopping, and model evaluation. Saves the best model based on both loss
+    and accuracy metrics.
 
     Args:
-        model (nn.Module): PyTorch model to train (LSTMModel or CNNModel).
-        train_loader (DataLoader): DataLoader for training data.
-        test_loader (DataLoader): DataLoader for test data.
-        model_name (str): Identifier for the model (e.g., "LSTM", "CNN").
-        use_tfidf (bool, optional): If True, inputs are TF-IDF vectors.
-            Defaults to False.
-
-    Returns:
-        None
+        model (nn.Module): PyTorch model to train
+        train_loader (DataLoader): DataLoader for training data
+        test_loader (DataLoader): DataLoader for test data
+        model_name (str): Identifier for the model
+        use_tfidf (bool): Whether to use TF-IDF features
 
     Side Effects:
         - Saves model checkpoints to disk
         - Generates training loss plots
         - Updates global accuracy tracking variables
     """
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCELoss()
     
     if model_name == "CNN":
         optimizer = optim.AdamW(model.parameters(), lr=0.0001, weight_decay=0.0001)
@@ -364,7 +382,7 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
         
         for batch_x, batch_y in train_loader:
             batch_x = batch_x.float() if use_tfidf else batch_x.long()
-            batch_y = batch_y.long()
+            batch_y = batch_y.unsqueeze(1)
 
             optimizer.zero_grad()
             outputs = model(batch_x)
@@ -378,7 +396,7 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
             
             epoch_loss += loss.item()
             
-            predicted = torch.argmax(outputs, dim=1)
+            predicted = (outputs > 0.5).float()
             correct += (predicted == batch_y).sum().item()
             total += batch_y.size(0)
         
@@ -386,7 +404,8 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
         train_accuracy = correct / total
         losses.append(avg_epoch_loss)
         
-        print(f"Epoch {epoch+1}/5 ({model_name}): Loss = {avg_epoch_loss:.4f}, Train Accuracy = {train_accuracy:.4f}")
+        print(f"Epoch {epoch+1}/5 ({model_name}): Loss = {avg_epoch_loss:.4f}, "
+              f"Train Accuracy = {train_accuracy:.4f}")
         
         if avg_epoch_loss < best_loss and train_accuracy > best_accuracy:
             best_loss = avg_epoch_loss
@@ -408,10 +427,10 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
     with torch.no_grad():
         for batch_x, batch_y in test_loader:
             batch_x = batch_x.float() if use_tfidf else batch_x.long()
-            batch_y = batch_y.long()
+            batch_y = batch_y.unsqueeze(1)
 
             outputs = model(batch_x)
-            predicted = torch.argmax(outputs, dim=1)
+            predicted = (outputs > 0.5).float()
             correct += (predicted == batch_y).sum().item()
             total += batch_y.size(0)
 
@@ -425,9 +444,9 @@ def model_chart(epochs, model_name, losses):
     """Generate and save a line chart of training losses.
 
     Args:
-        epochs (list): List of epoch numbers.
-        model_name (str): Name of the model for the chart title.
-        losses (list): List of loss values corresponding to each epoch.
+        epochs (list): List of epoch numbers
+        model_name (str): Name of the model for the chart title
+        losses (list): List of loss values corresponding to each epoch
 
     Side Effects:
         - Creates and displays a matplotlib figure
@@ -456,8 +475,8 @@ def model_chart(epochs, model_name, losses):
 def overall_chart():
     """Generate and save a bar chart comparing model accuracies.
 
-    This function creates a bar chart comparing the test accuracies of different
-    models using the global variables model_names and overall_accuracy.
+    Creates a bar chart comparing the test accuracies of different models using
+    the global variables model_names and overall_accuracy.
 
     Side Effects:
         - Creates and displays a matplotlib figure
@@ -481,57 +500,54 @@ def overall_chart():
     plt.show()
 
 
-# ------------------------------------------------------------------------------
-# Main Execution
-# ------------------------------------------------------------------------------
+if __name__ == "__main__":
+    # 1. Ensure preprocessing scripts are executed
+    run_preprocessing()
 
-# 1. Ensure preprocessing scripts are executed
-run_preprocessing()
+    # 2. Load TF-IDF data and tokenized sequences
+    X_tfidf, y = load_tfidf_data()
+    X_text, y = load_tokenized_data()
 
-# 2. Load TF-IDF data and tokenized sequences
-X_tfidf, y = load_tfidf_data()
-X_text, y = load_tokenized_data()
+    # 3. Split TF-IDF data
+    X_train_tfidf, X_test_tfidf, y_train, y_test = train_test_split(
+        X_tfidf, y, test_size=0.2, stratify=y, random_state=42
+    )
+    # 4. Split tokenized data
+    X_train_text, X_test_text, _, _ = train_test_split(
+        X_text, y, test_size=0.2, stratify=y, random_state=42
+    )
 
-# 3. Split TF-IDF data
-X_train_tfidf, X_test_tfidf, y_train, y_test = train_test_split(
-    X_tfidf, y, test_size=0.2, stratify=y, random_state=42
-)
-# 4. Split tokenized data (we reuse y_train, y_test for simplicity)
-X_train_text, X_test_text, _, _ = train_test_split(
-    X_text, y, test_size=0.2, stratify=y, random_state=42
-)
+    # 5. Create PyTorch Datasets
+    train_dataset_tfidf = TextDataset(X_train_tfidf, y_train, use_tfidf=True)
+    test_dataset_tfidf = TextDataset(X_test_tfidf, y_test, use_tfidf=True)
 
-# 5. Create PyTorch Datasets
-train_dataset_tfidf = TextDataset(X_train_tfidf, y_train, use_tfidf=True)
-test_dataset_tfidf = TextDataset(X_test_tfidf, y_test, use_tfidf=True)
+    train_dataset_text = TextDataset(X_train_text, y_train, use_tfidf=False)
+    test_dataset_text = TextDataset(X_test_text, y_test, use_tfidf=False)
 
-train_dataset_text = TextDataset(X_train_text, y_train, use_tfidf=False)
-test_dataset_text = TextDataset(X_test_text, y_test, use_tfidf=False)
+    # 6. Create DataLoaders
+    train_loader_text = DataLoader(train_dataset_text, batch_size=32, shuffle=True)
+    test_loader_text = DataLoader(test_dataset_text, batch_size=32, shuffle=False)
 
-# 6. Create DataLoaders
-train_loader_text = DataLoader(train_dataset_text, batch_size=32, shuffle=True)
-test_loader_text = DataLoader(test_dataset_text, batch_size=32, shuffle=False)
+    train_loader_tfidf = DataLoader(train_dataset_tfidf, batch_size=32, shuffle=True)
+    test_loader_tfidf = DataLoader(test_dataset_tfidf, batch_size=32, shuffle=False)
 
-train_loader_tfidf = DataLoader(train_dataset_tfidf, batch_size=32, shuffle=True)
-test_loader_tfidf = DataLoader(test_dataset_tfidf, batch_size=32, shuffle=False)
+    # 7. Train Models
+    train_pytorch_model(
+        LSTMModel(), 
+        train_loader_text, 
+        test_loader_text, 
+        "LSTM", 
+        use_tfidf=False
+    )
 
-# 7. Train Models: LSTM (tokenized) and CNN (TF-IDF)
-train_pytorch_model(
-    LSTMModel(), 
-    train_loader_text, 
-    test_loader_text, 
-    "LSTM", 
-    use_tfidf=False
-)
+    train_pytorch_model(
+        CNNModel(input_dim=X_train_tfidf.shape[1]), 
+        train_loader_tfidf, 
+        test_loader_tfidf, 
+        "CNN", 
+        use_tfidf=True
+    )
 
-train_pytorch_model(
-    CNNModel(input_dim=X_train_tfidf.shape[1]), 
-    train_loader_tfidf, 
-    test_loader_tfidf, 
-    "CNN", 
-    use_tfidf=True
-)
-
-# 8. Generate the overall chart (if model_names and accuracies are tracked)
-overall_chart()
+    # 8. Generate the overall chart
+    overall_chart()
 
