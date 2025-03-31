@@ -558,7 +558,7 @@ def process_and_save_features(input_file, output_file):
 '''
 def visualize_summary(summary):
     """
-    Generate visualizations for dataset summary statistics.
+    Generate visualizations for dataset summary statistics and total incidents for low and high severity levels.
 
     Args:
         summary (dict): Summary statistics including POS and entity distributions.
