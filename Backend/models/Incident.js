@@ -26,12 +26,12 @@ const IncidentSchema = new mongoose.Schema({
 
     content: { 
         type: String, 
-        required: true 
+        required: false 
     }, // Stores the actual message/post/comment content
 
     severityLevel: {
         type: String,
-        enum: ['low', 'medium', 'high'],
+        enum: ['zero', 'low', 'high'],
         required: true,
     },
 
