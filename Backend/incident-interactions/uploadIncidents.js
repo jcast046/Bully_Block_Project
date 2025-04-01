@@ -9,6 +9,7 @@ const Incident = require('../models/Incident');
 
 /**
  * Upload new incidents from a JSON file to MongoDB while avoiding duplicates.
+ * Only incidents with "low" or "high" severity levels will be uploaded.
  * @returns {Promise<void>} Resolves once all new incidents are uploaded.
  */
 async function uploadIncidents() {
@@ -26,6 +27,12 @@ async function uploadIncidents() {
 
         for (let incidentData of incidents) {
             const { content_id, incident_id, author_id, content_type, severity_level, status } = incidentData;
+
+            // Only upload incidents with "low" or "high" severity levels
+            if (severity_level !== 'low' && severity_level !== 'high') {
+                skippedCount++;
+                continue; // Skip this incident and move to the next one
+            }
 
             // Try to update the incident if it exists, otherwise do nothing
             const result = await Incident.updateOne(
