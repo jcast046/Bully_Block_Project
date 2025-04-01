@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env' });
+require('dotenv').config({ path: '../.env' });
 const axios = require('axios');
 const fs = require('fs');
 
@@ -146,7 +146,7 @@ async function processDiscussionData(discussionData) {
  * @returns {Promise<void>}
  */
 async function readDiscussionData() {
-    const filePath = './canvas-interactions/output/discussion_data.json';
+    const filePath = '../../ai_algorithms/initial_datasets.json';
 
     if (fs.existsSync(filePath)) {
         try {
