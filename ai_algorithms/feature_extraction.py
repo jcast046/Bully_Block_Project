@@ -26,14 +26,16 @@ severity_levels = ["low", "high"]
 severity_level_totals = [low_severity, high_severity]
 
 def analyze_sentiment(tokens):
-    """
-    Compute sentiment scores for individual tokens and normalize them.
+    """Compute sentiment scores for individual tokens and normalize them.
 
     Args:
-        tokens (list of tuples): List of (word, POS) tuples.
+        tokens (list): List of (word, POS) tuples containing tokenized words and their parts of speech.
 
     Returns:
-        dict: Aggregated sentiment scores (positive, negative, neutral).
+        dict: Dictionary containing normalized sentiment scores with keys:
+            - positive (float): Normalized positive sentiment score
+            - negative (float): Normalized negative sentiment score
+            - neutral (float): Normalized neutral sentiment score
     """
     sia = SentimentIntensityAnalyzer()
     
@@ -72,28 +74,30 @@ def analyze_sentiment(tokens):
         }
 
 def analyze_overall_sentiment(text):
-    """
-    Analyze the overall sentiment of a given text.
+    """Analyze the overall sentiment of a given text.
 
     Args:
-        text (str): The input sentence.
+        text (str): The input text to analyze.
 
     Returns:
-        dict: Overall sentiment scores (positive, negative, neutral, compound).
+        dict: Dictionary containing sentiment scores with keys:
+            - pos (float): Positive sentiment score
+            - neg (float): Negative sentiment score
+            - neu (float): Neutral sentiment score
+            - compound (float): Overall compound sentiment score
     """
     sia = SentimentIntensityAnalyzer()
     return sia.polarity_scores(text)
 
 def analyze_entity_context(entities, tokens):
-    """
-    Identify flagged entities associated with negative words.
+    """Identify flagged entities associated with negative words.
 
     Args:
-        entities (list of tuples): Named entity recognition (NER) results.
-        tokens (list of tuples): Tokenized words with POS tags.
+        entities (list): List of (text, label) tuples from named entity recognition.
+        tokens (list): List of (word, POS) tuples containing tokenized words.
 
     Returns:
-        list: Entities flagged as potential indicators of harmful context.
+        list: List of entity texts that are flagged as potential indicators of harmful context.
     """
     negative_words = {"stupid", "dumb", "annoying", "loser"}
     return [
@@ -102,18 +106,15 @@ def analyze_entity_context(entities, tokens):
     ]
 
 def extract_features(text):
-    """
-    Extract linguistic features from text using NLP techniques.
-
-    Features:
-    - Tokenization with POS tagging
-    - Named Entity Recognition (NER)
+    """Extract linguistic features from text using NLP techniques.
 
     Args:
-        text (str): Input text.
+        text (str): Input text to analyze.
 
     Returns:
-        dict: Extracted features including tokens and named entities.
+        dict: Dictionary containing extracted features with keys:
+            - tokens (list): List of (word, POS) tuples
+            - entities (list): List of (text, label) tuples from named entity recognition
     """
     doc = nlp(text)
     
@@ -126,14 +127,15 @@ def extract_features(text):
     return {"tokens": tokens, "entities": entities}
 
 def summarize_features(feature_data):
-    """
-    Generate distribution statistics for POS tags and named entities.
+    """Generate distribution statistics for POS tags and named entities.
 
     Args:
-        feature_data (list): List of extracted feature dictionaries.
+        feature_data (list): List of dictionaries containing extracted features.
 
     Returns:
-        dict: Summary of POS tag and entity type distribution.
+        dict: Dictionary containing summary statistics with keys:
+            - POS Distribution (dict): Distribution of parts of speech tags
+            - Entity Distribution (dict): Distribution of named entity types
     """
     pos_counts = Counter(pos for record in feature_data for _, pos in record['tokens'])
     entity_counts = Counter(ent[1] for record in feature_data for ent in record['entities'])
@@ -144,14 +146,16 @@ def summarize_features(feature_data):
     }
 
 def summarize_dataset(feature_data):
-    """
-    Compute dataset-wide summary statistics.
+    """Compute dataset-wide summary statistics.
 
     Args:
-        feature_data (list): Extracted and validated features.
+        feature_data (list): List of dictionaries containing extracted and validated features.
 
     Returns:
-        dict: Summary of POS tags, entity types, and average sentiment scores.
+        dict: Dictionary containing dataset summary with keys:
+            - POS Distribution (dict): Distribution of parts of speech tags
+            - Entity Distribution (dict): Distribution of named entity types
+            - Average Sentiments (dict): Average sentiment scores across the dataset
     """
     pos_counts = Counter(pos for record in feature_data for _, pos in record['tokens'])
     entity_counts = Counter(ent[1] for record in feature_data for ent in record['entities'])
@@ -170,14 +174,21 @@ def summarize_dataset(feature_data):
     }
 
 def validate_features(feature_data):
-    """
-    Validate extracted features by analyzing their relevance and sentiment.
+    """Validate extracted features by analyzing their relevance and sentiment.
 
     Args:
         feature_data (list): List of dictionaries containing extracted features.
 
     Returns:
-        list: Feature data with additional validation statistics.
+        list: List of feature dictionaries with additional validation statistics including:
+            - token_count (int): Number of tokens
+            - entity_count (int): Number of entities
+            - negative_adjectives (int): Count of negative adjectives
+            - positive_adjectives (int): Count of positive adjectives
+            - custom_negative_score (float): Custom severity score
+            - total_negative (float): Combined negative sentiment score
+            - sentiment_summary (dict): Overall sentiment analysis
+            - flagged_entities (list): List of potentially harmful entities
     """
     sia = SentimentIntensityAnalyzer()
     
@@ -325,14 +336,18 @@ def validate_features(feature_data):
     return feature_data
 
 def determine_severity(validation):
-    """
-    Determines the severity level of detected content based on extracted features.
+    """Determine the severity level of detected content based on extracted features.
 
     Args:
-        validation (dict): Feature validation data including sentiment and flagged entities.
+        validation (dict): Dictionary containing feature validation data including:
+            - total_negative (float): Combined negative sentiment score
+            - sentiment_summary (dict): Overall sentiment analysis
+            - negative_adjectives (int): Count of negative adjectives
+            - positive_adjectives (int): Count of positive adjectives
+            - flagged_entities (list): List of potentially harmful entities
 
     Returns:
-        str: Severity level ("zero", "low", or "high").
+        str: Severity level classification ("zero", "low", or "high")
     """
     # Get combined total negative score
     total_negative = validation.get("total_negative", 0)
@@ -396,28 +411,34 @@ def determine_severity(validation):
     return "zero"
 
 def compute_tfidf(processed_texts):
-    """
-    Compute TF-IDF features for processed texts.
+    """Compute TF-IDF features for processed texts.
 
     Args:
-        processed_texts (list of str): List of cleaned and tokenized text data.
+        processed_texts (list): List of cleaned and tokenized text strings.
 
     Returns:
-        numpy.array: TF-IDF feature matrix.
+        tuple: Contains:
+            - numpy.ndarray: TF-IDF feature matrix
+            - numpy.ndarray: Array of feature names
     """
     vectorizer = TfidfVectorizer(max_features=500)
     tfidf_matrix = vectorizer.fit_transform(processed_texts)
     return tfidf_matrix.toarray(), vectorizer.get_feature_names_out()
 
 def generate_incident_reports(feature_data):
-    """
-    Generates structured incident reports based on extracted features.
+    """Generate structured incident reports based on extracted features.
 
     Args:
-        feature_data (list): Processed feature dataset.
+        feature_data (list): List of dictionaries containing processed feature data.
 
     Returns:
-        list: List of incident reports.
+        list: List of incident report dictionaries containing:
+            - content_id (str): Unique content identifier
+            - incident_id (str): Unique incident identifier
+            - author_id (str): Author identifier
+            - content_type (str): Type of content
+            - severity_level (str): Determined severity level
+            - status (str): Current status of the incident
     """
     incident_reports = []
     
@@ -436,12 +457,11 @@ def generate_incident_reports(feature_data):
     return incident_reports
 
 def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_reports.json"):
-    """
-    Saves the generated incident reports to a JSON file.
+    """Save the generated incident reports to a JSON file.
 
     Args:
-        incident_reports (list): List of structured incident reports.
-        output_file (str): Path to the output JSON file.
+        incident_reports (list): List of structured incident report dictionaries.
+        output_file (str, optional): Path to the output JSON file. Defaults to "ai_algorithms/incident_reports.json".
     """
     with open(output_file, "w") as f:
         json.dump(incident_reports, f, indent=4)
@@ -449,12 +469,14 @@ def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_
     print(f"Incident reports saved to {output_file}")
     
 def process_and_save_features(input_file, output_file):
-    """
-    Load text data, extract features, validate them, assign severity levels, and save results.
+    """Process text data, extract features, validate them, and save results.
 
     Args:
-        input_file (str): Path to the input JSON file.
-        output_file (str): Path to the output JSON/CSV file.
+        input_file (str): Path to the input JSON file containing text data.
+        output_file (str): Path to save the processed features and analysis results.
+
+    Raises:
+        Exception: If there's an error processing the data or saving the results.
     """
     try:
         with open(input_file, 'r') as file:
@@ -506,62 +528,15 @@ def process_and_save_features(input_file, output_file):
     except Exception as e:
         print(f"Error processing and saving features: {e}")
    
-'''
-def process_and_save_features(input_file, output_file):
-    """
-    Load text data, extract features, validate them, assign severity levels, and save results.
 
-    Args:
-        input_file (str): Path to the input JSON file.
-        output_file (str): Path to the output JSON/CSV file.
-    """
-    try:
-        with open(input_file, 'r') as file:
-            data = json.load(file)
-        
-        if not isinstance(data, list):
-            print("Error: Input data is not in the expected list format.")
-            return
-        
-        feature_data = []
-        
-        for record in data:
-            if 'original' in record and 'processed' in record:
-                text = record['original']
-                cleaned_text = " ".join(record['processed'])
-                features = extract_features(text)
-                
-                # Generate feature entry
-                feature_entry = {
-                    "original_text": text,
-                    "cleaned_text": cleaned_text,
-                    "tokens": features['tokens'],
-                    "entities": features['entities']
-                }
-                
-                # Validate extracted features
-                validated_entry = validate_features([feature_entry])[0]
-
-                # Assign severity level
-                validated_entry["severity_level"] = determine_severity(validated_entry["validation"])
-
-                feature_data.append(validated_entry)
-        
-        # Save updated dataset with severity levels
-        with open(output_file, "w") as outfile:
-            json.dump(feature_data, outfile, indent=4)
-
-        print(f"Features with severity levels saved to {output_file}")
-
-    except Exception as e:
-        print(f"Error processing and saving features: {e}")
-'''
 def visualize_summary(summary):
-    """
-    Generate visualizations for dataset summary statistics and total incidents for low and high severity levels.
+    """Generate visualizations for dataset summary statistics and severity levels.
 
     Args:
-        summary (dict): Summary statistics including POS and entity distributions.
+        summary (dict): Dictionary containing summary statistics including:
+            - POS Distribution (dict): Distribution of parts of speech tags
+            - Entity Distribution (dict): Distribution of named entity types
+            - Average Sentiments (dict): Average sentiment scores
     """
     # Plot proportions
     screen_width_px = 1920
@@ -611,8 +586,13 @@ def visualize_summary(summary):
     
 
 if __name__ == "__main__":
-    """
-    Main execution for feature extraction and analysis.
+    """Main execution block for feature extraction and analysis pipeline.
+    
+    This block orchestrates the following steps:
+    1. Run text cleaning
+    2. Process and save features
+    3. Generate incident reports
+    4. Create visualizations of the analysis
     """
     text_cleaning.main()  # Run text cleaning first
 
