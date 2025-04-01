@@ -80,7 +80,6 @@ const IncidentDetail = () => {
                     <p><strong>Timestamp:</strong> {incident.timestamp
                         ? new Date(incident.timestamp).toLocaleString()
                         : "Unknown"}</p> {/* Format and display timestamp */}
-                    <p><strong>Content Summary:</strong> {incident.contentSummary || "TBD"}</p> {/* Display Content Summary */}
                     <h1>Full Incident</h1>
                     <p>{extractText(incident.content)}</p> {/* Clean and display full content */}
 
