@@ -1,36 +1,56 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import "./NotificationPopUp.css";
+import notificationSoundFile from "../../assets/sounds/bullyblock_notification_sound.mp3";
 
-export default function NotificationsButton() {
+export default function NotificationsButton({ incidents = [] }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: "New comment on your report", read: false },
-    { id: 2, message: "Incident status updated", read: false },
-    { id: 3, message: "Reminder: Check analytics", read: true },
-  ]);
+  const [viewAll, setViewAll] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const dropdownRef = useRef(null);
-
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // Handle clicks outside of the dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
+  // Memoize the audio instance
+  const notificationSound = useMemo(() => new Audio(notificationSoundFile), []);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // Detect and react to new incidents
+  useEffect(() => {
+    if (Array.isArray(incidents) && incidents.length > 0) {
+      const newNotifications = incidents
+        .filter((incident) => !notifications.some((n) => n.id === incident._id))
+        .map((incident) => ({
+          id: incident._id,
+          message: `New ${incident.severityLevel.toLowerCase()} severity incident`,
+          read: false,
+          timestamp: new Date(incident.timestamp).toLocaleString(),
+        }));
+
+      if (newNotifications.length > 0) {
+        // Play notification sound
+        notificationSound.play().catch((err) => {
+          console.error("Error playing notification sound:", err);
+        });
+
+        // Add new notifications to the list
+        setNotifications((prev) => [...newNotifications, ...prev]);
+      }
+    }
+  }, [incidents, notifications, notificationSound]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
+  const toggleViewAll = () => setViewAll(!viewAll);
+
   const handleNotificationClick = (id) => {
-    setNotifications(
-      notifications.map((notification) =>
+    setNotifications((prev) =>
+      prev.map((notification) =>
         notification.id === id ? { ...notification, read: true } : notification
       )
+    );
+  };
+
+  const handleNotificationRemove = (id) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
     );
   };
 
@@ -43,24 +63,41 @@ export default function NotificationsButton() {
         )}
       </button>
 
-      <div className={`notifications-dropdown ${isOpen ? "show" : ""}`}>
-        {notifications.length === 0 ? (
-          <p className="no-notifications">No new notifications</p>
-        ) : (
-          <ul>
-            {notifications.map((notification) => (
-              <li
-                key={notification.id}
-                className="notification-item"
-                onClick={() => handleNotificationClick(notification.id)}
-                style={{ opacity: notification.read ? 0.7 : 1 }}
-              >
-                {notification.message}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {isOpen && (
+        <div className={`notifications-dropdown ${isOpen ? "show" : ""}`}>
+          {notifications.length === 0 ? (
+            <p className="no-notifications">No new notifications</p>
+          ) : (
+            <div>
+              <ul>
+                {(viewAll ? notifications : notifications.slice(0, 5)).map((notification) => (
+                  <li
+                    key={notification.id}
+                    className="notification-item"
+                    style={{ opacity: notification.read ? 0.5 : 1 }}
+                  >
+                    <span onClick={() => handleNotificationClick(notification.id)}>
+                      {notification.message}
+                      <span className="timestamp">{notification.timestamp}</span>
+                    </span>
+                    <button
+                      className="remove-button"
+                      onClick={() => handleNotificationRemove(notification.id)}
+                    >
+                      ✕
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {notifications.length > 5 && (
+                <button onClick={toggleViewAll} className="view-all-button">
+                  {viewAll ? "Show Less" : "View All"}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
