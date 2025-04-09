@@ -10,81 +10,114 @@ on:
       - main
       - Jacob
 
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+  JAVA_VERSION: '11'
+  MONGODB_PORT: 27017
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     services:
       mongodb:
-        image: mongo
+        image: mongo:latest
         ports:
           - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      # Setup Node.js
-      - name: Setup Node.js for Frontend
-        uses: actions/setup-node@v3
+      # Setup Node.js with caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "20" # Specify Node.js version
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            bullyblock-dashboard/package-lock.json
+            Backend/package-lock.json
 
-      # Install Frontend Dependencies
+      # Frontend
       - name: Install Frontend dependencies
         working-directory: ./bullyblock-dashboard
-        run: npm install
+        run: npm ci
 
-      #Verify react-router installation
       - name: Verify react-router installation
         working-directory: ./bullyblock-dashboard
         run: npm list react-router
 
-      # Run Frontend tests
       - name: Run Frontend tests
         working-directory: ./bullyblock-dashboard
         run: npm test
+        env:
+          CI: true
 
-      # Install Backend Dependencies
-      - name: Install Backend Dependencies
+      # Backend
+      - name: Install Backend dependencies
         working-directory: ./Backend
-        run: npm install
+        run: npm ci
 
-      # Run Backend Tests
-      - name: Run Backend Tests
+      - name: Run Backend tests
         working-directory: ./Backend
         run: npm test
+        env:
+          MONGODB_URI: mongodb://localhost:${{ env.MONGODB_PORT }}/test
+          CI: true
 
-      # Setup Python
+      # Python
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11" # Specify Python version
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: '**/requirements.txt'
 
-      # Install Python dependencies and run tests
       - name: Install Python dependencies
-        run: echo "Remove comment and echo after we have requirements.txt" #pip install -r requirements.txt [ Uncomment this line once we have tests ]
-      - name: Run Pytest
-        run: echo "Remove comment and echo after we have requirements.txt" #pytest [ Uncomment this line once we have tests ]
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
-      # Setup Java (if required for backend or other services)
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Run Python tests
+        run: |
+          if [ -f requirements.txt ]; then
+            pytest
+          fi
+
+      # Java
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          java-version: "11" # Specify JDK version
-          distribution: "adopt"
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'maven'
 
-      # Build and test Java components
       - name: Build and test with Maven
-        run: echo "We need to either manually create a pom.xml file or first initialize the project as a Maven project" #mvn -B package --file pom.xml
+        run: |
+          if [ -f pom.xml ]; then
+            mvn -B verify
+          fi
 
-      # MongoDB interaction check or data migrations
-      - name: MongoDB operations
-        run: echo "Perform MongoDB operations here"
+      # MongoDB health check
+      - name: Check MongoDB connection
+        run: |
+          mongosh --eval "db.runCommand({ ping: 1 })" || exit 1
 
-      # Setup and update API documentation with Swagger
-      - name: Generate Swagger API docs
+      # API Documentation
+      - name: Generate API documentation
         working-directory: ./Backend
-        run: echo "Do not run until Swagger is set up properly in the Backend" #npm run generate-docs
+        run: |
+          if [ -f package.json ] && grep -q "generate-docs" package.json; then
+            npm run generate-docs
+          fi
+        continue-on-error: true
 
-
-    # Additional deployment or further steps can be added here
+ 
