@@ -1,6 +1,14 @@
 .incident-detail-container {
     padding: 20px;
-    text-align: left;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 80%;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .incident-detail-container h1 {
@@ -10,6 +18,8 @@
 
 .incident-detail-container p {
     margin: 10px 0;
+    max-width: 100%;
+    text-align: center;
 }
 
 .incident-detail-container button {

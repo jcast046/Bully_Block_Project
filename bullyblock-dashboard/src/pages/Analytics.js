@@ -184,10 +184,6 @@ const Analytics = () => {
                 <td>{severityCounts.high}</td>
               </tr>
               <tr>
-                <td>Medium</td>
-                <td>{severityCounts.medium}</td>
-              </tr>
-              <tr>
                 <td>Low</td>
                 <td>{severityCounts.low}</td>
               </tr>
@@ -204,14 +200,19 @@ const Analytics = () => {
               </tr>
             </thead>
             <tbody>
-              {datesHighestBullying.map((date, index) => (
-                <tr key={index}>
-                  <td>{new Date(date.date).toLocaleDateString()}</td>
-                  <td>{date.incidents}</td>
-                </tr>
-              ))}
+              {/* Sort datesHighestBullying by incidents in descending order and slice the top 5 */}
+              {datesHighestBullying
+                .sort((a, b) => b.incidents - a.incidents)
+                .slice(0, 5)
+                .map((date, index) => (
+                  <tr key={index}>
+                    <td>{new Date(date.date).toLocaleDateString()}</td>
+                    <td>{date.incidents}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
+
 
           {/* Display Images */}
           <h2>Visualizations</h2>

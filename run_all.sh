@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Start the server
+#  Start the server
 echo "Starting the server..."
 cd Backend || { echo "Failed to enter bullyblock-backend directory"; exit 1; }
 npm start &
