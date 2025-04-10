@@ -485,7 +485,7 @@ def model_chart(epochs, model_name, losses):
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.savefig(f"ai_algorithms/Tensorflow{model_name}Loss.png")
-    plt.show()
+    #plt.show()
 
 
 def overall_chart():
@@ -503,7 +503,7 @@ def overall_chart():
     plt.xlabel("Model")
     plt.ylabel("Accuracy")
     plt.savefig("ai_algorithms/TensorflowOverallAccuracy.png")
-    plt.show()
+    #plt.show()
 
 
 if __name__ == "__main__":

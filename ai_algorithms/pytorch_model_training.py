@@ -469,7 +469,7 @@ def model_chart(epochs, model_name, losses):
     
     plt.tight_layout()
     plt.savefig(f"ai_algorithms/PyTorch{model_name}Loss.png", dpi=300, bbox_inches='tight')
-    plt.show()
+    #plt.show()
 
 
 def overall_chart():
@@ -497,7 +497,7 @@ def overall_chart():
     
     plt.tight_layout()
     plt.savefig("ai_algorithms/PyTorchOverallAccuracy.png", dpi=300, bbox_inches='tight')
-    plt.show()
+    #plt.show()
 
 
 if __name__ == "__main__":
