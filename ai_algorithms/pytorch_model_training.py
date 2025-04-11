@@ -36,6 +36,9 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.feature_extraction.text import TfidfVectorizer
 import torch.nn.functional as F
 
+# Get the base directory of the project
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Global variables for tracking model performance
 overall_accuracy = []
 model_names = []
@@ -53,22 +56,22 @@ def run_preprocessing():
         FileNotFoundError: If feature_dataset.json is not found after preprocessing.
     """
     scripts = [
-        "ai_algorithms/text_cleaning.py",
-        "ai_algorithms/feature_extraction.py",
-        "ai_algorithms/tensorflow_scikit_model_training.py",
+        os.path.join("ai_algorithms", "text_cleaning.py"),
+        os.path.join("ai_algorithms", "feature_extraction.py"),
+        os.path.join("ai_algorithms", "tensorflow_scikit_model_training.py"),
     ]
 
     for script in scripts:
         print(f"Running `{script}`...")
-        subprocess.run(["python", script], check=True)
+        subprocess.run(["python", os.path.join(BASE_DIR, script)], check=True)
 
-    if not os.path.exists("ai_algorithms/feature_dataset.json"):
+    if not os.path.exists(os.path.join(BASE_DIR, "ai_algorithms", "feature_dataset.json")):
         raise FileNotFoundError(
             "Feature extraction failed. Check `feature_extraction.py` for errors."
         )
 
 
-def load_tfidf_data(filepath="ai_algorithms/feature_dataset.json"):
+def load_tfidf_data(filepath=os.path.join("ai_algorithms", "feature_dataset.json")):
     """Load and transform text data into TF-IDF features.
 
     Args:
@@ -79,7 +82,7 @@ def load_tfidf_data(filepath="ai_algorithms/feature_dataset.json"):
             - np.ndarray: TF-IDF feature matrix [n_samples, n_features]
             - np.ndarray: Binary labels (0.0 for low, 1.0 for high severity)
     """
-    with open(filepath, "r") as file:
+    with open(os.path.join(BASE_DIR, filepath), "r") as file:
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
@@ -95,7 +98,7 @@ def load_tfidf_data(filepath="ai_algorithms/feature_dataset.json"):
     return X_tfidf, labels
 
 
-def load_tokenized_data(filepath="ai_algorithms/feature_dataset.json"):
+def load_tokenized_data(filepath=os.path.join("ai_algorithms", "feature_dataset.json")):
     """Load and tokenize text data for sequence-based models.
 
     Args:
@@ -106,7 +109,7 @@ def load_tokenized_data(filepath="ai_algorithms/feature_dataset.json"):
             - np.ndarray: Padded token sequences [n_samples, max_sequence_length]
             - np.ndarray: Binary labels (0.0 for low, 1.0 for high severity)
     """
-    with open(filepath, "r") as file:
+    with open(os.path.join(BASE_DIR, filepath), "r") as file:
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
@@ -410,7 +413,7 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
         if avg_epoch_loss < best_loss and train_accuracy > best_accuracy:
             best_loss = avg_epoch_loss
             best_accuracy = train_accuracy
-            torch.save(model.state_dict(), f"ai_algorithms/best_{model_name.lower()}_model.pth")
+            torch.save(model.state_dict(), os.path.join(BASE_DIR, "ai_algorithms", f"best_{model_name.lower()}_model.pth"))
             patience_counter = 0
         else:
             patience_counter += 1
@@ -420,7 +423,7 @@ def train_pytorch_model(model, train_loader, test_loader, model_name, use_tfidf=
     
     model_chart(epochs, model_name, losses)
     
-    model.load_state_dict(torch.load(f"ai_algorithms/best_{model_name.lower()}_model.pth"))
+    model.load_state_dict(torch.load(os.path.join(BASE_DIR, "ai_algorithms", f"best_{model_name.lower()}_model.pth")))
     
     model.eval()
     correct, total = 0, 0
@@ -468,7 +471,7 @@ def model_chart(epochs, model_name, losses):
                     ha='center')
     
     plt.tight_layout()
-    plt.savefig(f"ai_algorithms/PyTorch{model_name}Loss.png", dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", f"PyTorch{model_name}Loss.png"), dpi=300, bbox_inches='tight')
     #plt.show()
 
 
@@ -496,7 +499,7 @@ def overall_chart():
                 ha='center', va='bottom')
     
     plt.tight_layout()
-    plt.savefig("ai_algorithms/PyTorchOverallAccuracy.png", dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", "PyTorchOverallAccuracy.png"), dpi=300, bbox_inches='tight')
     #plt.show()
 
 

@@ -8,7 +8,10 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.util import ngrams
 from sklearn.feature_extraction.text import TfidfVectorizer
+import os
 
+# Get the base directory of the project
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Run text_cleaning.py to create the processed_data.json file
 import text_cleaning
@@ -463,7 +466,7 @@ def save_incident_reports(incident_reports, output_file="ai_algorithms/incident_
         incident_reports (list): List of structured incident report dictionaries.
         output_file (str, optional): Path to the output JSON file. Defaults to "ai_algorithms/incident_reports.json".
     """
-    with open(output_file, "w") as f:
+    with open(os.path.join(BASE_DIR, output_file), "w") as f:
         json.dump(incident_reports, f, indent=4)
     
     print(f"Incident reports saved to {output_file}")
@@ -479,7 +482,7 @@ def process_and_save_features(input_file, output_file):
         Exception: If there's an error processing the data or saving the results.
     """
     try:
-        with open(input_file, 'r') as file:
+        with open(os.path.join(BASE_DIR, input_file), 'r') as file:
             data = json.load(file)
         
         if not isinstance(data, list):
@@ -520,7 +523,7 @@ def process_and_save_features(input_file, output_file):
             entry["tfidf_features"] = dict(zip(tfidf_features, tfidf_matrix[i]))
 
         # Save updated dataset with severity levels
-        with open(output_file, "w") as outfile:
+        with open(os.path.join(BASE_DIR, output_file), "w") as outfile:
             json.dump(feature_data, outfile, indent=4)
 
         print(f"Features with severity levels and TF-IDF saved to {output_file}")
@@ -551,7 +554,7 @@ def visualize_summary(summary):
     plt.title("Part-of-Speech (POS) Tag Distribution")
     plt.xlabel("POS Tags")
     plt.ylabel("Frequency")
-    plt.savefig("ai_algorithms/POS_tag_distribution.png", dpi=dpi, bbox_inches='tight')
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", "POS_tag_distribution.png"), dpi=dpi, bbox_inches='tight')
     #plt.show()
     
     
@@ -561,7 +564,7 @@ def visualize_summary(summary):
     plt.title("Entity Distribution")
     plt.xlabel("Entity Types")
     plt.ylabel("Frequency")
-    plt.savefig("ai_algorithms/entity_distribution.png", dpi=dpi, bbox_inches='tight')
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", "entity_distribution.png"), dpi=dpi, bbox_inches='tight')
     #plt.show()
     
     # Plot sentiment scores
@@ -570,7 +573,7 @@ def visualize_summary(summary):
     plt.title("Average Sentiment Scores")
     plt.xlabel("Sentiment Type")
     plt.ylabel("Score")
-    plt.savefig("ai_algorithms/sentiment_scores.png", dpi=dpi, bbox_inches='tight')
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", "sentiment_scores.png"), dpi=dpi, bbox_inches='tight')
     #plt.show()
     
     # Plot severity levels
@@ -579,7 +582,7 @@ def visualize_summary(summary):
     plt.title("Severity Level Incidents")
     plt.xlabel("Severity Level")
     plt.ylabel("Total Incidents")
-    plt.savefig("ai_algorithms/severity_levels.png", dpi=dpi, bbox_inches='tight')
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", "severity_levels.png"), dpi=dpi, bbox_inches='tight')
     
     print(f"Low Severity: {low_severity / 2}")
     print(f"High Severity: {high_severity / 2}")
@@ -596,18 +599,18 @@ if __name__ == "__main__":
     """
     text_cleaning.main()  # Run text cleaning first
 
-    input_file = "ai_algorithms/processed_data.json"
-    output_file = "ai_algorithms/feature_dataset.json"
+    input_file = os.path.join("ai_algorithms", "processed_data.json")
+    output_file = os.path.join("ai_algorithms", "feature_dataset.json")
 
     process_and_save_features(input_file, output_file)
 
     # Load extracted feature data
-    with open(output_file, "r") as file:
+    with open(os.path.join(BASE_DIR, output_file), "r") as file:
         feature_data = json.load(file)
 
     # Generate and save incident reports
     incident_reports = generate_incident_reports(feature_data)
-    save_incident_reports(incident_reports, "ai_algorithms/incident_reports.json")
+    save_incident_reports(incident_reports, os.path.join("ai_algorithms", "incident_reports.json"))
 
     # Summarize dataset
     summary = summarize_dataset(feature_data)

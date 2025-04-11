@@ -32,6 +32,10 @@ from nltk.tokenize import TreebankWordTokenizer
 from nltk.stem import PorterStemmer
 import spacy
 import json
+import os
+
+# Get the base directory of the project
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Download necessary NLTK data
 nltk.download('stopwords')
@@ -134,7 +138,7 @@ def load_dataset(filepath):
         FileNotFoundError, json.JSONDecodeError, or ValueError (if data is not a list).
     """
     try:
-        with open(filepath, 'r') as file:
+        with open(os.path.join(BASE_DIR, filepath), 'r') as file:
             data = json.load(file)
             if not isinstance(data, list):
                 raise ValueError("Dataset must be a list of records.")
@@ -162,7 +166,7 @@ def save_processed_data(processed_texts, output_path):
         Prints an error message to stderr if saving fails due to any exception.
     """
     try:
-        with open(output_path, 'w') as file:
+        with open(os.path.join(BASE_DIR, output_path), 'w') as file:
             json.dump(processed_texts, file, indent=4)
         print(f"Processed data saved to {output_path}")
     except Exception as e:
@@ -214,8 +218,8 @@ def main():
     using `clean_text`, extraction of metadata (content type, ID, author ID), 
     and saving the processed data using `save_processed_data`.
     """
-    input_file = "ai_algorithms/initial_datasets.json"  # Path to the input dataset
-    output_file = "ai_algorithms/processed_data.json"  # Path to the output file
+    input_file = os.path.join("ai_algorithms", "initial_datasets.json")  # Path to the input dataset
+    output_file = os.path.join("ai_algorithms", "processed_data.json")  # Path to the output file
 
     # Load the dataset
     dataset = load_dataset(input_file)
