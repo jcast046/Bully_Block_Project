@@ -5,20 +5,26 @@ This script implements deep learning models (LSTM and CNN) for binary classifica
 of cyberbullying severity using PyTorch. It includes data preprocessing, model training,
 and performance evaluation.
 
-Dependencies:
-    - torch: Deep learning framework
-    - sklearn: Data splitting and preprocessing
-    - tensorflow.keras: Text tokenization and sequence padding
-    - matplotlib: Visualization
-    - numpy: Numerical operations
-    - json, os, subprocess: File and system operations
+Features:
+- LSTM model with attention mechanism for sequence-based classification
+- CNN model for TF-IDF feature-based classification
+- Comprehensive model training with early stopping and learning rate scheduling
+- Performance visualization and model comparison
+
+Modules Used:
+- torch: Deep learning framework
+- sklearn: Data splitting and preprocessing
+- tensorflow.keras: Text tokenization and sequence padding
+- matplotlib: Visualization
+- numpy: Numerical operations
+- json, os, subprocess: File and system operations
 
 Workflow:
-    1. Run preprocessing scripts (text_cleaning.py, feature_extraction.py)
-    2. Load and preprocess data (TF-IDF and tokenized sequences)
-    3. Create PyTorch datasets and dataloaders
-    4. Train and evaluate LSTM and CNN models
-    5. Generate performance visualizations
+1. Run preprocessing scripts (text_cleaning.py, feature_extraction.py)
+2. Load and preprocess data (TF-IDF and tokenized sequences)
+3. Create PyTorch datasets and dataloaders
+4. Train and evaluate LSTM and CNN models
+5. Generate performance visualizations
 """
 
 import os
@@ -504,6 +510,15 @@ def overall_chart():
 
 
 if __name__ == "__main__":
+    """Execute the PyTorch model training pipeline.
+    
+    This block orchestrates the following steps:
+    1. Run preprocessing scripts
+    2. Load and preprocess data
+    3. Create datasets and dataloaders
+    4. Train and evaluate models
+    5. Generate performance visualizations
+    """
     # 1. Ensure preprocessing scripts are executed
     run_preprocessing()
 

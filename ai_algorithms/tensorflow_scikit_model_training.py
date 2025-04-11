@@ -5,18 +5,24 @@ This script implements machine learning and deep learning models for binary clas
 of cyberbullying severity. It includes feature extraction, model training, and performance
 evaluation.
 
-Dependencies:
-    - sklearn: Machine learning models and utilities
-    - tensorflow.keras: Deep learning models and preprocessing
-    - numpy, pandas: Data manipulation
-    - matplotlib: Visualization
-    - json, os, subprocess: File and system operations
+Features:
+- ML models: Logistic Regression, SVM, Random Forest
+- Deep learning models: LSTM and CNN
+- Cross-validation and hyperparameter optimization
+- Performance visualization and model comparison
+
+Modules Used:
+- sklearn: Machine learning models and utilities
+- tensorflow.keras: Deep learning models and preprocessing
+- numpy, pandas: Data manipulation
+- matplotlib: Visualization
+- json, os, subprocess: File and system operations
 
 Workflow:
-    1. Load and preprocess data
-    2. Train classical ML models (Logistic Regression, SVM, Random Forest)
-    3. Train deep learning models (LSTM, CNN)
-    4. Evaluate and compare model performance
+1. Load and preprocess data
+2. Train ML models (Logistic Regression, SVM, Random Forest)
+3. Train deep learning models (LSTM, CNN)
+4. Evaluate and compare model performance
 """
 
 import json
@@ -250,7 +256,7 @@ def compare_models(models):
 
 
 def train_models():
-    """Train and evaluate classical machine learning models.
+    """Train and evaluate machine learning models.
 
     Steps:
         1. Load and split feature data
@@ -510,6 +516,16 @@ def overall_chart():
 
 
 if __name__ == "__main__":
+    """Execute the model training pipeline.
+    
+    This block orchestrates the following steps:
+    1. Ensure feature extraction has been run
+    2. Load feature data and perform cross-validation
+    3. Optimize hyperparameters
+    4. Train ML models
+    5. Train deep learning models
+    6. Generate performance visualizations
+    """
     # Ensure feature extraction has been run
     if not os.path.exists(os.path.join(BASE_DIR, "ai_algorithms", "feature_dataset.json")):
         print("Feature dataset missing. Running `feature_extraction.py`...")
