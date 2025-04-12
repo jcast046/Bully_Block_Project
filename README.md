@@ -45,6 +45,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
   - HTTPS support is available, configurable via environment variables for SSL key and certificate paths.
   - The server includes a health check endpoint (/) to confirm service availability.
   - The backend fetches data from the Canvas LMS API at startup and refreshes it every 3 minutes, if a valid CANVAS_ACCESS_TOKEN is provided.
+  - The backend also launches the pytorch_model_training.py and refreshes it every 4 minutes.
  
 - **Running the Backend**
 To start the backend server:
@@ -83,12 +84,12 @@ To start the backend server:
   - Provides alternative CNN and LSTM implementations using tokenized text (for embeddings) or TF-IDF vectors, employing batch normalization and dropout layers.
 - **Running the AI and Machine Learning Engine**
   - **Installations:**
-    - Install Python version 3.11.9 or newer
+    - Install a Python version from 3.9 to 3.12 
     - pip install nltk spacy
     - pip install pandas matplotlib
     - pip install numpy scikit-learn tensorflow
     - pip install torch torchvision torchaudio
-    - Link to download PyTorch: https://download.pytorch.org/whl/cu118
+    - Link to download PyTorch: https://pytorch.org/
     - python -m spacy download en_core_web_sm
     - python -m nltk.downloader stopwords
     - python -m nltk.downloader vader_lexicon
