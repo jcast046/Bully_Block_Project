@@ -170,6 +170,7 @@ mongoose
 
         https.createServer(options, app).listen(PORT, () => {
           console.log(`HTTPS Server running on port ${PORT}`);
+          launchFrontend();
         });
       } catch (error) {
         console.error("Failed to start HTTPS server:", error);
@@ -178,6 +179,7 @@ mongoose
     } else {
       app.listen(PORT, () => {
         console.log(`HTTP Server running on port ${PORT}`);
+        launchFrontend();
       });
     }
 
@@ -191,11 +193,11 @@ mongoose
       console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
     }
 
-    // Upload incidents every 5 minutes (after 5-minute delay)
+    // Upload incidents every 6 minutes (after 6-minute delay)
     setTimeout(() => {
       uploadIncidents();
-      setInterval(uploadIncidents, 300000); // 5 minutes
-    }, 300000);
+      setInterval(uploadIncidents, 360000); // 6 minutes
+    }, 360000);
 
     // Train model immediately and every 4 minutes
     trainModel();
@@ -205,6 +207,30 @@ mongoose
     console.error("MongoDB connection error:", err);
     process.exit(1);
   });
+
+  /**
+ * @function launchFrontend
+ * @description Launches the frontend React app as a child process.
+ * @returns {void}
+ */
+const launchFrontend = () => {
+  const frontendDir = path.resolve(__dirname, "..", "bullyblock-dashboard");
+  const npmProcess = spawn("npm", ["start"], {
+    cwd: frontendDir,
+    stdio: "inherit",
+    shell: true // important for cross-platform compatibility
+  });
+
+  npmProcess.on("error", (err) => {
+    console.error("Failed to start the frontend:", err);
+  });
+
+  npmProcess.on("exit", (code) => {
+    console.log(`Frontend process exited with code ${code}`);
+  });
+
+  console.log(`Frontend is running from ${frontendDir}`);
+};
 
 /**
  * @exports mongoose connection for testing or external use.
