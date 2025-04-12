@@ -10,7 +10,10 @@ export default function NotificationsButton({ incidents = [] }) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Memoize the audio instance
-  const notificationSound = useMemo(() => new Audio(notificationSoundFile), []);
+  const notificationSound = useMemo(() => {
+    const audio = new Audio(notificationSoundFile);
+    return audio;
+  }, []);
 
   // Detect and react to new incidents
   useEffect(() => {
@@ -26,15 +29,18 @@ export default function NotificationsButton({ incidents = [] }) {
 
       if (newNotifications.length > 0) {
         // Play notification sound
-        notificationSound.play().catch((err) => {
+        try {
+          notificationSound.currentTime = 0;
+          notificationSound.play();
+        } catch (err) {
           console.error("Error playing notification sound:", err);
-        });
+        }
 
         // Add new notifications to the list
         setNotifications((prev) => [...newNotifications, ...prev]);
       }
     }
-  }, [incidents, notifications, notificationSound]);
+  }, [incidents, notificationSound]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -70,24 +76,32 @@ export default function NotificationsButton({ incidents = [] }) {
           ) : (
             <div>
               <ul>
-                {(viewAll ? notifications : notifications.slice(0, 5)).map((notification) => (
-                  <li
-                    key={notification.id}
-                    className="notification-item"
-                    style={{ opacity: notification.read ? 0.5 : 1 }}
-                  >
-                    <span onClick={() => handleNotificationClick(notification.id)}>
-                      {notification.message}
-                      <span className="timestamp">{notification.timestamp}</span>
-                    </span>
-                    <button
-                      className="remove-button"
-                      onClick={() => handleNotificationRemove(notification.id)}
+                {(viewAll ? notifications : notifications.slice(0, 5)).map(
+                  (notification) => (
+                    <li
+                      key={notification.id}
+                      className="notification-item"
+                      style={{ opacity: notification.read ? 0.5 : 1 }}
                     >
-                      ✕
-                    </button>
-                  </li>
-                ))}
+                      <span
+                        onClick={() => handleNotificationClick(notification.id)}
+                      >
+                        {notification.message}
+                        <span className="timestamp">
+                          {notification.timestamp}
+                        </span>
+                      </span>
+                      <button
+                        className="remove-button"
+                        onClick={() =>
+                          handleNotificationRemove(notification.id)
+                        }
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  )
+                )}
               </ul>
               {notifications.length > 5 && (
                 <button onClick={toggleViewAll} className="view-all-button">
