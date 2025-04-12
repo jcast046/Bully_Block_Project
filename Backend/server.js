@@ -208,17 +208,22 @@ mongoose
     process.exit(1);
   });
 
-  /**
+/**
  * @function launchFrontend
- * @description Launches the frontend React app as a child process.
+ * @description Launches the frontend React app as a child process on port 3000.
  * @returns {void}
  */
 const launchFrontend = () => {
   const frontendDir = path.resolve(__dirname, "..", "bullyblock-dashboard");
+
   const npmProcess = spawn("npm", ["start"], {
     cwd: frontendDir,
     stdio: "inherit",
-    shell: true // important for cross-platform compatibility
+    shell: true,
+    env: {
+      ...process.env,
+      PORT: "3000" // force React frontend to run on port 3000
+    }
   });
 
   npmProcess.on("error", (err) => {
@@ -229,8 +234,9 @@ const launchFrontend = () => {
     console.log(`Frontend process exited with code ${code}`);
   });
 
-  console.log(`Frontend is running from ${frontendDir}`);
+  console.log(`Frontend is running from ${frontendDir} on port 3000`);
 };
+
 
 /**
  * @exports mongoose connection for testing or external use.
