@@ -5,18 +5,24 @@ This script implements machine learning and deep learning models for binary clas
 of cyberbullying severity. It includes feature extraction, model training, and performance
 evaluation.
 
-Dependencies:
-    - sklearn: Machine learning models and utilities
-    - tensorflow.keras: Deep learning models and preprocessing
-    - numpy, pandas: Data manipulation
-    - matplotlib: Visualization
-    - json, os, subprocess: File and system operations
+Features:
+- ML models: Logistic Regression, SVM, Random Forest
+- Deep learning models: LSTM and CNN
+- Cross-validation and hyperparameter optimization
+- Performance visualization and model comparison
+
+Modules Used:
+- sklearn: Machine learning models and utilities
+- tensorflow.keras: Deep learning models and preprocessing
+- numpy, pandas: Data manipulation
+- matplotlib: Visualization
+- json, os, subprocess: File and system operations
 
 Workflow:
-    1. Load and preprocess data
-    2. Train classical ML models (Logistic Regression, SVM, Random Forest)
-    3. Train deep learning models (LSTM, CNN)
-    4. Evaluate and compare model performance
+1. Load and preprocess data
+2. Train ML models (Logistic Regression, SVM, Random Forest)
+3. Train deep learning models (LSTM, CNN)
+4. Evaluate and compare model performance
 """
 
 import json
@@ -39,12 +45,15 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import matplotlib.pyplot as plt
 
+# Get the base directory of the project
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Global variables for tracking model performance
 overall_accuracy = []
 model_names = ["LSTM", "CNN"]
 
 
-def load_text_data(filepath="ai_algorithms/feature_dataset.json"):
+def load_text_data(filepath=os.path.join("ai_algorithms", "feature_dataset.json")):
     """Load raw text data and severity labels for deep learning training.
 
     Args:
@@ -58,13 +67,13 @@ def load_text_data(filepath="ai_algorithms/feature_dataset.json"):
     Raises:
         FileNotFoundError: If the feature dataset is not found
     """
-    if not os.path.exists(filepath):
+    if not os.path.exists(os.path.join(BASE_DIR, filepath)):
         raise FileNotFoundError(
             f"Feature dataset not found at {filepath}. "
             "Please run feature_extraction.py first."
         )
 
-    with open(filepath, "r") as file:
+    with open(os.path.join(BASE_DIR, filepath), "r") as file:
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
@@ -77,7 +86,7 @@ def load_text_data(filepath="ai_algorithms/feature_dataset.json"):
     return texts, labels
 
 
-def load_feature_data(filepath="ai_algorithms/feature_dataset.json"):
+def load_feature_data(filepath=os.path.join("ai_algorithms", "feature_dataset.json")):
     """Load numerical features and labels from the dataset.
 
     Combines TF-IDF features with numeric features such as token count,
@@ -94,13 +103,13 @@ def load_feature_data(filepath="ai_algorithms/feature_dataset.json"):
     Raises:
         FileNotFoundError: If the feature dataset is not found
     """
-    if not os.path.exists(filepath):
+    if not os.path.exists(os.path.join(BASE_DIR, filepath)):
         raise FileNotFoundError(
             f"Feature dataset not found at {filepath}. "
             "Please run feature_extraction.py first."
         )
 
-    with open(filepath, "r") as file:
+    with open(os.path.join(BASE_DIR, filepath), "r") as file:
         data = json.load(file)
 
     texts = [record["original_text"] for record in data]
@@ -247,7 +256,7 @@ def compare_models(models):
 
 
 def train_models():
-    """Train and evaluate classical machine learning models.
+    """Train and evaluate machine learning models.
 
     Steps:
         1. Load and split feature data
@@ -484,7 +493,7 @@ def model_chart(epochs, model_name, losses):
     plt.title(f"Tensorflow {model_name} Model Training Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.savefig(f"ai_algorithms/Tensorflow{model_name}Loss.png")
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", f"Tensorflow{model_name}Loss.png"))
     #plt.show()
 
 
@@ -502,15 +511,25 @@ def overall_chart():
     plt.title("Tensorflow Model Accuracy Comparison")
     plt.xlabel("Model")
     plt.ylabel("Accuracy")
-    plt.savefig("ai_algorithms/TensorflowOverallAccuracy.png")
+    plt.savefig(os.path.join(BASE_DIR, "ai_algorithms", "TensorflowOverallAccuracy.png"))
     #plt.show()
 
 
 if __name__ == "__main__":
+    """Execute the model training pipeline.
+    
+    This block orchestrates the following steps:
+    1. Ensure feature extraction has been run
+    2. Load feature data and perform cross-validation
+    3. Optimize hyperparameters
+    4. Train ML models
+    5. Train deep learning models
+    6. Generate performance visualizations
+    """
     # Ensure feature extraction has been run
-    if not os.path.exists("ai_algorithms/feature_dataset.json"):
+    if not os.path.exists(os.path.join(BASE_DIR, "ai_algorithms", "feature_dataset.json")):
         print("Feature dataset missing. Running `feature_extraction.py`...")
-        subprocess.run(["python", "ai_algorithms/feature_extraction.py"], check=True)
+        subprocess.run(["python", os.path.join(BASE_DIR, "ai_algorithms", "feature_extraction.py")], check=True)
 
     # Load feature data and perform cross-validation + hyperparameter tuning
     X, y = load_feature_data()
