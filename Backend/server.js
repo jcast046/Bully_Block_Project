@@ -193,11 +193,11 @@ mongoose
       console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
     }
 
-    // Upload incidents every 6 minutes (after 6-minute delay)
+    // Upload incidents every 5 and a half minutes (after 5 and a half-minute delay)
     setTimeout(() => {
       uploadIncidents();
-      setInterval(uploadIncidents, 360000); // 6 minutes
-    }, 360000);
+      setInterval(uploadIncidents, 330000); // 5 and a half minutes
+    }, 330000);
 
     // Train model immediately and every 4 minutes
     trainModel();
