@@ -114,9 +114,12 @@ const trainModel = () => {
    * @type {string[]} List of script filenames to run for training.
    */
   const scripts = [
+      "pytorch_model_training.py"
+    /*
     "text_cleaning.py",
     "feature_extraction.py",
     "tensorflow_scikit_model_training.py"
+    */
   ];
 
   const aiDir = path.resolve(__dirname, '..', 'ai_algorithms'); // Correct base directory
