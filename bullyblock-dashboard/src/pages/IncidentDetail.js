@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
 import axios from "axios";
+import { IncidentsContext } from "../IncidentsContext";
 import "../App.css";
 import "../IncidentDetail.css";
 
@@ -11,6 +12,7 @@ const IncidentDetail = () => {
   const [loading, setLoading] = useState(true); // State to handle loading status
   const [error, setError] = useState(null); // State to handle error messages
   const navigate = useNavigate(); // Hook to navigate to different pages
+  const { fetchIncidents } = useContext(IncidentsContext); // Access fetchIncidents
 
   // Retrieve current page from location state or default to page 1
   const currentPage = location.state?.currentPage || 1;
@@ -21,7 +23,7 @@ const IncidentDetail = () => {
       try {
         const response = await axios.get(
           `http://localhost:3001/api/incidents/${id}`
-        ); // Fetch incident data by ID
+        ); // Fetch incident by ID
         const transformedIncident = {
           ...response.data,
           userId: response.data.author_id, // Map author_id to userId
@@ -62,6 +64,7 @@ const IncidentDetail = () => {
         }
       );
       setIncident({ ...incident, status: response.data.status });
+      await fetchIncidents(); // Refresh global incidents list
     } catch (error) {
       console.error(
         "Error updating status:",
@@ -107,7 +110,7 @@ const IncidentDetail = () => {
             <strong>Severity Level:</strong>{" "}
             {incident.severityLevel
               ? incident.severityLevel.charAt(0).toUpperCase() +
-                incident.severityLevel.slice(1)
+              incident.severityLevel.slice(1)
               : "Unknown"}
           </p>{" "}
           {/* Display Severity Level */}
@@ -115,7 +118,7 @@ const IncidentDetail = () => {
             <strong>Alert Status:</strong>{" "}
             {incident.status
               ? incident.status.charAt(0).toUpperCase() +
-                incident.status.slice(1)
+              incident.status.slice(1)
               : "Unknown"}
           </p>{" "}
           {/* Display Alert Status */}

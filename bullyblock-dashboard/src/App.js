@@ -9,6 +9,7 @@ import IncidentDetail from './pages/IncidentDetail';
 import Analytics from './pages/Analytics';
 import Register from './pages/Register';
 import { AuthProvider, AuthContext } from './AuthContext';
+import { IncidentsProvider } from './IncidentsContext';
 import './App.css';
 
 const App = () => {
@@ -26,27 +27,29 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <header className="App-header">
-            <Navbar />
-          </header>
-          <main>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/incidents" element={<PrivateRoute><Incidents /></PrivateRoute>} />
-              <Route path="/incidents/:id" element={<PrivateRoute><IncidentDetail /></PrivateRoute>} />
-              <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-              <Route path="*" element={<Navigate to="/login" />} />
-            </Routes>
-          </main>
-          <footer>
-            <Footer />
-          </footer>
-        </div>
-      </Router>
+      <IncidentsProvider> {}
+        <Router>
+          <div className="App">
+            <header className="App-header">
+              <Navbar />
+            </header>
+            <main>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                <Route path="/incidents" element={<PrivateRoute><Incidents /></PrivateRoute>} />
+                <Route path="/incidents/:id" element={<PrivateRoute><IncidentDetail /></PrivateRoute>} />
+                <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+                <Route path="*" element={<Navigate to="/login" />} />
+              </Routes>
+            </main>
+            <footer>
+              <Footer />
+            </footer>
+          </div>
+        </Router>
+      </IncidentsProvider>
     </AuthProvider>
   );
 };

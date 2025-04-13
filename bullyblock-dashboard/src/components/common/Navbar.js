@@ -56,8 +56,8 @@ const Navbar = () => {
                 <Link to="/dashboard">Home</Link>
                 <Link to="/incidents">Incidents</Link>
                 <Link to="/analytics">Analytics</Link>
-                <div className="/Notifications">
-                  <NotificationPopUp />
+                <div className="notifications">
+                  <NotificationPopUp /> {/* Removed incidents prop */}
                 </div>
                 <Button
                   text="Logout"
