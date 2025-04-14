@@ -1,8 +1,17 @@
+/** 
+* @file uploadDiscussions.js
+* @description Script to upload new discussion posts and comments from a JSON file to the database
+*/
+
 const fs = require('fs');
 const path = require('path');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 
+/**
+ * Upload new discussion posts and comments. Prevents duplicates.
+ * @returns  {Promise<void>} Resolves once all new posts and comments are uploaded.
+ */
 async function uploadDiscussions() {
     try {
         console.log("Starting upload of discussion posts and comments...");
@@ -14,6 +23,7 @@ async function uploadDiscussions() {
             return;
         }
 
+        // Read the file content
         const fileData = fs.readFileSync(filePath, 'utf-8');
         const discussionData = JSON.parse(fileData);
 
@@ -36,6 +46,7 @@ async function uploadDiscussions() {
             if (contentType === 'post') {
                 const exists = await Post.exists({ post_id });
 
+                // Create new post if it does not already exist
                 if (!exists) {
                     await Post.create({
                         post_id,
@@ -55,6 +66,7 @@ async function uploadDiscussions() {
 
                 const exists = await Comment.exists({ comment_id });
 
+                // Create new comment if it does not exist 
                 if (!exists) {
                     await Comment.create({
                         comment_id,
