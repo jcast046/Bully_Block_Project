@@ -3,7 +3,7 @@ const path = require('path');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 
-async function uploadDiscussionData() {
+async function uploadDiscussions() {
     try {
         console.log("Starting upload of discussion posts and comments...");
 
@@ -76,4 +76,4 @@ async function uploadDiscussionData() {
     }
 }
 
-module.exports = uploadDiscussionData;
+module.exports = uploadDiscussions;
