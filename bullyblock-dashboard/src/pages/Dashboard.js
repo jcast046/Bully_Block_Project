@@ -87,10 +87,6 @@ const Dashboard = () => {
         description: "High Severity Incidents",
       },
       {
-        value: analyticsData.severityCounts.medium,
-        description: "Medium Severity Incidents",
-      },
-      {
         value: analyticsData.severityCounts.low,
         description: "Low Severity Incidents",
       },

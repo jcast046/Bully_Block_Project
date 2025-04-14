@@ -9066,6 +9066,16 @@
         "author_id": "115391994"
     },
     {
+        "original": "hasta la vista, motherfucker",
+        "processed": [
+            "hasta",
+            "la",
+            "vista",
+            "motherfuck"
+        ],
+        "author_id": "115391994"
+    },
+    {
         "original": "You're such a fucking idiot.",
         "processed": [
             "fuck",

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useContext, useRef, useCallback } from "react";
+import { useNavigate } from "react-router";
 import { IncidentsContext } from "../../IncidentsContext";
 import "./NotificationPopUp.css";
 import notificationSoundFile from "../../assets/sounds/bullyblock_notification_sound.mp3";
@@ -11,6 +12,7 @@ export default function NotificationsButton() {
   const prevIncidentsRef = useRef(null);
   const initialLoadDoneRef = useRef(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const navigate = useNavigate();
 
   // Memoize the audio instance
   const notificationSound = useMemo(() => {
@@ -65,7 +67,8 @@ export default function NotificationsButton() {
       // Create notifications for all pending incidents
       const initialNotifications = pendingIncidents.map(incident => ({
         id: incident._id,
-        message: `New ${incident.severityLevel.toLowerCase()} severity incident`,
+        incidentId: incident._id, // Store the actual incident ID for navigation
+        message: `New ${incident.severityLevel?.toLowerCase() || 'unknown'} severity incident`,
         read: false,
         timestamp: new Date(incident.timestamp).toLocaleString(),
         status: "pending review",
@@ -105,7 +108,8 @@ export default function NotificationsButton() {
         )
         .map(incident => ({
           id: incident._id,
-          message: `New ${incident.severityLevel.toLowerCase()} severity incident`,
+          incidentId: incident._id, // Store the actual incident ID for navigation
+          message: `New ${incident.severityLevel?.toLowerCase() || 'unknown'} severity incident`,
           read: false,
           timestamp: new Date(incident.timestamp).toLocaleString(),
           status: "pending review",
@@ -128,15 +132,26 @@ export default function NotificationsButton() {
     setIsOpen((prev) => !prev);
   };
 
-  const handleNotificationClick = (id) => {
+  // Updated to navigate to the incident detail page
+  const handleNotificationClick = (notification) => {
+    // Mark notification as read
     setNotifications((prev) =>
-      prev.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification
+      prev.map((item) =>
+        item.id === notification.id ? { ...item, read: true } : item
       )
     );
+
+    // Close the dropdown
+    setIsOpen(false);
+
+    // Navigate to the incident detail page
+    navigate(`/incidents/${notification.incidentId}`);
   };
 
-  const handleNotificationRemove = (id) => {
+  const handleNotificationRemove = (id, event) => {
+    if (event) {
+      event.stopPropagation(); // Prevent triggering parent's onClick
+    }
     setNotifications((prev) =>
       prev.filter((notification) => notification.id !== id)
     );
@@ -161,15 +176,16 @@ export default function NotificationsButton() {
                 {(viewAll ? notifications : notifications.slice(0, 5)).map((notification) => (
                   <li
                     key={notification.id}
-                    className="notification-item"
+                    className={`notification-item ${notification.read ? "read" : ""}`}
+                    onClick={() => handleNotificationClick(notification)}
                   >
-                    <span onClick={() => handleNotificationClick(notification.id)}>
+                    <span className="notification-content">
                       {notification.message}
                       <span className="timestamp">{notification.timestamp}</span>
                     </span>
                     <button
                       className="remove-button"
-                      onClick={() => handleNotificationRemove(notification.id)}
+                      onClick={(e) => handleNotificationRemove(notification.id, e)}
                     >
                       ✕
                     </button>
