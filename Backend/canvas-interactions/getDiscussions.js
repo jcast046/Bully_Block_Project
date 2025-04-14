@@ -136,18 +136,17 @@ async function getDiscussions() {
         }
     }
 
-    // Check for additional messages
+    /* Commented out code related to messages
     try {
-        // Assuming there's a separate endpoint to fetch messages (adjust accordingly if not)
         const messageResponse = await axios.get(`${url}/courses/${courseId}/conversations`, {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
-        /** @type {any[]} */
+        /** @type {any[]} 
         const messages = messageResponse.data;
         messages.forEach((message) => {
             if (!message.id || !message.body) return;
-            /** @type {DiscussionPost} */
+            /** @type {DiscussionPost} 
             const messageEntry = {
                 contentType: 'message',
                 message_id: message.id.toString(),
@@ -163,10 +162,11 @@ async function getDiscussions() {
     } catch (error) {
         console.error(`Error fetching messages:`, error.message);
     }
+    */
 
     // Sorting by contentType, ensuring posts come before comments, and comments before messages
     extractedData.sort((a, b) => {
-        const order = { post: 1, comment: 2, message: 3 };
+        const order = { post: 1, comment: 2 }; // Removed 'message' from the sorting order
         return order[a.contentType] - order[b.contentType];
     });
 

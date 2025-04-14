@@ -15,7 +15,7 @@ const {
   uploadPost,
   uploadComment,
   processDiscussionData,
-} = require('./discussionUploader'); // adjust this path to match your script
+} = require('../canvas-interactions/uploadDiscussions'); 
 
 const mock = new MockAdapter(axios);
 const API_URL = "http://localhost:3001/api/";

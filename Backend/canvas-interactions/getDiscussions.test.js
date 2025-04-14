@@ -8,7 +8,7 @@ npx jest getDiscussions.test.js
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const getDiscussions = require('../path/to/your/module'); // Adjust path as needed
+const getDiscussions = require('../canvas-interactions/getDiscussions'); 
 
 jest.mock('axios');
 jest.mock('fs');
