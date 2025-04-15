@@ -164,11 +164,11 @@ async function getDiscussions() {
     }
     */
 
-    // Sorting by contentType, ensuring posts come before comments, and comments before messages
+    /* Sorting by contentType, ensuring posts come before comments, and comments before messages
     extractedData.sort((a, b) => {
         const order = { post: 1, comment: 2 }; // Removed 'message' from the sorting order
         return order[a.contentType] - order[b.contentType];
-    });
+    }); */
 
     // Write the data to the JSON file if new data is added
     if (extractedData.length > existingDataset.length) {
