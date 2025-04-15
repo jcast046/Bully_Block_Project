@@ -1,11 +1,12 @@
 const axios = require('axios');
 const fs = require('fs');
-
+const path = require('path');
 const courseId = 11104665; // CourseId for course we are tracking
 const accessToken = process.env.CANVAS_ACCESS_TOKEN; // You will need a valid Canvas access token in .env
 const discussionTopics = [24789449, 24789506, 24789472]; // insult, neutral, kindness
 const url = 'https://canvas.instructure.com/api/v1';
-const outputFile = './canvas-interactions/output/participants.json';
+const outputFile = path.join(__dirname, '../../ai_algorithms/participants.json');
+
 
 /**
  * @typedef {Object} Participant
