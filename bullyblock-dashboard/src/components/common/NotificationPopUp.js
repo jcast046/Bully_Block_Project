@@ -1,26 +1,26 @@
 import { useState, useEffect, useMemo, useContext, useRef, useCallback } from "react";
-import { useNavigate } from "react-router";
-import { IncidentsContext } from "../../IncidentsContext";
-import "./NotificationPopUp.css";
-import notificationSoundFile from "../../assets/sounds/bullyblock_notification_sound.mp3";
+import { useNavigate } from "react-router"; // Import react-router for routing
+import { IncidentsContext } from "../../IncidentsContext"; // Access IncidentsContext for global functionality
+import "./NotificationPopUp.css"; // Styling for the notification popup
+import notificationSoundFile from "../../assets/sounds/bullyblock_notification_sound.mp3"; // Notification sound file
 
 export default function NotificationsButton() {
-  const { incidents: contextIncidents } = useContext(IncidentsContext);
-  const [isOpen, setIsOpen] = useState(false);
-  const [viewAll, setViewAll] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const prevIncidentsRef = useRef(null);
-  const initialLoadDoneRef = useRef(false);
-  const unreadCount = notifications.filter((n) => !n.read).length;
-  const navigate = useNavigate();
+  const { incidents: contextIncidents } = useContext(IncidentsContext); // Access incidents from context
+  const [isOpen, setIsOpen] = useState(false); // Dropdown menu state
+  const [viewAll, setViewAll] = useState(false); // State to toggle between view all and limited notifications
+  const [notifications, setNotifications] = useState([]); // Notifications state
+  const prevIncidentsRef = useRef(null); // Store previous incidents for comparison
+  const initialLoadDoneRef = useRef(false); // Track whether initial load is done
+  const unreadCount = notifications.filter((n) => !n.read).length; // Count unread notifications
+  const navigate = useNavigate(); // Hook for navigation
 
-  // Memoize the audio instance
+  // Memoize the audio instance to play notification sounds
   const notificationSound = useMemo(() => {
     const audio = new Audio(notificationSoundFile);
     return audio;
   }, []);
 
-  // Function to play notification sound - wrapped in useCallback
+  // Function to play notification sound
   const playNotificationSound = useCallback(() => {
     try {
       notificationSound.currentTime = 0;
@@ -36,16 +36,18 @@ export default function NotificationsButton() {
   const detectChanges = useCallback((prevIncidents, currentIncidents) => {
     if (!prevIncidents) return { newPending: [], newResolved: [] };
 
-    // Find newly pending incidents
+    // Identify newly pending incidents
     const newPending = currentIncidents.filter(
-      current => current.status === "pending review" &&
+      current =>
+        current.status === "pending review" &&
         (!prevIncidents.some(prev => prev._id === current._id) ||
           prevIncidents.some(prev => prev._id === current._id && prev.status !== "pending review"))
     );
 
-    // Find newly resolved incidents
+    // Identify newly resolved incidents
     const newResolved = currentIncidents.filter(
-      current => current.status === "resolved" &&
+      current =>
+        current.status === "resolved" &&
         prevIncidents.some(prev => prev._id === current._id && prev.status !== "resolved")
     );
 
@@ -58,29 +60,32 @@ export default function NotificationsButton() {
       return;
     }
 
-    // Only get pending incidents on initial load
+    // Filter only pending incidents for notifications
     const pendingIncidents = contextIncidents.filter(
       incident => incident.status === "pending review"
     );
 
     if (pendingIncidents.length > 0) {
-      // Create notifications for all pending incidents
+      // Create notifications for pending incidents
       const initialNotifications = pendingIncidents.map(incident => ({
         id: incident._id,
         incidentId: incident._id, // Store the actual incident ID for navigation
         message: `New ${incident.severityLevel?.toLowerCase() || 'unknown'} severity incident`,
         read: false,
-        timestamp: new Date(incident.timestamp).toLocaleString(),
+        timestamp: new Date(incident.timestamp).toISOString(), // ISO format for accurate sorting
         status: "pending review",
       }));
 
+      // Sort by timestamp (most recent first)
+      initialNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
       setNotifications(initialNotifications);
 
-      // Play sound on initial load if there are pending incidents
+      // Play sound on initial load for pending incidents
       playNotificationSound();
     }
 
-    // Initialize the previous incidents reference
+    // Save current incidents for future comparisons
     prevIncidentsRef.current = JSON.parse(JSON.stringify(contextIncidents));
     initialLoadDoneRef.current = true;
   }, [contextIncidents, playNotificationSound]);
@@ -93,17 +98,17 @@ export default function NotificationsButton() {
 
     const { newPending, newResolved } = detectChanges(prevIncidentsRef.current, contextIncidents);
 
-    // Play sound for new pending notifications
+    // Play sound for new pending incidents
     if (newPending.length > 0) {
       playNotificationSound();
     }
 
     // Update notifications
     setNotifications(prev => {
-      // Create new pending notifications
+      // Add new pending notifications
       const newNotifications = newPending
         .filter(incident =>
-          // Make sure we don't add duplicates
+          // Avoid duplicates
           !prev.some(notification => notification.id === incident._id)
         )
         .map(incident => ({
@@ -111,7 +116,7 @@ export default function NotificationsButton() {
           incidentId: incident._id, // Store the actual incident ID for navigation
           message: `New ${incident.severityLevel?.toLowerCase() || 'unknown'} severity incident`,
           read: false,
-          timestamp: new Date(incident.timestamp).toLocaleString(),
+          timestamp: new Date(incident.timestamp).toISOString(), // ISO format for accurate sorting
           status: "pending review",
         }));
 
@@ -121,22 +126,23 @@ export default function NotificationsButton() {
         !resolvedIds.includes(notification.id)
       );
 
-      return [...filteredNotifications, ...newNotifications];
+      // Combine notifications and sort by timestamp (most recent first)
+      return [...filteredNotifications, ...newNotifications].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     });
 
-    // Save current incidents for next comparison
+    // Save current incidents for future comparisons
     prevIncidentsRef.current = JSON.parse(JSON.stringify(contextIncidents));
   }, [contextIncidents, detectChanges, playNotificationSound]);
 
   const toggleDropdown = () => {
-    setIsOpen((prev) => !prev);
+    setIsOpen(prev => !prev);
   };
 
-  // Updated to navigate to the incident detail page
-  const handleNotificationClick = (notification) => {
-    // Mark notification as read
-    setNotifications((prev) =>
-      prev.map((item) =>
+  // Navigate to the incident detail page
+  const handleNotificationClick = notification => {
+    // Mark the notification as read
+    setNotifications(prev =>
+      prev.map(item =>
         item.id === notification.id ? { ...item, read: true } : item
       )
     );
@@ -152,8 +158,8 @@ export default function NotificationsButton() {
     if (event) {
       event.stopPropagation(); // Prevent triggering parent's onClick
     }
-    setNotifications((prev) =>
-      prev.filter((notification) => notification.id !== id)
+    setNotifications(prev =>
+      prev.filter(notification => notification.id !== id)
     );
   };
 
@@ -173,7 +179,7 @@ export default function NotificationsButton() {
           ) : (
             <div>
               <ul>
-                {(viewAll ? notifications : notifications.slice(0, 5)).map((notification) => (
+                {(viewAll ? notifications : notifications.slice(0, 5)).map(notification => (
                   <li
                     key={notification.id}
                     className={`notification-item ${notification.read ? "read" : ""}`}
@@ -181,11 +187,11 @@ export default function NotificationsButton() {
                   >
                     <span className="notification-content">
                       {notification.message}
-                      <span className="timestamp">{notification.timestamp}</span>
+                      <span className="timestamp">{new Date(notification.timestamp).toLocaleString()}</span>
                     </span>
                     <button
                       className="remove-button"
-                      onClick={(e) => handleNotificationRemove(notification.id, e)}
+                      onClick={e => handleNotificationRemove(notification.id, e)}
                     >
                       ✕
                     </button>
@@ -194,7 +200,7 @@ export default function NotificationsButton() {
               </ul>
               {notifications.length > 5 && (
                 <button
-                  onClick={() => setViewAll((prev) => !prev)}
+                  onClick={() => setViewAll(prev => !prev)}
                   className="view-all-button"
                 >
                   {viewAll ? "Show Less" : "View All"}
