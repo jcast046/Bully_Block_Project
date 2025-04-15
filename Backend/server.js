@@ -47,6 +47,8 @@ const SSL_CERT_PATH = process.env.SSL_CERT_PATH || "./config/server.cert";
 const fetchData = require("./canvas-interactions/fetchData.js");
 /** @type {() => void} */
 const uploadIncidents = require("./incident-interactions/uploadIncidents");
+/** @type {() => void} */
+const uploadDiscussions = require("./canvas-interactions/uploadDiscussions.js"); 
 
 // Middleware to sanitize input and enable security headers
 /**
@@ -144,9 +146,6 @@ const runPythonScript = (script, aiDir) => {
   });
 };
 
-
-
-
 /**
  * Connect to MongoDB and start the server only if successful.
  * @returns {Promise<void>}
@@ -195,6 +194,12 @@ mongoose
     setTimeout(() => {
       uploadIncidents();
       setInterval(uploadIncidents, 330000); // 5 and a half minutes
+    }, 330000);
+
+    // Upload discussions every 5 and a half minutes (after the same 5 and a half-minute delay)
+    setTimeout(() => {
+      uploadDiscussions();
+      setInterval(uploadDiscussions, 330000); // 5 and a half minutes
     }, 330000);
 
     // Train model immediately and every 4 minutes
