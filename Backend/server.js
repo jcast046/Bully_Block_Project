@@ -1,6 +1,6 @@
 /**
  * @file server.js
- * @description Server entry point with MongoDB connection and API routes setup.
+ * @description Entry point for BullyBlock server. Sets up API, MongoDB, AI training, image automation, and frontend launch.
  */
 
 require("dotenv").config();
@@ -12,143 +12,132 @@ const cors = require("cors");
 const xss = require("xss-clean");
 const { spawn } = require("child_process");
 
-/**
- * @type {string} The MongoDB URI string for connection.
- */
-const mongoURI = /** @type {string} */ (process.env.MONGO_URI);
-
-/**
- * @type {express.Application} Express app instance.
- */
+// Express app setup
+/** @type {express.Application} */
 const app = express();
 
-/**
- * @type {number|string} Server port number.
- */
+/** @type {number|string} */
 const PORT = process.env.PORT || 3001;
-
-/**
- * @type {boolean} Flag to indicate if HTTPS should be used.
- */
+/** @type {boolean} */
 const USE_HTTPS = process.env.USE_HTTPS === "true";
-
-/**
- * @type {string} SSL key file path.
- */
+/** @type {string} */
+const mongoURI = process.env.MONGO_URI;
+/** @type {string} */
 const SSL_KEY_PATH = process.env.SSL_KEY_PATH || "./config/server.key";
-
-/**
- * @type {string} SSL certificate file path.
- */
+/** @type {string} */
 const SSL_CERT_PATH = process.env.SSL_CERT_PATH || "./config/server.cert";
 
-// Import modules
-/** @type {() => Promise<void>} */
+// Import core logic modules
 const fetchData = require("./canvas-interactions/fetchData.js");
-/** @type {() => void} */
 const uploadIncidents = require("./incident-interactions/uploadIncidents");
-/** @type {() => void} */
-const uploadDiscussions = require("./canvas-interactions/uploadDiscussions.js"); 
+const uploadDiscussions = require("./canvas-interactions/uploadDiscussions.js");
+const uploadImages = require("./image-interactions/uploadImages");
 
-// Middleware to sanitize input and enable security headers
-/**
- * @type {express.RequestHandler}
- */
+// Middleware
 const sanitizeMiddleware = require("./middleware/sanitizeMiddleware");
 app.use(xss());
 app.use(sanitizeMiddleware);
-
-// Enable CORS for frontend access
-app.use(
-  cors({
-    origin: "http://localhost:3000", // React frontend address
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
-);
-
-// Middleware for parsing JSON
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+}));
 app.use(express.json());
 
-// Import Routes
-/** @type {express.Router} */ const userRoutes = require("./routes/userRoutes");
-/** @type {express.Router} */ const schoolRoutes = require("./routes/schoolRoutes");
-/** @type {express.Router} */ const bullyRoutes = require("./routes/bullyRoutes");
-/** @type {express.Router} */ const alertRoutes = require("./routes/alertRoutes");
-/** @type {express.Router} */ const contentRoutes = require("./routes/contentRoutes");
-/** @type {express.Router} */ const incidentRoutes = require("./routes/incidentRoutes");
-/** @type {express.Router} */ const messageRoutes = require("./routes/messageRoutes");
-/** @type {express.Router} */ const postRoutes = require("./routes/postRoutes");
-/** @type {express.Router} */ const commentRoutes = require("./routes/commentRoutes");
-/** @type {express.Router} */ const imageRoutes = require("./routes/imageRoutes");
-/** @type {express.Router} */ const analyticsRoutes = require("./routes/analyticsRoutes");
-
-app.use("/api/users", userRoutes);
-app.use("/api/schools", schoolRoutes);
-app.use("/api/bully", bullyRoutes);
-app.use("/api/alert", alertRoutes);
-app.use("/api/content", contentRoutes);
-app.use("/api/incidents", incidentRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/comments", commentRoutes);
-app.use("/images", imageRoutes);
-app.use("/api/analytics", analyticsRoutes);
+// API routes
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/schools", require("./routes/schoolRoutes"));
+app.use("/api/bully", require("./routes/bullyRoutes"));
+app.use("/api/alert", require("./routes/alertRoutes"));
+app.use("/api/content", require("./routes/contentRoutes"));
+app.use("/api/incidents", require("./routes/incidentRoutes"));
+app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/posts", require("./routes/postRoutes"));
+app.use("/api/comments", require("./routes/commentRoutes"));
+app.use("/images", require("./routes/imageRoutes"));
+app.use("/api/analytics", require("./routes/analyticsRoutes"));
 
 /**
- * @function
- * @name HealthCheck
- * @description Basic health check route.
- * @param {express.Request} req
- * @param {express.Response} res
+ * Health check route
+ * @route GET /
+ * @returns {string} "BullyBlock API is running..."
  */
 app.get("/", (req, res) => {
   res.status(200).send("BullyBlock API is running...");
 });
 
 /**
+ * Trains the AI model and schedules image upload afterward
  * @function trainModel
- * @description Spawns Python subprocesses to run AI-related training steps.
- * @returns {void}
  */
 const trainModel = () => {
-  /**
-   * @type {string[]} List of script filenames to run for training.
-   */
-  const scripts = [
-      "pytorch_model_training.py"
-  ];
-
-  const aiDir = path.resolve(__dirname, '..', 'ai_algorithms'); // Correct base directory
+  const scripts = ["pytorch_model_training.py"];
+  const aiDir = path.resolve(__dirname, "..", "ai_algorithms");
 
   scripts.forEach((script) => runPythonScript(script, aiDir));
 };
 
+/**
+ * Runs a Python script and optionally triggers uploadImages
+ * @function runPythonScript
+ * @param {string} script - Name of the Python file
+ * @param {string} aiDir - Directory where the script is located
+ */
 const runPythonScript = (script, aiDir) => {
-  const scriptPath = path.join(aiDir, script); // Correct full path to script
+  const scriptPath = path.join(aiDir, script);
 
-  // Ensure Python subprocess runs with the correct cwd
-  const pythonProcess = spawn('python', [scriptPath], {
-    cwd: aiDir, // Set working directory to ai_algorithms
-    stdio: 'inherit' // Optional: stream stdout/stderr to Node console
+  const pythonProcess = spawn("python", [scriptPath], {
+    cwd: aiDir,
+    stdio: "inherit",
   });
 
-  pythonProcess.on('error', (err) => {
+  pythonProcess.on("error", (err) => {
     console.error(`Failed to start script ${script}:`, err);
   });
 
-  pythonProcess.on('exit', (code, signal) => {
+  pythonProcess.on("exit", (code, signal) => {
     if (code !== 0) {
       console.warn(`Script ${script} exited with code ${code} or signal ${signal}`);
     } else {
       console.log(`Script ${script} completed successfully.`);
+      console.log("Scheduling image upload in 20 seconds...");
+      setTimeout(() => {
+        uploadImages();
+      }, 20000);
     }
   });
 };
 
 /**
- * Connect to MongoDB and start the server only if successful.
- * @returns {Promise<void>}
+ * Launches the frontend React app
+ * @function launchFrontend
+ */
+const launchFrontend = () => {
+  const frontendDir = path.resolve(__dirname, "..", "bullyblock-dashboard");
+
+  const npmProcess = spawn("npm", ["start"], {
+    cwd: frontendDir,
+    stdio: "inherit",
+    shell: true,
+    env: {
+      ...process.env,
+      PORT: "3000",
+    },
+  });
+
+  npmProcess.on("error", (err) => {
+    console.error("Failed to start the frontend:", err);
+  });
+
+  npmProcess.on("exit", (code) => {
+    console.log(`Frontend process exited with code ${code}`);
+  });
+
+  console.log(`Frontend is running from ${frontendDir} on port 3000`);
+};
+
+/**
+ * Initializes MongoDB and starts the Express server
  */
 mongoose
   .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -158,8 +147,6 @@ mongoose
     if (USE_HTTPS) {
       try {
         const https = require("https");
-
-        /** @type {{ key: Buffer, cert: Buffer }} */
         const options = {
           key: fs.readFileSync(path.resolve(__dirname, SSL_KEY_PATH)),
           cert: fs.readFileSync(path.resolve(__dirname, SSL_CERT_PATH)),
@@ -180,7 +167,7 @@ mongoose
       });
     }
 
-    // Fetch Canvas data every 3 minutes
+    // Canvas data fetch every 3 minutes
     if (process.env.CANVAS_ACCESS_TOKEN) {
       (async () => {
         await fetchData();
@@ -190,19 +177,25 @@ mongoose
       console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
     }
 
-    // Upload incidents every 5 and a half minutes (after 5 and a half-minute delay)
+    // Incident uploads every 5.5 minutes
     setTimeout(() => {
       uploadIncidents();
-      setInterval(uploadIncidents, 330000); // 5 and a half minutes
+      setInterval(uploadIncidents, 330000); // 5.5 minutes
     }, 330000);
 
-    // Upload discussions every 5 and a half minutes (after the same 5 and a half-minute delay)
+    // Discussion uploads every 5.5 minutes
     setTimeout(() => {
       uploadDiscussions();
-      setInterval(uploadDiscussions, 330000); // 5 and a half minutes
+      setInterval(uploadDiscussions, 330000); // 5.5 minutes
     }, 330000);
 
-    // Train model immediately and every 4 minutes
+    // Regular image uploads every 5.5 minutes
+    setTimeout(() => {
+      uploadImages();
+      setInterval(uploadImages, 330000); // 5.5 minutes
+    }, 330000);
+
+    // Train model every 4 minutes (includes delayed image upload after training)
     trainModel();
     setInterval(trainModel, 240000); // 4 minutes
   })
@@ -212,37 +205,7 @@ mongoose
   });
 
 /**
- * @function launchFrontend
- * @description Launches the frontend React app as a child process on port 3000.
- * @returns {void}
- */
-const launchFrontend = () => {
-  const frontendDir = path.resolve(__dirname, "..", "bullyblock-dashboard");
-
-  const npmProcess = spawn("npm", ["start"], {
-    cwd: frontendDir,
-    stdio: "inherit",
-    shell: true,
-    env: {
-      ...process.env,
-      PORT: "3000" // force React frontend to run on port 3000
-    }
-  });
-
-  npmProcess.on("error", (err) => {
-    console.error("Failed to start the frontend:", err);
-  });
-
-  npmProcess.on("exit", (code) => {
-    console.log(`Frontend process exited with code ${code}`);
-  });
-
-  console.log(`Frontend is running from ${frontendDir} on port 3000`);
-};
-
-
-/**
- * @exports mongoose connection for testing or external use.
- * @type {typeof mongoose}
+ * Exports for testing or external use
+ * @exports mongoose
  */
 module.exports = mongoose;

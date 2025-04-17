@@ -13,11 +13,16 @@ const ImageSchema = new mongoose.Schema({
 
     imageType: {
         type: String,
-        enum: ['entity_distribution', 
+        enum: [
+            'entity_distribution', 
             'POS_tag_distribution', 
             'sentiment_scores',
             'PyTorch_LSTM_Loss',
-            'overall_accuracy']
+            'overall_accuracy',
+            'Tensorflow_Overall_Accuracy',
+            'PyTorch_CNN_Loss',
+            'severity_levels'
+        ]
     },
 
     timestamp: {
