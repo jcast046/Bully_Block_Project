@@ -27,10 +27,11 @@ const SSL_KEY_PATH = process.env.SSL_KEY_PATH || "./config/server.key";
 /** @type {string} */
 const SSL_CERT_PATH = process.env.SSL_CERT_PATH || "./config/server.cert";
 
-// Import core logic modules
+// Core logic modules
 const fetchData = require("./canvas-interactions/fetchData.js");
 const uploadIncidents = require("./incident-interactions/uploadIncidents");
 const uploadDiscussions = require("./canvas-interactions/uploadDiscussions.js");
+const uploadParticipants = require("./canvas-interactions/uploadParticipants.js");
 const uploadImages = require("./image-interactions/uploadImages");
 
 // Middleware
@@ -68,53 +69,68 @@ app.get("/", (req, res) => {
 });
 
 /**
- * Trains the AI model and schedules image upload afterward.
+ * Uploads all data after model training.
+ * @async
+ * @function uploadAllData
+ * @returns {Promise<void>}
+ */
+const uploadAllData = async () => {
+  try {
+    await uploadParticipants();
+    console.log("Participants uploaded successfully.\n");
+    await uploadDiscussions();
+    console.log("Discussions uploaded successfully.\n");
+    await uploadIncidents();
+    console.log("Incidents uploaded successfully.\n");
+    await uploadImages();
+    console.log("Images uploaded successfully.\n");
+  } catch (err) {
+    console.error("Error uploading data after model training:", err);
+  }
+};
+
+/**
+ * Trains the AI model after fetching fresh data from Canvas.
+ * Called on interval schedule after server starts.
  *
+ * @async
  * @function trainModel
- * @returns {void}
+ * @returns {Promise<void>}
  */
-const trainModel = () => {
-  const scripts = ["pytorch_model_training.py"];
-  const aiDir = path.resolve(__dirname, "..", "ai_algorithms");
+const trainModel = async () => {
+  try {
+    console.log("Fetching fresh Canvas data before model training...");
+    await fetchData(); // Fetch right before model training
 
-  scripts.forEach((script) => runPythonScript(script, aiDir));
+    console.log("Starting model training...");
+    const script = "pytorch_model_training.py";
+    const aiDir = path.resolve(__dirname, "..", "ai_algorithms");
+    const scriptPath = path.join(aiDir, script);
+
+    const pythonProcess = spawn("python", [scriptPath], {
+      cwd: aiDir,
+      stdio: "inherit",
+    });
+
+    pythonProcess.on("error", (err) => {
+      console.error(`Model training script failed to start:`, err);
+    });
+
+    pythonProcess.on("exit", async (code, signal) => {
+      if (code !== 0) {
+        console.warn(`Training script exited with code ${code} or signal ${signal}`);
+      } else {
+        console.log("Model training completed.\n");
+        await uploadAllData(); // Upload only after training is complete
+      }
+    });
+  } catch (err) {
+    console.error("Error during fetch or training:", err);
+  }
 };
 
 /**
- * Runs a Python script, in addition to triggering uploadImages.
- *
- * @function runPythonScript
- * @param {string} script - Name of the Python file.
- * @param {string} aiDir - Directory where the script is located.
- * @returns {void}
- */
-const runPythonScript = (script, aiDir) => {
-  const scriptPath = path.join(aiDir, script);
-
-  const pythonProcess = spawn("python", [scriptPath], {
-    cwd: aiDir,
-    stdio: "inherit",
-  });
-
-  pythonProcess.on("error", (err) => {
-    console.error(`Failed to start script ${script}:`, err);
-  });
-
-  pythonProcess.on("exit", (code, signal) => {
-    if (code !== 0) {
-      console.warn(`Script ${script} exited with code ${code} or signal ${signal}`);
-    } else {
-      console.log(`Script ${script} completed successfully.`);
-      console.log("Scheduling image upload in 20 seconds...");
-      setTimeout(() => {
-        uploadImages();
-      }, 20000);
-    }
-  });
-};
-
-/**
- * Launches the frontend React app.
+ * Launches the frontend React application.
  *
  * @function launchFrontend
  * @returns {void}
@@ -144,15 +160,25 @@ const launchFrontend = () => {
 };
 
 /**
- * Initializes MongoDB and starts the Express server.
+ * Initializes MongoDB and starts the server with HTTPS or HTTP.
  *
- * @function
+ * @function initializeServer
  * @returns {void}
  */
 mongoose
   .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("MongoDB connected successfully");
+
+    const startServer = () => {
+      // Delay initial training by 30 seconds, then repeat every 6 minutes (360,000 ms)
+      setTimeout(() => {
+        trainModel(); // Initial run
+        setInterval(trainModel, 360000); // Repeat every 6 minutes
+      }, 30000); // Delay 30s
+
+      launchFrontend();
+    };
 
     if (USE_HTTPS) {
       try {
@@ -164,7 +190,7 @@ mongoose
 
         https.createServer(options, app).listen(PORT, () => {
           console.log(`HTTPS Server running on port ${PORT}`);
-          launchFrontend();
+          startServer();
         });
       } catch (error) {
         console.error("Failed to start HTTPS server:", error);
@@ -173,41 +199,9 @@ mongoose
     } else {
       app.listen(PORT, () => {
         console.log(`HTTP Server running on port ${PORT}`);
-        launchFrontend();
+        startServer();
       });
     }
-
-    // Canvas data fetch every 3 minutes
-    if (process.env.CANVAS_ACCESS_TOKEN) {
-      (async () => {
-        await fetchData();
-        setInterval(fetchData, 180000); // 3 minutes
-      })();
-    } else {
-      console.log("No Canvas access token in .env. Starting server without fetching Canvas Data.");
-    }
-
-    // Incident uploads every 5.5 minutes
-    setTimeout(() => {
-      uploadIncidents();
-      setInterval(uploadIncidents, 330000); // 5.5 minutes
-    }, 330000);
-
-    // Discussion uploads every 5.5 minutes
-    setTimeout(() => {
-      uploadDiscussions();
-      setInterval(uploadDiscussions, 330000); // 5.5 minutes
-    }, 330000);
-
-    // Regular image uploads every 5.5 minutes
-    setTimeout(() => {
-      uploadImages();
-      setInterval(uploadImages, 330000); // 5.5 minutes
-    }, 330000);
-
-    // Train model every 4 minutes (includes delayed image upload after training)
-    trainModel();
-    setInterval(trainModel, 240000); // 4 minutes
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
@@ -215,7 +209,7 @@ mongoose
   });
 
 /**
- * Exports for testing or external use.
+ * Exports for testing or external usage.
  *
  * @exports mongoose
  */

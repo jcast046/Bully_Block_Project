@@ -4,7 +4,7 @@ const getParticipants = require("./getParticipants");
 const fetchData = async () => {
     try {
         await Promise.all([getDiscussions(), getParticipants()]);
-        console.log("Data fetched successfully.");
+        console.log("Data fetched successfully.\n");
     } catch (error) {
         console.error("Error fetching data:", error);
     }
