@@ -58,17 +58,20 @@ app.use("/images", require("./routes/imageRoutes"));
 app.use("/api/analytics", require("./routes/analyticsRoutes"));
 
 /**
- * Health check route
+ * Health check route.
+ *
  * @route GET /
- * @returns {string} "BullyBlock API is running..."
+ * @returns {string} Confirmation message.
  */
 app.get("/", (req, res) => {
   res.status(200).send("BullyBlock API is running...");
 });
 
 /**
- * Trains the AI model and schedules image upload afterward
+ * Trains the AI model and schedules image upload afterward.
+ *
  * @function trainModel
+ * @returns {void}
  */
 const trainModel = () => {
   const scripts = ["pytorch_model_training.py"];
@@ -78,10 +81,12 @@ const trainModel = () => {
 };
 
 /**
- * Runs a Python script and optionally triggers uploadImages
+ * Runs a Python script, in addition to triggering uploadImages.
+ *
  * @function runPythonScript
- * @param {string} script - Name of the Python file
- * @param {string} aiDir - Directory where the script is located
+ * @param {string} script - Name of the Python file.
+ * @param {string} aiDir - Directory where the script is located.
+ * @returns {void}
  */
 const runPythonScript = (script, aiDir) => {
   const scriptPath = path.join(aiDir, script);
@@ -109,8 +114,10 @@ const runPythonScript = (script, aiDir) => {
 };
 
 /**
- * Launches the frontend React app
+ * Launches the frontend React app.
+ *
  * @function launchFrontend
+ * @returns {void}
  */
 const launchFrontend = () => {
   const frontendDir = path.resolve(__dirname, "..", "bullyblock-dashboard");
@@ -137,7 +144,10 @@ const launchFrontend = () => {
 };
 
 /**
- * Initializes MongoDB and starts the Express server
+ * Initializes MongoDB and starts the Express server.
+ *
+ * @function
+ * @returns {void}
  */
 mongoose
   .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -205,7 +215,8 @@ mongoose
   });
 
 /**
- * Exports for testing or external use
+ * Exports for testing or external use.
+ *
  * @exports mongoose
  */
 module.exports = mongoose;
