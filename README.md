@@ -51,9 +51,22 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 - **Running the Backend**
 To start the backend server:
   - Before starting the backend, ensure that the AI dependencies, Node.js and npm are installed.
-  - cd Backend
-  - npm install  # Ensures dependencies like Express, Mongoose and Axios are installed
-  - npm start
+    
+  - In addition A .env file is required for environment variables. It should follow this format:
+      JWT_SECRET=BullyBlockKey
+      PORT=3001
+      USE_HTTPS=false
+      SSL_KEY_PATH=./config/server.key
+      SSL_CERT_PATH=./config/server.cert
+      MONGO_URI=mongodb+srv://yourMongoDBUriHere
+      CANVAS_ACCESS_TOKEN=yourCanvasAccessTokenHere
+      EMAIL=yourEmailHere
+      PASSWORD=yourPasswordHere
+ 
+  - The backend also requires SSL certificate and key files (server.cert and server.key) for secure communication over HTTPS, which should be placed under the config folder in the root of your project.
+  - Afterwards run the command 'cd Backend' 
+  - Then run the command 'npm install ...'  # Ensures dependencies like Express, Mongoose and Axios are installed.
+  - Finally run 'npm start' to start the application.
     
 ### Database
 - **MongoDB Atlas**  
