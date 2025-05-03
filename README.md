@@ -49,7 +49,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
   - After each model training completes, the backend automatically uploads all participant, discussion, incident, and image data to the MongoDB.
  
 - **Running the Backend**
-To start the backend server:
+- To start the backend server:
   - Before starting the backend, ensure that the AI dependencies, Node.js and npm are installed.
     
   - In addition A .env file is required for environment variables. It should follow this format:
