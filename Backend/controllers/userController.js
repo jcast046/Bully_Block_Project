@@ -4,23 +4,29 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 require('dotenv').config(); // Load environment variables
 
+/**
+ * Generate a unique user ID prefixed with 'u'
+ * @returns {string} - A unique 10-digit user ID string
+ */
 const generatedUserId = () => {
-    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // Generate random 10-digit number
-    return `u${randomNumber}`; // Prefix with u
-}
+    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000);
+    return `u${randomNumber}`;
+};
 
-// @route   POST /api/users/register
-// @desc    Register a new user
-// @access  Public
+/**
+ * Register a new user
+ * @route POST /api/users/register
+ * @access Public
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const registerUser = async (req, res) => {
     const { user_id, role, username, email, password, referencedID } = req.body;
 
-    // Validate required fields
     if (!role || !username || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Validate referencedID if provided
     if (referencedID && !mongoose.Types.ObjectId.isValid(referencedID)) {
         return res.status(400).json({ error: 'Invalid referencedID' });
     }
@@ -31,32 +37,27 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ error: 'User already exists' });
         }
 
-        // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Generate unique user_id
         let newUserId;
         let isUnique = false;
-
         while (!isUnique) {
             newUserId = generatedUserId();
             const existingId = await User.findOne({ user_id: newUserId });
             if (!existingId) isUnique = true;
         }
 
-        // Create new user
-        const user = new User({ 
+        const user = new User({
             user_id: newUserId,
-            role, 
-            username, 
-            email, 
+            role,
+            username,
+            email,
             password: hashedPassword,
             referencedID
         });
         await user.save();
 
-        // Generate JWT Token
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({ message: "User registered successfully", user, token });
@@ -65,9 +66,13 @@ const registerUser = async (req, res) => {
     }
 };
 
-// @route   POST /api/users/login
-// @desc    Authenticate user and get token
-// @access  Public
+/**
+ * Authenticate user and return JWT token
+ * @route POST /api/users/login
+ * @access Public
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -95,34 +100,34 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @route   POST /api/users/register-student
-// @desc    Register a new student
-// @access  Private
+/**
+ * Register a new student
+ * @route POST /api/users/register-student
+ * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const registerStudent = async (req, res) => {
     const { user_id, username } = req.body;
 
-    // Validate required fields
     if (!user_id || !username) {
         return res.status(400).json({ error: 'user_id and username are required' });
     }
 
     try {
-        // Check if the username already exists
         let existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ error: 'Username already taken' });
         }
 
-        // Check if the user_id already exists
         let existingId = await User.findOne({ user_id });
         if (existingId) {
             return res.status(400).json({ error: 'User ID already exists' });
         }
 
-        // Create new student user
-        const student = new User({ 
-            user_id, 
-            role: 'student', 
+        const student = new User({
+            user_id,
+            role: 'student',
             username
         });
 
@@ -134,9 +139,13 @@ const registerStudent = async (req, res) => {
     }
 };
 
-// @route   GET /api/users
-// @desc    Get all users (Protected)
-// @access  Private (Admin only)
+/**
+ * Get all users
+ * @route GET /api/users
+ * @access Private (Admin only)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const getUsers = async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
@@ -150,9 +159,13 @@ const getUsers = async (req, res) => {
     }
 };
 
-// @route GET /api/users/canvas-id/user_id
-// @desc Get user by their canvas id
-// @access Private
+/**
+ * Get a user by Canvas user_id
+ * @route GET /api/users/canvas-id/:user_id
+ * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const getUserByCanvasId = async (req, res) => {
     try {
         const user = await User.findOne({ user_id: req.params.user_id }).populate('referencedID');
@@ -165,9 +178,13 @@ const getUserByCanvasId = async (req, res) => {
     }
 };
 
-// @route   GET /api/users/:id
-// @desc    Get one user by ID (Protected)
-// @access  Private
+/**
+ * Get a user by database ID
+ * @route GET /api/users/:id
+ * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const getUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id).populate('referencedID');
@@ -180,9 +197,13 @@ const getUser = async (req, res) => {
     }
 };
 
-// @route   PUT /api/users/:id
-// @desc    Update user (Protected)
-// @access  Private
+/**
+ * Update user by ID
+ * @route PUT /api/users/:id
+ * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const updateUser = async (req, res) => {
     try {
         if (req.body.referencedID && !mongoose.Types.ObjectId.isValid(req.body.referencedID)) {
@@ -205,9 +226,13 @@ const updateUser = async (req, res) => {
     }
 };
 
-// @route   DELETE /api/users/:id
-// @desc    Delete a user (Protected)
-// @access  Private (Admin only)
+/**
+ * Delete a user by ID
+ * @route DELETE /api/users/:id
+ * @access Private (Admin only)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const deleteUser = async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
@@ -226,4 +251,13 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, registerStudent, getUsers, getUserByCanvasId, getUser, updateUser, deleteUser };
+module.exports = {
+    registerUser,
+    loginUser,
+    registerStudent,
+    getUsers,
+    getUserByCanvasId,
+    getUser,
+    updateUser,
+    deleteUser
+};

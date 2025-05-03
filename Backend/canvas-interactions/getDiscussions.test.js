@@ -4,7 +4,6 @@ npm install --save-dev jest
 npx jest getDiscussions.test.js
 */
 
-
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
@@ -14,8 +13,14 @@ jest.mock('axios');
 jest.mock('fs');
 jest.mock('path');
 
+/**
+ * Test suite for the `getDiscussions` function.
+ */
 describe('getDiscussions', () => {
+  /** @type {string} */
   const mockDatasetPath = '/mock/initial_datasets.json';
+
+  /** @type {object} */
   const fakePost = {
     id: 123,
     message: '<p>Hello World!</p>',
@@ -31,6 +36,7 @@ describe('getDiscussions', () => {
     ],
   };
 
+  /** @type {object} */
   const fakeMessage = {
     id: 456,
     body: 'Private message.',
@@ -39,17 +45,22 @@ describe('getDiscussions', () => {
     created_at: '2024-01-02T12:00:00Z',
   };
 
+  /**
+   * Reset mocks and set up default return values before each test.
+   */
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Mock path resolution
     path.join.mockReturnValue(mockDatasetPath);
 
-    // Simulate existing dataset
+    // Mock file system behavior
     fs.existsSync.mockReturnValue(true);
     fs.readFileSync.mockReturnValue(JSON.stringify([]));
     fs.writeFileSync.mockImplementation(() => {});
     fs.mkdirSync.mockImplementation(() => {});
 
+    // Mock API responses for discussion and messages
     axios.get
       .mockImplementationOnce(() =>
         Promise.resolve({
@@ -65,10 +76,14 @@ describe('getDiscussions', () => {
       );
   });
 
+  /**
+   * Verifies that getDiscussions fetches, sanitizes, deduplicates,
+   * and writes new entries (post, comment, message) to the dataset.
+   */
   it('should fetch, sanitize, deduplicate, and write new posts and messages to dataset', async () => {
     await getDiscussions();
 
-    // Should sanitize and write 3 entries: post, comment, message
+    // Extract written dataset
     const writtenData = JSON.parse(fs.writeFileSync.mock.calls[0][1]);
     expect(writtenData).toHaveLength(3);
 
@@ -102,8 +117,11 @@ describe('getDiscussions', () => {
     );
   });
 
+  /**
+   * Verifies that no write occurs if all entries already exist in the dataset.
+   */
   it('should not write if no new data is found', async () => {
-    // Simulate existing data already having entries
+    // Simulate dataset with all expected entries already present
     fs.readFileSync.mockReturnValue(
       JSON.stringify([
         { post_id: '123', contentType: 'post' },

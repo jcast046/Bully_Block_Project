@@ -1,7 +1,13 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
-// Function to generate a unique message_id
+/**
+ * Generates a unique message ID by incrementing the last used ID.
+ * @async
+ * @function generateUniqueMessageId
+ * @returns {Promise<string>} The new unique message ID.
+ */
 const generateUniqueMessageId = async () => {
     const lastMessage = await Message.find().sort({ _id: -1 }).limit(1);
     const lastId = lastMessage.length > 0 ? lastMessage[0].message_id : "cm10000";  // Default start value
@@ -9,22 +15,24 @@ const generateUniqueMessageId = async () => {
     return newId;
 };
 
-// @route   POST /api/messages
-// @desc    Create a new message
-// @access  Private
+/**
+ * Creates a new message.
+ * @async
+ * @function createMessage
+ * @param {Object} req - Express request object, containing message content, author, and recipient.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>}
+ */
 const createMessage = async (req, res) => {
     const { content, author, recipient } = req.body;
 
-    // Ensure all required fields are provided
     if (!content || !author || !recipient) {
         return res.status(400).json({ error: "Content, author, and recipient are required" });
     }
 
     try {
-        // Generate a unique message_id
         const newMessageId = await generateUniqueMessageId();
 
-        // Ensure the author and recipient exist in the users collection
         const authorExists = await User.findById(author);
         const recipientExists = await User.findById(recipient);
         if (!authorExists || !recipientExists) {
@@ -32,7 +40,7 @@ const createMessage = async (req, res) => {
         }
 
         const newMessage = new Message({
-            message_id: newMessageId,  // Set the unique message_id here
+            message_id: newMessageId,
             content,
             author,
             recipient,
@@ -46,9 +54,14 @@ const createMessage = async (req, res) => {
     }
 };
 
-// @route   GET /api/messages
-// @desc    Get all messages
-// @access  Public
+/**
+ * Retrieves all messages.
+ * @async
+ * @function getAllMessages
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>}
+ */
 const getAllMessages = async (req, res) => {
     try {
         const messages = await Message.find();
@@ -58,9 +71,14 @@ const getAllMessages = async (req, res) => {
     }
 };
 
-// @route   GET /api/messages/:id
-// @desc    Get a single message by ID
-// @access  Public
+/**
+ * Retrieves a single message by its MongoDB ID.
+ * @async
+ * @function getMessage
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>}
+ */
 const getMessage = async (req, res) => {
     try {
         const message = await Message.findById(req.params.id);
@@ -73,9 +91,14 @@ const getMessage = async (req, res) => {
     }
 };
 
-// @route   DELETE /api/messages/:id
-// @desc    Delete a message by ID
-// @access  Private
+/**
+ * Deletes a message by its MongoDB ID.
+ * @async
+ * @function deleteMessage
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>}
+ */
 const deleteMessage = async (req, res) => {
     try {
         const message = await Message.findById(req.params.id);
@@ -91,9 +114,14 @@ const deleteMessage = async (req, res) => {
     }
 };
 
-// @route GET /api/message/search
-// @desc Get messages containing keyword
-// @access Private 
+/**
+ * Searches messages for a keyword in string fields or by author ID if valid.
+ * @async
+ * @function searchMessages
+ * @param {Object} req - Express request object, including `keyword` in query params.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>}
+ */
 const searchMessages = async (req, res) => {
     try {
         const { keyword } = req.query;
@@ -101,12 +129,11 @@ const searchMessages = async (req, res) => {
             return res.status(400).json({ error: "Keyword is required" });
         }
 
-        const sampleDoc = await Post.findOne();
+        const sampleDoc = await Message.findOne();
         if (!sampleDoc) {
             return res.json([]);
         }
 
-        // search for strings
         const fields = Object.keys(sampleDoc.toObject()).filter(field => 
             typeof sampleDoc[field] === "string"
         );
@@ -117,12 +144,11 @@ const searchMessages = async (req, res) => {
             }))
         };
 
-        // Check if the keyword is a valid ObjectId to search for author
         if (mongoose.Types.ObjectId.isValid(keyword)) {
             query.$or.push({ author: new mongoose.Types.ObjectId(keyword) });
         }
 
-        const results = await Post.find(query);
+        const results = await Message.find(query);
         res.json(results);
     } catch (err) {
         console.error("Error in searchMessages:", err);
@@ -130,4 +156,8 @@ const searchMessages = async (req, res) => {
     }
 };
 
+/**
+ * Message controller exports.
+ * @module controllers/messageController
+ */
 module.exports = { createMessage, getAllMessages, getMessage, deleteMessage, searchMessages };

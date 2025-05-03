@@ -1,13 +1,18 @@
 const Incident = require('../models/Incident');
 const mongoose = require('mongoose');
 
-// @route   POST /api/incidents
-// @desc    Create a new incident
-// @access  Private
+/**
+ * Creates a new incident in the database.
+ *
+ * @route POST /api/incidents
+ * @access Private
+ * @param {Object} req - Express request object containing incident details in the body.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON response with the created incident or an error.
+ */
 const createIncident = async (req, res) => {
     const { incidentId, contentId, contentType, severityLevel, status, authorId } = req.body;
 
-    // Input validation
     if (!incidentId || !contentId || !contentType || !severityLevel || !status || !authorId) {
         return res.status(400).json({ error: "All fields (incidentId, contentId, contentType, severityLevel, status, and authorId) are required." });
     }
@@ -25,7 +30,6 @@ const createIncident = async (req, res) => {
     }
 
     try {
-        // Check if the incident already exists
         const existingIncident = await Incident.findOne({ incidentId });
         if (existingIncident) {
             return res.status(400).json({ error: "Incident with this incidentId already exists." });
@@ -42,16 +46,21 @@ const createIncident = async (req, res) => {
 
         await newIncident.save();
         res.status(201).json(newIncident);
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });
     }
 };
 
-// @route   GET /api/incidents
-// @desc    Get all incidents
-// @access  Public
+/**
+ * Retrieves all incidents with author usernames included.
+ *
+ * @route GET /api/incidents
+ * @access Public
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object[]} JSON array of incident objects.
+ */
 const getAllIncidents = async (req, res) => {
     try {
         const incidents = await Incident.aggregate([
@@ -82,19 +91,19 @@ const getAllIncidents = async (req, res) => {
     }
 };
 
-
-// @route   GET /api/incidents/:id
-// @desc    Get a single incident by ID
-// @access  Public
+/**
+ * Retrieves a single incident by its ID, including its content and author's username.
+ *
+ * @route GET /api/incidents/:id
+ * @access Public
+ * @param {Object} req - Express request object containing the incident ID in `params`.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON object of the incident or error.
+ */
 const getIncident = async (req, res) => {
     try {
         const incident = await Incident.aggregate([
-            // Match the specific incident by ID
-            {
-                $match: { _id: new mongoose.Types.ObjectId(req.params.id) }
-            },
-
-            // Lookup user info
+            { $match: { _id: new mongoose.Types.ObjectId(req.params.id) } },
             {
                 $lookup: {
                     from: "Users",
@@ -108,8 +117,6 @@ const getIncident = async (req, res) => {
                     username: { $arrayElemAt: ["$author.username", 0] }
                 }
             },
-
-            // Lookup content from the Posts collection
             {
                 $lookup: {
                     from: "posts",
@@ -130,8 +137,6 @@ const getIncident = async (req, res) => {
                     as: "postContent"
                 }
             },
-
-            // Lookup content from the Messages collection
             {
                 $lookup: {
                     from: "messages",
@@ -152,8 +157,6 @@ const getIncident = async (req, res) => {
                     as: "messageContent"
                 }
             },
-
-            // Lookup content from the Comments collection
             {
                 $lookup: {
                     from: "comments",
@@ -174,8 +177,6 @@ const getIncident = async (req, res) => {
                     as: "commentContent"
                 }
             },
-
-            // Merge the correct content field based on contentType
             {
                 $addFields: {
                     content: {
@@ -193,8 +194,6 @@ const getIncident = async (req, res) => {
                     }
                 }
             },
-
-            // Remove unnecessary fields
             {
                 $project: {
                     author: 0,
@@ -216,10 +215,15 @@ const getIncident = async (req, res) => {
     }
 };
 
-
-// @route   GET /api/incidents/count
-// @desc    Get total count of incidents
-// @access  Public
+/**
+ * Returns the total number of incidents in the database.
+ *
+ * @route GET /api/incidents/count
+ * @access Public
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON object with total incident count.
+ */
 const getIncidentCount = async (req, res) => {
     try {
         const count = await Incident.countDocuments();
@@ -230,9 +234,15 @@ const getIncidentCount = async (req, res) => {
     }
 };
 
-// @route   PUT /api/incidents/:id
-// @desc    Update an incident
-// @access  Private
+/**
+ * Updates an incident's fields by ID. Only status is updatable.
+ *
+ * @route PUT /api/incidents/:id
+ * @access Private
+ * @param {Object} req - Express request object with updated fields in the body.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON object of the updated incident or an error.
+ */
 const updateIncident = async (req, res) => {
     try {
         const { status, authorId } = req.body;
@@ -262,9 +272,15 @@ const updateIncident = async (req, res) => {
     }
 };
 
-// @route   DELETE /api/incidents/:id
-// @desc    Delete an incident
-// @access  Private
+/**
+ * Deletes an incident by its ID.
+ *
+ * @route DELETE /api/incidents/:id
+ * @access Private
+ * @param {Object} req - Express request object containing the incident ID in `params`.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON message confirming deletion or an error.
+ */
 const deleteIncident = async (req, res) => {
     try {
         const incident = await Incident.findByIdAndDelete(req.params.id);
@@ -280,4 +296,11 @@ const deleteIncident = async (req, res) => {
     }
 };
 
-module.exports = { createIncident, getAllIncidents, getIncident, updateIncident, deleteIncident, getIncidentCount };
+module.exports = {
+    createIncident,
+    getAllIncidents,
+    getIncident,
+    updateIncident,
+    deleteIncident,
+    getIncidentCount
+};

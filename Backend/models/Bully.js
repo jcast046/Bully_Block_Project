@@ -1,80 +1,86 @@
+/**
+ * @file Bully.js
+ * @description Mongoose schema and model for reported bullying incidents, including metadata such as reporter, severity, and related content.
+ */
+
 const mongoose = require('mongoose');
 const User = require('./User'); // Import the User model
 
-// Define the schema for reported bullying incidents
+/**
+ * Mongoose schema for storing reported bullying incidents.
+ * 
+ * @typedef {Object} Bully
+ * @property {string} description - Description of the bullying incident.
+ * @property {mongoose.Types.ObjectId} reportedBy - Reference to the User who reported the incident.
+ * @property {Date} date - Date the incident was reported. Defaults to current date.
+ * @property {'post'|'message'|'comment'} contentType - Type of content associated with the incident.
+ * @property {'low'|'medium'|'high'} severityLevel - Severity level of the bullying.
+ * @property {'pending'|'resolved'|'ignored'} status - Current status of the incident.
+ * @property {mongoose.Types.ObjectId} contentId - Reference to the flagged content document.
+ * @property {mongoose.Types.ObjectId} [alert] - Optional reference to a related alert.
+ */
 const BullySchema = new mongoose.Schema({
-    // Description of the bullying incident
     description: {
         type: String,
-        required: true, // Description is mandatory
+        required: true,
     },
-
-    // Reference to the user who reported the incident
     reportedBy: {
-        type: mongoose.Schema.Types.ObjectId, // Links to a User document
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true, // The reporting user is mandatory
+        required: true,
     },
-
-    // Date the incident was reported
     date: {
         type: Date,
-        default: Date.now, // Automatically set to the current date if not provided
+        default: Date.now,
     },
-
-    // Type of content associated with the bullying incident
     contentType: {
         type: String,
-        enum: ['post', 'message', 'comment'], // Must be one of the specified values
-        required: true, // Content type is mandatory
+        enum: ['post', 'message', 'comment'],
+        required: true,
     },
-
-    // Severity level of the bullying incident
     severityLevel: {
         type: String,
-        enum: ['low', 'medium', 'high'], // Specifies the severity
-        required: true, // Severity level is mandatory
+        enum: ['low', 'medium', 'high'],
+        required: true,
     },
-
-    // Current status of the incident
     status: {
         type: String,
-        enum: ['pending', 'resolved', 'ignored'], // Tracks the resolution status
-        default: 'pending', // Default status is 'pending'
+        enum: ['pending', 'resolved', 'ignored'],
+        default: 'pending',
     },
-
-    // Reference to the flagged content (e.g., post, message, or comment)
     contentId: {
-        type: mongoose.Schema.Types.ObjectId, // Links to a Content document
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Content',
-        required: true, // Content reference is mandatory
+        required: true,
     },
-
-    // Reference to any generated alert for this incident
     alert: {
-        type: mongoose.Schema.Types.ObjectId, // Links to an Alert document
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Alert',
     },
 }, {
-    // Automatically add createdAt and updatedAt fields to the schema
-    timestamps: true,
+    timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
 
-// Middleware executed after an incident is saved
+/**
+ * Post-save middleware that increments the reporting user's incident count after a bullying report is created.
+ * 
+ * @function
+ * @name BullySchema.post('save')
+ */
 BullySchema.post('save', async function () {
     try {
-        // Find the user who reported the incident
         const user = await User.findById(this.reportedBy);
         if (user) {
-            // Increment the user's incident count
             user.incidentCount += 1;
-            await user.save(); // Save the updated user data
+            await user.save();
         }
     } catch (err) {
-        // Log any error encountered during the update
         console.error('Error updating incident count for user:', err);
     }
 });
 
-// Export the Bully model, allowing it to be used in other parts of the application
+/**
+ * Mongoose model for the Bully schema.
+ * @type {mongoose.Model<Bully>}
+ */
 module.exports = mongoose.model('Bully', BullySchema);

@@ -1,7 +1,21 @@
+/**
+ * @fileoverview Contains analytics functions for identifying bullying trends,
+ * such as frequent bullies, schools with the most incidents, and peak bullying dates.
+ */
+
 const Incident = require("../models/Incident");
 const User = require("../models/User");
 
-// Get frequent bullies (users with most incidents)
+/**
+ * Retrieves the top 10 users with the highest number of bullying incidents.
+ * Considers users with 10 or more incidents as frequent bullies.
+ *
+ * @function getFrequentBullies
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Responds with a list of users and their incident counts.
+ */
 const getFrequentBullies = async (req, res) => {
   try {
     const incidents = await Incident.find();
@@ -10,7 +24,6 @@ const getFrequentBullies = async (req, res) => {
     const bullyCounts = {};
     incidents.forEach((incident) => {
       const userKey = incident.username || incident.author_id;
-      // Skip if no valid user identifier is found
       if (!userKey) return;
 
       if (!bullyCounts[userKey]) {
@@ -19,13 +32,12 @@ const getFrequentBullies = async (req, res) => {
       bullyCounts[userKey].incidents += 1;
     });
 
-    // Filter users with 10 or more incidents and sort from most to least
+    // Filter users with 10+ incidents and sort by count
     const bullies = Object.values(bullyCounts)
       .filter((bully) => bully.incidents >= 10)
       .sort((a, b) => b.incidents - a.incidents)
-      .slice(0, 10); // Limit to top 10
+      .slice(0, 10);
 
-    // If no bullies found, return default data
     if (bullies.length === 0) {
       return res.json([{ name: "No incidents reported", incidents: 0 }]);
     }
@@ -37,7 +49,16 @@ const getFrequentBullies = async (req, res) => {
   }
 };
 
-// Get schools with most bullying incidents
+/**
+ * Retrieves the top 10 schools with the highest number of bullying incidents.
+ * Uses the `referencedID` field in the User model to associate incidents with schools.
+ *
+ * @function getSchoolsBullying
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Responds with a list of schools and their incident counts.
+ */
 const getSchoolsBullying = async (req, res) => {
   try {
     const schools = await Incident.aggregate([
@@ -49,26 +70,22 @@ const getSchoolsBullying = async (req, res) => {
           as: "user",
         },
       },
-      {
-        $unwind: "$user",
-      },
+      { $unwind: "$user" },
       {
         $group: {
-          _id: "$user.referencedID", // referencedID contains the school ID
+          _id: "$user.referencedID",
           incidents: { $sum: 1 },
         },
       },
       {
         $lookup: {
-          from: "Schools", // Assuming you have a Schools collection
+          from: "Schools",
           localField: "_id",
           foreignField: "_id",
           as: "schoolInfo",
         },
       },
-      {
-        $unwind: "$schoolInfo",
-      },
+      { $unwind: "$schoolInfo" },
       {
         $project: {
           school: "$schoolInfo.name",
@@ -76,15 +93,10 @@ const getSchoolsBullying = async (req, res) => {
           _id: 0,
         },
       },
-      {
-        $sort: { incidents: -1 },
-      },
-      {
-        $limit: 10,
-      },
+      { $sort: { incidents: -1 } },
+      { $limit: 10 },
     ]);
 
-    // If no schools found, return default data
     if (schools.length === 0) {
       return res.json([{ school: "No incidents reported", incidents: 0 }]);
     }
@@ -96,7 +108,15 @@ const getSchoolsBullying = async (req, res) => {
   }
 };
 
-// Get dates with highest bullying rates
+/**
+ * Retrieves the top 10 dates with the highest number of bullying incidents.
+ *
+ * @function getDatesHighestBullying
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Responds with a list of dates and corresponding incident counts.
+ */
 const getDatesHighestBullying = async (req, res) => {
   try {
     const dates = await Incident.aggregate([
@@ -118,15 +138,10 @@ const getDatesHighestBullying = async (req, res) => {
           _id: 0,
         },
       },
-      {
-        $sort: { incidents: -1 },
-      },
-      {
-        $limit: 10,
-      },
+      { $sort: { incidents: -1 } },
+      { $limit: 10 },
     ]);
 
-    // If no dates found, return default data with today's date
     if (dates.length === 0) {
       return res.json([
         { date: new Date().toISOString().split("T")[0], incidents: 0 },

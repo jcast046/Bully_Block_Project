@@ -1,13 +1,18 @@
 const Content = require('../models/Content');
 const User = require('../models/User');
 
-// @route   POST /api/content
-// @desc    Create a new content post
-// @access  Private 
+/**
+ * Create a new content post
+ * 
+ * @route POST /api/content
+ * @access Private
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with newly created content or error message
+ */
 const createContent = async (req, res) => {
     const { contentType, content, author } = req.body;
 
-    // Ensure all required fields are provided
     if (!contentType || !content || !author) {
         return res.status(400).json({ error: "Content type, content, and author are required" });
     }
@@ -19,7 +24,6 @@ const createContent = async (req, res) => {
             author,
         });
 
-        // Author must exist in users collection
         const userExists = await User.findById(author);
         if (!userExists) {
             return res.status(404).json({ error: "Author not found in users collection" });
@@ -33,10 +37,15 @@ const createContent = async (req, res) => {
     }
 };
 
-
-// @route   GET /api/content
-// @desc    Get all discussion posts
-// @access  Public
+/**
+ * Get all discussion posts
+ * 
+ * @route GET /api/content
+ * @access Public
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON array of content posts or error message
+ */
 const getAllContent = async (req, res) => {
     try {
         const content = await Content.find();
@@ -46,9 +55,15 @@ const getAllContent = async (req, res) => {
     }
 };
 
-// @route   GET /api/content/:id
-// @desc    Get a single discussion post by ID
-// @access  Public
+/**
+ * Get a single discussion post by ID
+ * 
+ * @route GET /api/content/:id
+ * @access Public
+ * @param {Object} req - Express request object (expects `id` param)
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON object of content or error message
+ */
 const getContent = async (req, res) => {
     try {
         const content = await Content.findById(req.params.id);
@@ -61,9 +76,15 @@ const getContent = async (req, res) => {
     }
 };
 
-// @route   PUT /api/content/:id
-// @desc    Update a discussion post
-// @access  Private 
+/**
+ * Update a discussion post
+ * 
+ * @route PUT /api/content/:id
+ * @access Private
+ * @param {Object} req - Express request object (expects `id` param and `user.id`)
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON object of updated content or error message
+ */
 const updateContent = async (req, res) => {
     try {
         const content = await Content.findById(req.params.id);
@@ -72,7 +93,6 @@ const updateContent = async (req, res) => {
             return res.status(404).json({ message: 'Content not found' });
         }
 
-        
         if (content.author.toString() !== req.user.id) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
@@ -87,9 +107,15 @@ const updateContent = async (req, res) => {
     }
 };
 
-// @route   DELETE /api/content/:id
-// @desc    Delete a discussion post
-// @access  Private 
+/**
+ * Delete a discussion post
+ * 
+ * @route DELETE /api/content/:id
+ * @access Private
+ * @param {Object} req - Express request object (expects `id` param)
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON success message or error message
+ */
 const deleteContent = async (req, res) => {
     try {
         const content = await Content.findById(req.params.id);

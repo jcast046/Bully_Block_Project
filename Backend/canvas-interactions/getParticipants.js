@@ -1,12 +1,12 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+
 const courseId = 11104665; // CourseId for course we are tracking
 const accessToken = process.env.CANVAS_ACCESS_TOKEN; // You will need a valid Canvas access token in .env
-const discussionTopics = [24789449, 24789506, 24789472]; // insult, neutral, kindness
+const discussionTopics = [24789449, 24789506, 24789472]; // Topic IDs for insult, neutral, kindness discussions
 const url = 'https://canvas.instructure.com/api/v1';
 const outputFile = path.join(__dirname, '../../ai_algorithms/participants.json');
-
 
 /**
  * @typedef {Object} Participant
@@ -15,7 +15,9 @@ const outputFile = path.join(__dirname, '../../ai_algorithms/participants.json')
  */
 
 /**
- * Reads existing participants from the JSON file.
+ * Reads and parses the existing participants from the output JSON file.
+ * If the file does not exist or an error occurs, returns an empty array.
+ *
  * @returns {Participant[]} Array of existing participants.
  */
 function readExistingParticipants() {
@@ -31,13 +33,16 @@ function readExistingParticipants() {
 }
 
 /**
- * Writes unique participants to the JSON file.
- * @param {Participant[]} participants - List of participants to save.
+ * Writes a unique list of participants to the output JSON file by combining
+ * newly fetched participants with those already saved. Ensures no duplicates
+ * based on `user_id`.
+ *
+ * @param {Participant[]} participants - New participants to merge and save.
  */
 function writeUniqueParticipants(participants) {
   const existingParticipants = readExistingParticipants();
 
-  // Create a Map to store participants uniquely by user_id
+  // Create a map to store unique participants by user_id
   const participantMap = new Map();
 
   // Add existing participants to the map
@@ -45,24 +50,26 @@ function writeUniqueParticipants(participants) {
     participantMap.set(participant.user_id, participant);
   });
 
-  // Add new participants, avoiding duplicates by user_id
+  // Add new participants, overwriting duplicates
   participants.forEach((participant) => {
     participantMap.set(participant.user_id, participant);
   });
 
-  // Convert the Map back to an array and write to file
+  // Convert the map back to an array and save it
   const uniqueParticipants = Array.from(participantMap.values());
-
   fs.writeFileSync(outputFile, JSON.stringify(uniqueParticipants, null, 2));
 }
 
-
 /**
- * Fetches participants from Canvas discussion topics.
+ * Fetches participants from each discussion topic defined in `discussionTopics`
+ * via the Canvas API. Consolidates all participants, deduplicates them,
+ * and writes them to a local JSON file.
+ *
+ * Requires a valid Canvas API token to be set in the `CANVAS_ACCESS_TOKEN` environment variable.
  */
 async function getParticipants() {
   /** @type {Participant[]} */
-  let allParticipants = []; // Reset data for each execution
+  let allParticipants = []; // Initialize fresh participant list
 
   for (const discussionTopicId of discussionTopics) {
     try {
@@ -76,13 +83,12 @@ async function getParticipants() {
 
       const discussionData = response.data;
 
-      // Extract participants
+      // Map Canvas participant objects to simplified structure
       const participants = discussionData.participants.map((participant) => ({
         user_id: participant.id.toString(),
         username: participant.display_name,
       }));
 
-      // Add participants to the array
       allParticipants.push(...participants);
     } catch (error) {
       console.error(

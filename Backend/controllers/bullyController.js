@@ -1,6 +1,21 @@
-const Bully = require('../models/Bully');
-const authMiddleware = require('../middleware/authMiddleware'); // Import authentication
+/**
+ * @fileoverview Controller for managing bully reports.
+ * Includes functions to retrieve all reports and add new ones.
+ * Authentication middleware is applied to all routes.
+ */
 
+const Bully = require('../models/Bully');
+const authMiddleware = require('../middleware/authMiddleware');
+
+/**
+ * Retrieves all bully reports from the database.
+ *
+ * @function getBullyReports
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Responds with an array of bully report objects.
+ */
 const getBullyReports = async (req, res) => {
   try {
     const reports = await Bully.find();
@@ -10,6 +25,18 @@ const getBullyReports = async (req, res) => {
   }
 };
 
+/**
+ * Adds a new bully report to the database.
+ *
+ * @function addBullyReport
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - The request payload containing report details.
+ * @param {string} req.body.description - Description of the bullying incident.
+ * @param {string} req.body.reportedBy - Identifier of the reporter.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Responds with the newly created report or an error message.
+ */
 const addBullyReport = async (req, res) => {
   const { description, reportedBy } = req.body;
 
@@ -26,7 +53,11 @@ const addBullyReport = async (req, res) => {
   }
 };
 
-// Apply authentication middleware to routes
+/**
+ * Exports the route handlers with authentication middleware applied.
+ *
+ * @module BullyController
+ */
 module.exports = {
   getBullyReports: [authMiddleware, getBullyReports],
   addBullyReport: [authMiddleware, addBullyReport],

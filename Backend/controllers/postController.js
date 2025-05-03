@@ -2,27 +2,30 @@ const mongoose = require('mongoose');
 const Post = require('../models/Post');
 const User = require('../models/User');
 
-// @route   POST /api/posts
-// @desc    Create a new post
-// @access  Private
+/**
+ * Create a new post.
+ * 
+ * @route POST /api/posts
+ * @access Private
+ * @param {Object} req - Express request object containing post_id, content, and author_id
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON representation of the newly created post or an error
+ */
 const createPost = async (req, res) => {
     const { post_id, content, author_id } = req.body;
 
-    // Ensure all required fields are provided
     if (!content || !author_id) {
         return res.status(400).json({ error: "Content and author are required" });
     }
 
     try {
-
-        // Ensure the author exists in the users collection
         const userExists = await User.findOne({ user_id: author_id });
         if (!userExists) {
             return res.status(404).json({ error: "Author not found in users collection" });
         }
 
         const newPost = new Post({
-            post_id,  // Set the unique post_id here
+            post_id,
             content,
             author: author_id,
         });
@@ -35,9 +38,15 @@ const createPost = async (req, res) => {
     }
 };
 
-// @route   GET /api/posts
-// @desc    Get all posts
-// @access  Public
+/**
+ * Retrieve all posts.
+ * 
+ * @route GET /api/posts
+ * @access Public
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object[]} List of posts or error
+ */
 const getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find();
@@ -47,9 +56,15 @@ const getAllPosts = async (req, res) => {
     }
 };
 
-// @route   GET /api/posts/:id
-// @desc    Get a single post by ID
-// @access  Public
+/**
+ * Retrieve a single post by MongoDB ID.
+ * 
+ * @route GET /api/posts/:id
+ * @access Public
+ * @param {Object} req - Express request object with `id` param
+ * @param {Object} res - Express response object
+ * @returns {Object} Post object or error
+ */
 const getPost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -62,9 +77,15 @@ const getPost = async (req, res) => {
     }
 };
 
-// @route   PUT /api/posts/:id
-// @desc    Update a post by ID
-// @access  Private
+/**
+ * Update a post by ID.
+ * 
+ * @route PUT /api/posts/:id
+ * @access Private
+ * @param {Object} req - Express request object with `id` param and updated content
+ * @param {Object} res - Express response object
+ * @returns {Object} Updated post or error
+ */
 const updatePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -87,10 +108,15 @@ const updatePost = async (req, res) => {
     }
 };
 
-
-// @route   DELETE /api/posts/:id
-// @desc    Delete a post by ID
-// @access  Private
+/**
+ * Delete a post by ID.
+ * 
+ * @route DELETE /api/posts/:id
+ * @access Private
+ * @param {Object} req - Express request object with `id` param
+ * @param {Object} res - Express response object
+ * @returns {Object} Deletion confirmation or error
+ */
 const deletePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -106,9 +132,15 @@ const deletePost = async (req, res) => {
     }
 };
 
-// @route GET /api/posts/canvas-id/post_id
-// @desc Get post by its canvas id
-// @access Private
+/**
+ * Retrieve a post using its canvas-specific ID.
+ * 
+ * @route GET /api/posts/canvas-id/:post_id
+ * @access Private
+ * @param {Object} req - Express request object with `post_id` param
+ * @param {Object} res - Express response object
+ * @returns {Object} Post object or error
+ */
 const getPostByCanvasId = async (req, res) => {
     try {
         const post = await Post.findOne({ post_id: req.params.post_id });
@@ -119,11 +151,17 @@ const getPostByCanvasId = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
-// @route GET /api/posts/search
-// @desc Get posts containing keyword
-// @access Private 
+/**
+ * Search posts by keyword.
+ * 
+ * @route GET /api/posts/search
+ * @access Private
+ * @param {Object} req - Express request object with `keyword` query parameter
+ * @param {Object} res - Express response object
+ * @returns {Object[]} List of matched posts or error
+ */
 const searchPosts = async (req, res) => {
     try {
         const { keyword } = req.query;
@@ -136,7 +174,6 @@ const searchPosts = async (req, res) => {
             return res.json([]);
         }
 
-        // search for strings
         const fields = Object.keys(sampleDoc.toObject()).filter(field => 
             typeof sampleDoc[field] === "string"
         );
@@ -147,7 +184,6 @@ const searchPosts = async (req, res) => {
             }))
         };
 
-        // Check if the keyword is a valid ObjectId to search for author
         if (mongoose.Types.ObjectId.isValid(keyword)) {
             query.$or.push({ author: new mongoose.Types.ObjectId(keyword) });
         }
@@ -160,4 +196,4 @@ const searchPosts = async (req, res) => {
     }
 };
 
-module.exports = { createPost, getAllPosts, getPost, updatePost, deletePost,  getPostByCanvasId, searchPosts};
+module.exports = { createPost, getAllPosts, getPost, updatePost, deletePost, getPostByCanvasId, searchPosts };

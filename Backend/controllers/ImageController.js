@@ -1,6 +1,12 @@
 const ImageModel = require('../models/Image');
 
-// Upload Image
+/**
+ * @function uploadImage
+ * @description Handles image upload, converts it to Base64, and stores it in the database.
+ * @param {Object} req - Express request object (expects `req.file` and optional `req.body.imageType`)
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message and saved image ID or error message
+ */
 exports.uploadImage = async (req, res) => {
     try {
         console.log('Received file:', req.file);
@@ -15,7 +21,7 @@ exports.uploadImage = async (req, res) => {
         const newImage = new ImageModel({
             name: req.file.originalname,
             img: `data:image/png;base64,${base64Image}`,
-            imageType: req.body.imageType || 'other' // Accepts imageType from request body
+            imageType: req.body.imageType || 'other'
         });
 
         await newImage.save();
@@ -27,7 +33,13 @@ exports.uploadImage = async (req, res) => {
     }
 };
 
-// Get Image by ID
+/**
+ * @function getImage
+ * @description Retrieves a single image by its ID from the database.
+ * @param {Object} req - Express request object (expects `req.params.id`)
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with image data or error message
+ */
 exports.getImage = async (req, res) => {
     try {
         const image = await ImageModel.findById(req.params.id);
@@ -38,7 +50,7 @@ exports.getImage = async (req, res) => {
 
         res.json({
             name: image.name,
-            img: image.img, // Base64-encoded image
+            img: image.img,
             imageType: image.imageType,
             timestamp: image.timestamp
         });
@@ -49,33 +61,42 @@ exports.getImage = async (req, res) => {
     }
 };
 
-// Get All Images
+/**
+ * @function getAllImages
+ * @description Retrieves all images stored in the database.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON array of all images with metadata
+ */
 exports.getAllImages = async (req, res) => {
     try {
-        // Fetch all images from the database
         const images = await ImageModel.find({}, 'name img imageType timestamp');
 
         const imagesData = images.map(image => ({
             name: image.name,
-            img: image.img, // Base64-encoded image
+            img: image.img,
             imageType: image.imageType,
             timestamp: image.timestamp
         }));
 
-        res.json(imagesData); // Send the array of images as the response
+        res.json(imagesData);
     } catch (error) {
         console.error('Retrieve All Error:', error);
         res.status(500).json({ error: 'Failed to retrieve images' });
     }
 };
 
-// Get the most recent image for each imageType
+/**
+ * @function getLatestImagesByType
+ * @description Retrieves the most recent image for each image type.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON array of latest images grouped by image type
+ */
 exports.getLatestImagesByType = async (req, res) => {
     try {
         const latestImages = await ImageModel.aggregate([
-            {
-                $sort: { timestamp: -1 } // Sort images by timestamp in descending order (most recent first)
-            },
+            { $sort: { timestamp: -1 } },
             {
                 $group: {
                     _id: "$imageType",
@@ -104,7 +125,13 @@ exports.getLatestImagesByType = async (req, res) => {
     }
 };
 
-// Delete Image by ID
+/**
+ * @function deleteImage
+ * @description Deletes an image by its ID from the database.
+ * @param {Object} req - Express request object (expects `req.params.id`)
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message or error message
+ */
 exports.deleteImage = async (req, res) => {
     try {
         const deletedImage = await ImageModel.findByIdAndDelete(req.params.id);

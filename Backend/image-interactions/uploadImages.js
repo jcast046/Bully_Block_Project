@@ -8,9 +8,10 @@ const path = require('path');
 const ImageModel = require('../models/Image');
 
 /**
- * Predefined image upload list with associated imageTypes.
- * @type {Array<{ filePath: string, imageType: string }>}.
- * Sorting by `imageType` (or `filePath`) to ensure order remains consistent.
+ * Predefined list of image files and their corresponding types.
+ * These are uploaded in a consistent order for reproducibility.
+ * 
+ * @type {Array<{ filePath: string, imageType: string }>}
  */
 const imageList = [
     { filePath: 'entity_distribution.png', imageType: 'entity_distribution' },
@@ -24,32 +25,42 @@ const imageList = [
 ];
 
 /**
+ * Uploads analysis images to MongoDB in a consistent order.
+ *
+ * Steps:
+ * 1. Sorts the image list by filename to ensure deterministic order.
+ * 2. Reads each image from disk and encodes it in base64.
+ * 3. Stores each image with metadata in MongoDB using the ImageModel.
+ *
  * @async
  * @function uploadImages
- * @description Uploads analysis images to MongoDB in the exact same order every time.
- * @returns {Promise<void>} Resolves once all images are uploaded.
+ * @returns {Promise<void>} A promise that resolves when all images have been uploaded.
  */
 async function uploadImages() {
     try {
         console.log("Starting image upload...");
 
-        const aiDir = path.join(__dirname,'..', '..', 'ai_algorithms');
+        // Define the path to the AI-generated images directory
+        const aiDir = path.join(__dirname, '..', '..', 'ai_algorithms');
         let uploadedCount = 0;
 
-        // Sorting the images by file name to enforce consistent order
+        // Sort images alphabetically by file path to ensure consistent upload order
         const sortedImageList = imageList.sort((a, b) => {
-            return a.filePath.localeCompare(b.filePath);  // Sort by file name
+            return a.filePath.localeCompare(b.filePath);
         });
 
         for (const { filePath, imageType } of sortedImageList) {
             const fullPath = path.join(aiDir, filePath);
             const imageName = path.basename(fullPath);
 
-            // Read and encode image
+            // Read image file into buffer
             const imageBuffer = fs.readFileSync(fullPath);
+
+            // Encode image to base64
             const base64Image = imageBuffer.toString('base64');
             const mimeType = 'image/png';
 
+            // Save to MongoDB
             await ImageModel.create({
                 name: imageName,
                 img: `data:${mimeType};base64,${base64Image}`,

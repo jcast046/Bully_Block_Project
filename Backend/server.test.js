@@ -10,6 +10,9 @@ jest.mock('path');
 jest.mock('https');
 jest.mock('./canvas-interactions/fetchData');
 jest.mock('./incident-interactions/uploadIncidents');
+jest.mock('./canvas-interactions/uploadDiscussions');
+jest.mock('./canvas-interactions/uploadParticipants');
+jest.mock('./image-interactions/uploadImages');
 jest.mock('./routes/userRoutes', () => jest.fn());
 jest.mock('./routes/schoolRoutes', () => jest.fn());
 jest.mock('./routes/bullyRoutes', () => jest.fn());
@@ -29,6 +32,9 @@ const fs = require('fs');
 const https = require('https');
 const fetchData = require('./canvas-interactions/fetchData');
 const uploadIncidents = require('./incident-interactions/uploadIncidents');
+const uploadDiscussions = require('./canvas-interactions/uploadDiscussions');
+const uploadParticipants = require('./canvas-interactions/uploadParticipants');
+const uploadImages = require('./image-interactions/uploadImages');
 
 describe('server.js', () => {
   let originalEnv;
@@ -43,7 +49,11 @@ describe('server.js', () => {
     jest.resetModules();
   });
 
-  test('should start HTTP server and call fetchData/uploadIncidents if connected', async () => {
+  /**
+   * Test the behavior of the server when it starts an HTTP server
+   * and calls relevant functions for data fetching and uploading.
+   */
+  test('should start HTTP server and call fetchData/uploadIncidents/uploadImages if connected', async () => {
     const mockListen = jest.fn((port, cb) => cb());
     const mockApp = { listen: mockListen, use: jest.fn(), get: jest.fn() };
     jest.spyOn(require('express'), 'default' in require('express') ? 'default' : 'default').mockReturnValue(mockApp);
@@ -51,7 +61,6 @@ describe('server.js', () => {
     process.env.MONGO_URI = 'mongodb://test';
     process.env.USE_HTTPS = 'false';
     process.env.PORT = '4000';
-    process.env.CANVAS_ACCESS_TOKEN = 'token123';
 
     // Fake mongoose connection resolve
     mongoose.connect.mockResolvedValueOnce();
@@ -68,10 +77,14 @@ describe('server.js', () => {
     // Fast forward time to test setTimeout/setInterval
     jest.advanceTimersByTime(300000);
     expect(uploadIncidents).toHaveBeenCalledTimes(1);
+    expect(uploadImages).toHaveBeenCalledTimes(1);
 
     jest.useRealTimers();
   });
 
+  /**
+   * Test the server when it starts using HTTPS instead of HTTP.
+   */
   test('should start HTTPS server when USE_HTTPS=true', async () => {
     const mockCreateServer = {
       listen: jest.fn((port, cb) => cb())
@@ -98,6 +111,9 @@ describe('server.js', () => {
     expect(mockCreateServer.listen).toHaveBeenCalled();
   });
 
+  /**
+   * Test the server when it fails to connect to MongoDB.
+   */
   test('should exit process on MongoDB connection failure', async () => {
     const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {});
     mongoose.connect.mockRejectedValueOnce(new Error('Connection failed'));
@@ -108,6 +124,9 @@ describe('server.js', () => {
     expect(mockExit).toHaveBeenCalledWith(1);
   });
 
+  /**
+   * Test the server logs a warning if no Canvas access token is provided.
+   */
   test('should log warning if no CANVAS_ACCESS_TOKEN is provided', async () => {
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     const mockApp = { listen: jest.fn((port, cb) => cb()), use: jest.fn(), get: jest.fn() };

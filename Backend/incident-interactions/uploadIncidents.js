@@ -8,21 +8,26 @@ const path = require('path');
 const Incident = require('../models/Incident');
 
 /**
- * Upload new incidents from a JSON file to MongoDB while avoiding duplicates.
- * Only incidents with "low" or "high" severity levels will be uploaded.
- * Duplicates are checked using the `incidentId` field.
+ * Uploads new incidents from a local JSON file into MongoDB, filtering and deduplicating records.
+ *
+ * Workflow:
+ * 1. Reads `incident_reports.json` from the `ai_algorithms` directory.
+ * 2. Filters incidents to only include those with `"low"` or `"high"` severity.
+ * 3. Checks for duplicates using the `incidentId` field.
+ * 4. Adds new incidents to the database and skips any duplicates or unsupported severities.
  *
  * @async
  * @function uploadIncidents
- * @returns {Promise<void>} Resolves once all new incidents are uploaded or skipped.
+ * @returns {Promise<void>} A promise that resolves when all valid incidents are uploaded.
  */
 async function uploadIncidents() {
     try {
         console.log("Starting incident upload...");
 
+        // Absolute path to the JSON file containing incidents
         const filePath = path.join(__dirname, '..', '..', 'ai_algorithms', 'incident_reports.json');
 
-        // Read the JSON file contents
+        // Read file and parse JSON content
         const fileData = fs.readFileSync(filePath, 'utf8');
         const incidents = JSON.parse(fileData);
 
@@ -39,20 +44,20 @@ async function uploadIncidents() {
                 status
             } = incidentData;
 
-            // Skip if severity level is not "low" or "high"
+            // Only upload incidents with severity "low" or "high"
             if (severity_level !== 'low' && severity_level !== 'high') {
                 skippedCount++;
                 continue;
             }
 
-            // Check for existing incident by incidentId
+            // Skip if incident already exists based on incidentId
             const existing = await Incident.findOne({ incidentId: incident_id });
             if (existing) {
                 skippedCount++;
                 continue;
             }
 
-            // Insert new incident if not a duplicate
+            // Create and save new incident to MongoDB
             await Incident.create({
                 contentId: content_id,
                 incidentId: incident_id,

@@ -26,8 +26,8 @@ const datasetFilePath = path.join(__dirname, '../../ai_algorithms/initial_datase
  */
 
 /**
- * Ensure the directory for a file exists.
- * @param {string} filePath - The path to the file.
+ * Ensures the directory for a given file path exists.
+ * @param {string} filePath - The file path whose directory should be created.
  * @returns {void}
  */
 function ensureDirectoryExists(filePath) {
@@ -38,8 +38,8 @@ function ensureDirectoryExists(filePath) {
 }
 
 /**
- * Loads existing dataset from a JSON file.
- * @returns {DiscussionPost[]} Array of discussion entries.
+ * Loads an existing dataset from a JSON file.
+ * @returns {DiscussionPost[]} - Array of previously saved discussion entries.
  */
 function loadDataset() {
     try {
@@ -54,31 +54,29 @@ function loadDataset() {
 }
 
 /**
- * Converts timestamp to the required 'date' format.
- * @param {string} timestamp - The ISO 8601 timestamp.
- * @returns {string} - The converted date in 'YYYY-MM-DDTHH:mm:ssZ' format.
+ * Converts a timestamp to ISO 8601 format.
+ * @param {string} timestamp - The timestamp to convert.
+ * @returns {string} - The converted timestamp in 'YYYY-MM-DDTHH:mm:ssZ' format.
  */
 function convertTimestampToDate(timestamp) {
     const date = new Date(timestamp);
-    return date.toISOString(); // Returns the date in the correct format
+    return date.toISOString();
 }
 
 /**
- * Replaces any left or right single quotation marks with a straight single quotation mark,
- * and removes any HTML tags. It also includes special characters that could affect text processing.
- * @param {string} content - The content to sanitize.
+ * Sanitizes a content string by removing HTML and problematic characters.
+ * @param {string} content - The raw content string.
  * @returns {string} - The sanitized content.
  */
 function sanitizeContent(content) {
-    // Remove HTML tags, and replace both left and right single quotation marks with straight single quotation marks
     return content
-        .replace(/<[^>]+>/g, '') // Remove all HTML tags
-        .replace(/‘|’/g, "'") // Replace both left and right single quotation marks with a straight single quotation mark
-        .replace(/[^\x00-\x7F]/g, ""); // Remove non-ASCII characters
+        .replace(/<[^>]+>/g, '')        // Remove HTML tags
+        .replace(/‘|’/g, "'")           // Replace single curly quotes with straight quote
+        .replace(/[^\x00-\x7F]/g, "");  // Remove non-ASCII characters
 }
 
 /**
- * Fetches discussion posts and appends only non-duplicate data to initial_datasets.json.
+ * Fetches Canvas discussions and stores non-duplicate posts and comments in a JSON dataset.
  * @returns {Promise<void>}
  */
 async function getDiscussions() {
@@ -101,14 +99,16 @@ async function getDiscussions() {
 
             discussionData.view.forEach((post) => {
                 if (!post.id || !post.message) return;
+
                 /** @type {DiscussionPost} */
                 const postEntry = {
                     contentType: 'post',
                     post_id: post.id.toString(),
-                    content: sanitizeContent(post.message),  // Sanitize the content
+                    content: sanitizeContent(post.message),
                     author_id: post.user_id ? post.user_id.toString() : null,
-                    date: convertTimestampToDate(post.created_at), // Use the conversion function here
+                    date: convertTimestampToDate(post.created_at),
                 };
+
                 if (!existingDataset.some(entry => entry.post_id === postEntry.post_id)) {
                     extractedData.push(postEntry);
                 }
@@ -116,15 +116,17 @@ async function getDiscussions() {
                 if (Array.isArray(post.replies)) {
                     post.replies.forEach((reply) => {
                         if (!reply.id || !reply.message) return;
+
                         /** @type {DiscussionPost} */
                         const replyEntry = {
                             contentType: 'comment',
                             comment_id: reply.id.toString(),
-                            content: sanitizeContent(reply.message),  // Sanitize the content
+                            content: sanitizeContent(reply.message),
                             post_id: post.id.toString(),
                             author_id: reply.user_id ? reply.user_id.toString() : null,
-                            date: convertTimestampToDate(reply.created_at), // Use the conversion function here
+                            date: convertTimestampToDate(reply.created_at),
                         };
+
                         if (!existingDataset.some(entry => entry.comment_id === replyEntry.comment_id)) {
                             extractedData.push(replyEntry);
                         }
@@ -136,7 +138,7 @@ async function getDiscussions() {
         }
     }
 
-    /* Commented out code related to messages
+    /*
     try {
         const messageResponse = await axios.get(`${url}/courses/${courseId}/conversations`, {
             headers: { Authorization: `Bearer ${accessToken}` },
@@ -150,10 +152,10 @@ async function getDiscussions() {
             const messageEntry = {
                 contentType: 'message',
                 message_id: message.id.toString(),
-                content: sanitizeContent(message.body),  // Sanitize the content
+                content: sanitizeContent(message.body),
                 author_id: message.sender_id ? message.sender_id.toString() : null,
                 recipient: message.recipient_id ? message.recipient_id.toString() : null,
-                date: convertTimestampToDate(message.created_at), // Convert the timestamp to date
+                date: convertTimestampToDate(message.created_at),
             };
             if (!existingDataset.some(entry => entry.message_id === messageEntry.message_id)) {
                 extractedData.push(messageEntry);
@@ -164,13 +166,13 @@ async function getDiscussions() {
     }
     */
 
-    /* Sorting by contentType, ensuring posts come before comments, and comments before messages
+    /*
     extractedData.sort((a, b) => {
-        const order = { post: 1, comment: 2 }; // Removed 'message' from the sorting order
+        const order = { post: 1, comment: 2 }; // Removed 'message' for now
         return order[a.contentType] - order[b.contentType];
-    }); */
+    });
+    */
 
-    // Write the data to the JSON file if new data is added
     if (extractedData.length > existingDataset.length) {
         ensureDirectoryExists(datasetFilePath);
         fs.writeFileSync(datasetFilePath, JSON.stringify(extractedData, null, 2));

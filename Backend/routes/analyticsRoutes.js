@@ -6,13 +6,29 @@ const {
   getDatesHighestBullying,
 } = require("../controllers/analyticsController");
 
-// Get frequent bullies
+/**
+ * @route   GET /frequent-bullies
+ * @desc    Retrieve a list of users frequently involved in bullying incidents
+ * @access  Public
+ */
 router.get("/frequent-bullies", getFrequentBullies);
 
-// Get schools with most bullying
+/**
+ * @route   GET /schools-bullying
+ * @desc    Retrieve schools with the highest number of reported bullying incidents
+ * @access  Public
+ */
 router.get("/schools-bullying", getSchoolsBullying);
 
-// Get dates with highest bullying rates
+/**
+ * @route   GET /dates-bullying
+ * @desc    Retrieve dates with the highest number of reported bullying incidents
+ * @access  Public
+ */
 router.get("/dates-bullying", getDatesHighestBullying);
 
+/**
+ * Export the analytics-related route definitions.
+ * @module routes/analytics
+ */
 module.exports = router;
