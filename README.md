@@ -52,7 +52,7 @@ The **Cyberbullying Detection System** is a web application designed to enhance 
 - To start the backend server:
   - Before starting the backend, ensure that the AI dependencies, Node.js and npm are installed.
     
-  - In addition A .env file is required for environment variables. It should follow this format:
+  - In addition a .env file is required for environment variables. It should follow this format:
       - JWT_SECRET=BullyBlockKey
       - PORT=3001
       - USE_HTTPS=false
